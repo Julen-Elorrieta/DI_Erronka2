@@ -15,7 +15,7 @@ export class CentersService {
   constructor(private http: HttpClient) {}
 
   /**
-   * Obtiene todos los centros educativos con filtros
+   * Ikastetxe guztiak iragazkiekin lortzen ditu
    */
   getCenters(filter?: CenterFilter): Observable<EducationalCenter[]> {
     if (this.USE_MOCK) {
@@ -28,7 +28,7 @@ export class CentersService {
   }
 
   /**
-   * Obtiene un centro por ID
+   * Ikastetxea IDaren arabera lortzen du
    */
   getCenterById(id: string): Observable<EducationalCenter | null> {
     if (this.USE_MOCK) {
@@ -41,17 +41,17 @@ export class CentersService {
   }
 
   /**
-   * Obtiene valores únicos de DTITUC (tipos de titularidad)
+   * DTITUC balio bakarrak lortzen ditu (titulartasun motak)
    */
   getTitularidades(): Observable<string[]> {
     if (this.USE_MOCK) {
-      return of(['Público', 'Privado', 'Concertado']);
+      return of(['Publikoa', 'Pribatua', 'Itundua']);
     }
     return this.http.get<string[]>(`${this.API_URL}/titularidades`);
   }
 
   /**
-   * Obtiene valores únicos de DTERR (territorios)
+   * DTERR balio bakarrak lortzen ditu (lurraldeak)
    */
   getTerritorios(): Observable<string[]> {
     if (this.USE_MOCK) {
@@ -61,7 +61,7 @@ export class CentersService {
   }
 
   /**
-   * Obtiene valores únicos de municipios por territorio
+   * Lurraldearen araberako udalerriak lortzen ditu
    */
   getMunicipios(territorio?: string): Observable<string[]> {
     if (this.USE_MOCK) {
@@ -75,7 +75,7 @@ export class CentersService {
         return of(municipios[territorio]).pipe(delay(100));
       }
       
-      // Retornar todos los municipios
+      // Udalerri guztiak itzuli
       const allMunicipios = Object.values(municipios).flat();
       return of(allMunicipios).pipe(delay(100));
     }
@@ -113,7 +113,7 @@ export class CentersService {
   }
 
   /**
-   * MOCK: Datos de centros del País Vasco
+   * MOCK: Euskal Herriko ikastetxeen datuak
    */
   private getMockCenters(): Observable<EducationalCenter[]> {
     const mockCenters: EducationalCenter[] = [
@@ -121,10 +121,10 @@ export class CentersService {
         id: '1',
         code: '014777',
         name: 'CIFP Elorrieta-Errekamari LHII',
-        dtituc: 'Público',
+        dtituc: 'Publikoa',
         dterr: 'Bizkaia',
         dmunic: 'Bilbao',
-        address: 'Calle Lehendakari Aguirre, 184',
+        address: 'Lehendakari Aguirre kalea, 184',
         postalCode: '48015',
         phone: '944765000',
         email: 'info@elorrieta-errekamari.hezkuntza.net',
@@ -134,7 +134,7 @@ export class CentersService {
         id: '2',
         code: '014775',
         name: 'CIFP Txurdinaga LHII',
-        dtituc: 'Público',
+        dtituc: 'Publikoa',
         dterr: 'Bizkaia',
         dmunic: 'Bilbao',
         address: 'Gabriel Aresti, 5',
@@ -146,7 +146,7 @@ export class CentersService {
         id: '3',
         code: '014780',
         name: 'IES Miguel de Unamuno BHI',
-        dtituc: 'Público',
+        dtituc: 'Publikoa',
         dterr: 'Bizkaia',
         dmunic: 'Bilbao',
         address: 'Elcano, 16',
@@ -157,7 +157,7 @@ export class CentersService {
         id: '4',
         code: '014201',
         name: 'Colegio Vizcaya Ikastetxea',
-        dtituc: 'Concertado',
+        dtituc: 'Itundua',
         dterr: 'Bizkaia',
         dmunic: 'Bilbao',
         address: 'Campo Volantín, 18',
@@ -168,7 +168,7 @@ export class CentersService {
         id: '5',
         code: '014350',
         name: 'Colegio San Viator Ikastetxea',
-        dtituc: 'Concertado',
+        dtituc: 'Itundua',
         dterr: 'Bizkaia',
         dmunic: 'Basauri',
         address: 'Uribarri, 26',
@@ -179,7 +179,7 @@ export class CentersService {
         id: '6',
         code: '015001',
         name: 'CIFP Usurbil LHII',
-        dtituc: 'Público',
+        dtituc: 'Publikoa',
         dterr: 'Gipuzkoa',
         dmunic: 'Donostia-San Sebastián',
         address: 'Zubimusu, 8',
@@ -190,7 +190,7 @@ export class CentersService {
         id: '7',
         code: '015100',
         name: 'IES Usandizaga-Peñaflorida-Amara BHI',
-        dtituc: 'Público',
+        dtituc: 'Publikoa',
         dterr: 'Gipuzkoa',
         dmunic: 'Donostia-San Sebastián',
         address: 'Paseo de Anoeta, 30',
@@ -201,7 +201,7 @@ export class CentersService {
         id: '8',
         code: '010100',
         name: 'CIFP Ciudad Jardín LHII',
-        dtituc: 'Público',
+        dtituc: 'Publikoa',
         dterr: 'Araba/Álava',
         dmunic: 'Vitoria-Gasteiz',
         address: 'Ciudad Jardín, 15',
@@ -212,7 +212,7 @@ export class CentersService {
         id: '9',
         code: '010200',
         name: 'IES Federico Baraibar BHI',
-        dtituc: 'Público',
+        dtituc: 'Publikoa',
         dterr: 'Araba/Álava',
         dmunic: 'Vitoria-Gasteiz',
         address: 'Nieves Cano, 14',
@@ -223,7 +223,7 @@ export class CentersService {
         id: '10',
         code: '014800',
         name: 'CIFP Nicolás Larburu LHII',
-        dtituc: 'Público',
+        dtituc: 'Publikoa',
         dterr: 'Bizkaia',
         dmunic: 'Barakaldo',
         address: 'Maestro Zubeldia, 3',
@@ -234,10 +234,10 @@ export class CentersService {
         id: '11',
         code: '014850',
         name: 'Colegio Salesianos Deusto',
-        dtituc: 'Concertado',
+        dtituc: 'Itundua',
         dterr: 'Bizkaia',
         dmunic: 'Bilbao',
-        address: 'Avda. Lehendakari Aguirre, 75',
+        address: 'Lehendakari Aguirre etorbidea, 75',
         postalCode: '48014',
         coordinates: { latitude: 43.2698, longitude: -2.9445 }
       },
@@ -245,7 +245,7 @@ export class CentersService {
         id: '12',
         code: '015150',
         name: 'Colegio La Salle Donostia',
-        dtituc: 'Concertado',
+        dtituc: 'Itundua',
         dterr: 'Gipuzkoa',
         dmunic: 'Donostia-San Sebastián',
         address: 'Aldakonea, 4',
@@ -256,7 +256,7 @@ export class CentersService {
         id: '13',
         code: '014810',
         name: 'IES Ibarrekolanda BHI',
-        dtituc: 'Público',
+        dtituc: 'Publikoa',
         dterr: 'Bizkaia',
         dmunic: 'Bilbao',
         address: 'Ibarrekolanda, 97',
@@ -267,7 +267,7 @@ export class CentersService {
         id: '14',
         code: '015200',
         name: 'IES Eibar BHI',
-        dtituc: 'Público',
+        dtituc: 'Publikoa',
         dterr: 'Gipuzkoa',
         dmunic: 'Eibar',
         address: 'Otaola, 29',
@@ -278,7 +278,7 @@ export class CentersService {
         id: '15',
         code: '010300',
         name: 'Colegio Urkide Ikastetxea',
-        dtituc: 'Privado',
+        dtituc: 'Pribatua',
         dterr: 'Araba/Álava',
         dmunic: 'Vitoria-Gasteiz',
         address: 'Landázuri, 7',

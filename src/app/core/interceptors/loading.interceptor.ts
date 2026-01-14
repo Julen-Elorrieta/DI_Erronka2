@@ -2,17 +2,17 @@ import { HttpInterceptorFn } from '@angular/common/http';
 import { finalize } from 'rxjs';
 
 /**
- * Interceptor para mostrar indicador de carga durante peticiones HTTP
- * Útil para mostrar spinners o indicadores de progreso
+ * HTTP eskaeretan karga adierazlea erakusteko interceptorra
+ * Spinner-ak edo aurrerapen adierazleak erakusteko erabilgarria
  */
 let activeRequests = 0;
 
 export const loadingInterceptor: HttpInterceptorFn = (req, next) => {
   activeRequests++;
   
-  // TODO: Emitir evento para mostrar loading spinner
+  // TODO: Karga spinner-a erakusteko gertaera igorri
   if (activeRequests === 1) {
-    console.log('🔄 Cargando...');
+    console.log('[INFO] Kargatzen...');
   }
 
   return next(req).pipe(
@@ -20,8 +20,8 @@ export const loadingInterceptor: HttpInterceptorFn = (req, next) => {
       activeRequests--;
       
       if (activeRequests === 0) {
-        console.log('✅ Carga completada');
-        // TODO: Emitir evento para ocultar loading spinner
+        console.log('[ONDO] Karga osatuta');
+        // TODO: Karga spinner-a ezkutatzeko gertaera igorri
       }
     })
   );

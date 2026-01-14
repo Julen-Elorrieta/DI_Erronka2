@@ -11,29 +11,29 @@ import { roleGuard } from './core/guards/role.guard';
 import { UserRole } from './core/models/user.model';
 
 export const routes: Routes = [
-  // Ruta raíz redirige a login
+  // Erro bidea login-era birbideratzen du
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   
-  // Login - solo accesible si NO está autenticado
+  // Login - autentifikatu GABE badago bakarrik eskuragarri
   {
     path: 'login',
     component: LoginComponent,
     canActivate: [noAuthGuard]
   },
   
-  // Rutas protegidas - requieren autenticación
+  // Babestutako bideak - autentifikazioa behar dute
   {
     path: '',
     component: LayoutComponent,
     canActivate: [authGuard],
     children: [
-      // Dashboard - accesible para todos los roles
+      // Dashboard - rol guztientzat eskuragarri
       {
         path: 'dashboard',
         component: DashboardComponent
       },
       
-      // Gestión de usuarios - solo GOD y ADMIN
+      // Erabiltzaileen kudeaketa - GOD eta ADMIN bakarrik
       {
         path: 'users',
         component: UsersComponent,
@@ -41,13 +41,13 @@ export const routes: Routes = [
         data: { roles: [UserRole.GOD, UserRole.ADMIN] }
       },
       
-      // Reuniones y centros - todos los roles
+      // Bilerak eta ikastetxeak - rol guztiak
       {
         path: 'meetings',
         component: MeetingsComponent
       },
       
-      // Horario - profesores y estudiantes
+      // Ordutegia - irakasleak eta ikasleak
       {
         path: 'schedule',
         component: ScheduleComponent,
@@ -55,13 +55,13 @@ export const routes: Routes = [
         data: { roles: [UserRole.GOD, UserRole.ADMIN, UserRole.TEACHER, UserRole.STUDENT] }
       },
       
-      // Perfil - todos los roles
+      // Profila - rol guztiak
       {
         path: 'profile',
         component: ProfileComponent
       },
       
-      // Alumnos - profesores pueden ver lista de alumnos
+      // Ikasleak - irakasleek ikasleen zerrenda ikusi dezakete
       {
         path: 'students',
         component: UsersComponent,
@@ -74,6 +74,6 @@ export const routes: Routes = [
     ]
   },
   
-  // Ruta 404 - redirige a login
+  // 404 bidea - login-era birbideratzen du
   { path: '**', redirectTo: 'login' }
 ];

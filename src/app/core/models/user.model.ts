@@ -13,7 +13,7 @@ export interface User {
   surname: string;
   role: UserRole;
   photo?: string;
-  // Campos específicos de estudiantes
+  // Ikasleen eremu espezifikoak
   cycle?: string;
   course?: string;
   isDual?: boolean;

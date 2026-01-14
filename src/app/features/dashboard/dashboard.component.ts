@@ -49,13 +49,13 @@ export class DashboardComponent implements OnInit {
   }
 
   private loadStats(): void {
-    // Cargar estadísticas de usuarios
+    // Erabiltzaileen estatistikak kargatu
     this.usersService.getStats().subscribe(stats => {
       this.totalStudents.set(stats.totalStudents);
       this.totalTeachers.set(stats.totalTeachers);
     });
 
-    // Cargar reuniones de hoy
+    // Gaurko bilerak kargatu
     this.meetingsService.getTodayMeetings().subscribe(meetings => {
       this.todayMeetings.set(meetings.length);
     });

@@ -1,6 +1,6 @@
 /**
- * Configuración de entorno de DESARROLLO
- * Base de datos: elordb en servidor 10.5.104.100
+ * GARAPEN ingurunearen konfigurazioa
+ * Datu-basea: elordb 10.5.104.100 zerbitzarian
  */
 export const environment = {
   production: false,
@@ -12,7 +12,7 @@ export const environment = {
   mapbox: {
     accessToken: 'YOUR_MAPBOX_TOKEN_HERE'
   },
-  // Flags para desarrollo
-  enableMockData: false, // Cambiar a true para usar datos mock
+  // Garapenerako flag-ak
+  enableMockData: false, // true jarri mock datuak erabiltzeko
   enableDebugLogs: true
 };

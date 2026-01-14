@@ -4,10 +4,10 @@ import { AuthService } from '../services/auth.service';
 import { UserRole } from '../models/user.model';
 
 /**
- * Guard para control de acceso basado en roles
- * Verifica que el usuario tenga uno de los roles permitidos para acceder a la ruta
+ * Roletan oinarritutako sarbide kontrolerako guardarra
+ * Erabiltzaileak bideari sartzeko beharrezko roletako bat duela egiaztatzen du
  * 
- * Uso en rutas:
+ * Bideetan erabiltzeko:
  * {
  *   path: 'users',
  *   component: UsersComponent,
@@ -22,14 +22,14 @@ export const roleGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
   const requiredRoles = route.data['roles'] as UserRole[];
   
   if (!requiredRoles || requiredRoles.length === 0) {
-    console.warn('⚠️ RoleGuard: No se especificaron roles requeridos');
+    console.warn('[ABISUA] RoleGuard: Ez dira beharrezko rolak zehaztu');
     return true;
   }
 
   const currentUser = authService.currentUser();
   
   if (!currentUser) {
-    console.warn('🔒 RoleGuard: Usuario no autenticado');
+    console.warn('[BABESA] RoleGuard: Erabiltzailea autentifikatu gabe');
     return router.createUrlTree(['/login']);
   }
 
@@ -40,10 +40,10 @@ export const roleGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
   }
 
   console.warn(
-    `🔒 RoleGuard: Acceso denegado. Usuario ${currentUser.username} (${currentUser.role}) ` +
-    `intentó acceder a ruta que requiere roles: ${requiredRoles.join(', ')}`
+    `[BABESA] RoleGuard: Sarbidea ukatuta. ${currentUser.username} (${currentUser.role}) ` +
+    `erabiltzaileak honako rolak behar dituen bidera sartu nahi izan du: ${requiredRoles.join(', ')}`
   );
 
-  // Redirigir a página de acceso denegado o dashboard
+  // Sarbide ukatua orrira edo dashboard-era birbideratu
   return router.createUrlTree(['/dashboard']);
 };

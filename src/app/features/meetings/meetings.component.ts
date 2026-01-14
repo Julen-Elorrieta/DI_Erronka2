@@ -53,13 +53,13 @@ declare var mapboxgl: any;
 export class MeetingsComponent implements OnInit, AfterViewInit {
   @ViewChild('mapContainer') mapContainer!: ElementRef;
   
-  // Estado
+  // Egoera
   meetings = signal<Meeting[]>([]);
   centers = signal<EducationalCenter[]>([]);
   loading = signal(false);
   activeTab = signal(0);
   
-  // Filtros
+  // Iragazkiak
   titularidades: string[] = [];
   territorios: string[] = [];
   municipios: string[] = [];
@@ -69,7 +69,7 @@ export class MeetingsComponent implements OnInit, AfterViewInit {
   selectedMunicipio = '';
   searchTerm = '';
   
-  // Paginación
+  // Orrialdekatzea
   pageSize = 10;
   pageIndex = 0;
   
@@ -131,7 +131,7 @@ export class MeetingsComponent implements OnInit, AfterViewInit {
       },
       error: () => {
         this.loading.set(false);
-        this.showError('Error al cargar centros');
+        this.showError('Errorea ikastetxeak kargatzean');
       }
     });
   }
@@ -141,7 +141,7 @@ export class MeetingsComponent implements OnInit, AfterViewInit {
     if (userId) {
       this.meetingsService.getUserMeetings(userId).subscribe({
         next: (meetings) => this.meetings.set(meetings),
-        error: () => this.showError('Error al cargar reuniones')
+        error: () => this.showError('Errorea bilerak kargatzean')
       });
     }
   }
@@ -186,11 +186,11 @@ export class MeetingsComponent implements OnInit, AfterViewInit {
     return this.centers().slice(start, start + this.pageSize);
   }
 
-  // Mapa Mapbox
+  // Mapbox-en mapa
   private initMap(): void {
     if (!this.mapContainer) return;
     
-    // Token público de Mapbox (en producción usar uno propio)
+    // Mapbox token publikoa (produkzioan norberaren bat erabili)
     const mapboxToken = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw';
     
     try {
@@ -199,7 +199,7 @@ export class MeetingsComponent implements OnInit, AfterViewInit {
       this.map = new mapboxgl.Map({
         container: this.mapContainer.nativeElement,
         style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
-        center: [-2.9253, 43.2627], // Centro en Bilbao
+        center: [-2.9253, 43.2627], // Bilbon zentratuta
         zoom: 9
       });
 
@@ -209,23 +209,23 @@ export class MeetingsComponent implements OnInit, AfterViewInit {
         this.updateMapMarkers();
       });
     } catch (error) {
-      console.error('Error inicializando mapa:', error);
+      console.error('Errorea mapa hasieratzean:', error);
     }
   }
 
   private updateMapMarkers(): void {
     if (!this.map) return;
     
-    // Limpiar marcadores existentes
+    // Dauden markatzaileak garbitu
     this.markers.forEach(m => m.remove());
     this.markers = [];
     
-    // Añadir marcadores para centros con coordenadas
+    // Koordenatuak dituzten ikastetxeei markatzaileak gehitu
     this.centers().forEach(center => {
       if (center.coordinates) {
         const el = document.createElement('div');
         el.className = 'map-marker';
-        el.innerHTML = '<span class="marker-icon">🏫</span>';
+        el.innerHTML = '<span class="marker-icon">[IK]</span>';
         el.style.cursor = 'pointer';
         
         const popup = new mapboxgl.Popup({ offset: 25 })
@@ -246,7 +246,7 @@ export class MeetingsComponent implements OnInit, AfterViewInit {
       }
     });
 
-    // Ajustar vista para mostrar todos los marcadores
+    // Ikuspegia markatzaile guztiak erakusteko doitu
     if (this.markers.length > 0) {
       const bounds = new mapboxgl.LngLatBounds();
       this.centers().forEach(c => {
@@ -277,7 +277,7 @@ export class MeetingsComponent implements OnInit, AfterViewInit {
 
   openCreateMeetingDialog(center?: EducationalCenter): void {
     if (!this.canCreateMeeting()) {
-      this.showError('Solo los profesores pueden crear reuniones');
+      this.showError('Irakasleek bakarrik sor ditzakete bilerak');
       return;
     }
 
@@ -290,10 +290,10 @@ export class MeetingsComponent implements OnInit, AfterViewInit {
       if (result) {
         this.meetingsService.createMeeting(result).subscribe({
           next: () => {
-            this.showSuccess('Reunión creada correctamente');
+            this.showSuccess('Bilera ondo sortuta');
             this.loadMeetings();
           },
-          error: () => this.showError('Error al crear reunión')
+          error: () => this.showError('Errorea bilera sortzean')
         });
       }
     });

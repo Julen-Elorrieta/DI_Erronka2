@@ -16,13 +16,13 @@ export class App implements OnInit {
     private translate: TranslateService,
     private authService: AuthService
   ) {
-    // Configurar idiomas disponibles
-    this.translate.addLangs(['es', 'eu']);
-    this.translate.setDefaultLang('es');
+    // Eskuragarri dauden hizkuntzak konfiguratu
+    this.translate.addLangs(['eu', 'es', 'en']);
+    this.translate.setDefaultLang('eu');
   }
 
   ngOnInit(): void {
-    // Cargar usuario de localStorage si existe
+    // Erabiltzailea localStorage-tik kargatu existitzen bada
     this.authService.loadUserFromStorage();
   }
 }

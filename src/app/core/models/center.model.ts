@@ -2,9 +2,9 @@ export interface EducationalCenter {
   id: string;
   code: string;
   name: string;
-  dtituc: string;  // Tipo titularidad (Público, Privado, etc.)
-  dterr: string;   // Territorio (Araba, Bizkaia, Gipuzkoa)
-  dmunic: string;  // Municipio
+  dtituc: string;  // Titulartasun mota (Publikoa, Pribatua, etab.)
+  dterr: string;   // Lurraldea (Araba, Bizkaia, Gipuzkoa)
+  dmunic: string;  // Udalerria
   address: string;
   postalCode: string;
   phone?: string;

@@ -15,7 +15,7 @@ export class MeetingsService {
   constructor(private http: HttpClient) {}
 
   /**
-   * Obtiene todas las reuniones
+   * Bilera guztiak lortzen ditu
    */
   getMeetings(): Observable<Meeting[]> {
     if (this.USE_MOCK) {
@@ -25,7 +25,7 @@ export class MeetingsService {
   }
 
   /**
-   * Obtiene las reuniones de un usuario
+   * Erabiltzaile baten bilerak lortzen ditu
    */
   getUserMeetings(userId: number): Observable<Meeting[]> {
     if (this.USE_MOCK) {
@@ -41,7 +41,7 @@ export class MeetingsService {
   }
 
   /**
-   * Obtiene las reuniones de hoy
+   * Gaurko bilerak lortzen ditu
    */
   getTodayMeetings(): Observable<Meeting[]> {
     const today = new Date();
@@ -62,23 +62,23 @@ export class MeetingsService {
   }
 
   /**
-   * Crea una nueva reunión
+   * Bilera berria sortzen du
    */
   createMeeting(meeting: Omit<Meeting, 'id'>): Observable<Meeting> {
     if (this.USE_MOCK) {
       const newMeeting = { ...meeting, id: Date.now() } as Meeting;
-      console.log('✅ Reunión creada (mock):', newMeeting);
+      console.log('[ONDO] Bilera sortuta (mock):', newMeeting);
       return of(newMeeting).pipe(delay(500));
     }
     return this.http.post<Meeting>(this.API_URL, meeting);
   }
 
   /**
-   * Actualiza el estado de una reunión
+   * Bilera baten egoera eguneratzen du
    */
   updateMeetingStatus(id: number, status: MeetingStatus): Observable<Meeting> {
     if (this.USE_MOCK) {
-      console.log(`✅ Estado de reunión ${id} actualizado a:`, status);
+      console.log(`[ONDO] ${id} bileraren egoera eguneratuta:`, status);
       return this.getMockMeetings().pipe(
         map(meetings => {
           const meeting = meetings.find(m => m.id === id);
@@ -94,18 +94,18 @@ export class MeetingsService {
   }
 
   /**
-   * Elimina una reunión
+   * Bilera bat ezabatzen du
    */
   deleteMeeting(id: number): Observable<void> {
     if (this.USE_MOCK) {
-      console.log('✅ Reunión eliminada (mock):', id);
+      console.log('[ONDO] Bilera ezabatuta (mock):', id);
       return of(void 0).pipe(delay(300));
     }
     return this.http.delete<void>(`${this.API_URL}/${id}`);
   }
 
   /**
-   * MOCK: Datos de prueba
+   * MOCK: Proba datuak
    */
   private getMockMeetings(): Observable<Meeting[]> {
     const today = new Date();
@@ -115,15 +115,15 @@ export class MeetingsService {
     const mockMeetings: Meeting[] = [
       {
         id: 1,
-        title: 'Revisión proyecto final',
-        topic: 'Discutir avances del proyecto de fin de ciclo',
+        title: 'Azken proiektuaren berrikuspena',
+        topic: 'Ziklo amaierako proiektuaren aurrerapenak eztabaidatu',
         date: today,
         hour: 3,
         classroom: 'A-301',
         status: MeetingStatus.ACCEPTED,
         location: {
           center: 'CIFP Elorrieta-Errekamari LHII',
-          address: 'Calle Elorrieta, 5, 48004 Bilbao',
+          address: 'Elorrieta kalea, 5, 48004 Bilbo',
           latitude: 43.2627,
           longitude: -2.9253
         },
@@ -134,15 +134,15 @@ export class MeetingsService {
       },
       {
         id: 2,
-        title: 'Tutoría seguimiento',
-        topic: 'Revisión de notas y plan de mejora',
+        title: 'Jarraipen tutoretza',
+        topic: 'Noten berrikuspena eta hobekuntza plana',
         date: today,
         hour: 5,
         classroom: 'B-102',
         status: MeetingStatus.PENDING,
         location: {
           center: 'CIFP Elorrieta-Errekamari LHII',
-          address: 'Calle Elorrieta, 5, 48004 Bilbao',
+          address: 'Elorrieta kalea, 5, 48004 Bilbo',
           latitude: 43.2627,
           longitude: -2.9253
         },
@@ -153,15 +153,15 @@ export class MeetingsService {
       },
       {
         id: 3,
-        title: 'Reunión empresa DUAL',
-        topic: 'Coordinación con tutor de empresa',
+        title: 'DUAL enpresako bilera',
+        topic: 'Enpresako tutorearekin koordinazioa',
         date: tomorrow,
         hour: 2,
-        classroom: 'Sala reuniones',
+        classroom: 'Bilera gela',
         status: MeetingStatus.ACCEPTED,
         location: {
           center: 'CIFP Elorrieta-Errekamari LHII',
-          address: 'Calle Elorrieta, 5, 48004 Bilbao',
+          address: 'Elorrieta kalea, 5, 48004 Bilbo',
           latitude: 43.2627,
           longitude: -2.9253
         },

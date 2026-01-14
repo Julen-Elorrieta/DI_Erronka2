@@ -49,13 +49,13 @@ export class UsersComponent implements OnInit {
   filteredUsers = signal<User[]>([]);
   loading = signal(false);
   
-  // Filtros
+  // Iragazkiak
   searchTerm = '';
   selectedRole: UserRole | '' = '';
   
   displayedColumns: string[] = ['photo', 'name', 'email', 'role', 'actions'];
   
-  // Paginación
+  // Orrialdekatzea
   pageSize = 10;
   pageIndex = 0;
   
@@ -89,9 +89,9 @@ export class UsersComponent implements OnInit {
         this.loading.set(false);
       },
       error: (error) => {
-        console.error('Error cargando usuarios:', error);
+        console.error('Errorea erabiltzaileak kargatzean:', error);
         this.loading.set(false);
-        this.showError('Error al cargar usuarios');
+        this.showError('Errorea erabiltzaileak kargatzean');
       }
     });
   }
@@ -99,12 +99,12 @@ export class UsersComponent implements OnInit {
   applyFilters(): void {
     let filtered = this.users();
     
-    // Filtro por rol
+    // Rolaren araberako iragazkia
     if (this.selectedRole) {
       filtered = filtered.filter(u => u.role === this.selectedRole);
     }
     
-    // Filtro por búsqueda (nombre, apellido, email)
+    // Bilaketaren araberako iragazkia (izena, abizena, email)
     if (this.searchTerm.trim()) {
       const term = this.searchTerm.toLowerCase().trim();
       filtered = filtered.filter(u =>
@@ -150,10 +150,10 @@ export class UsersComponent implements OnInit {
       if (result) {
         this.usersService.createUser(result).subscribe({
           next: () => {
-            this.showSuccess('Usuario creado correctamente');
+            this.showSuccess('Erabiltzailea ondo sortuta');
             this.loadUsers();
           },
-          error: () => this.showError('Error al crear usuario')
+          error: () => this.showError('Errorea erabiltzailea sortzean')
         });
       }
     });
@@ -169,19 +169,19 @@ export class UsersComponent implements OnInit {
       if (result) {
         this.usersService.updateUser(user.id, result).subscribe({
           next: () => {
-            this.showSuccess('Usuario actualizado correctamente');
+            this.showSuccess('Erabiltzailea ondo eguneratuta');
             this.loadUsers();
           },
-          error: () => this.showError('Error al actualizar usuario')
+          error: () => this.showError('Errorea erabiltzailea eguneratzean')
         });
       }
     });
   }
 
   deleteUser(user: User): void {
-    // Verificar permisos de eliminación
+    // Ezabatzeko baimenak egiaztatu
     if (!this.canDelete(user)) {
-      this.showError('No tienes permisos para eliminar este usuario');
+      this.showError('Ez daukazu erabiltzaile hau ezabatzeko baimenik');
       return;
     }
 
@@ -189,7 +189,7 @@ export class UsersComponent implements OnInit {
       width: '400px',
       data: {
         title: this.translate.instant('USER.DELETE'),
-        message: `¿Estás seguro de eliminar a ${user.name} ${user.surname}?`
+        message: `Ziur zaude ${user.name} ${user.surname} ezabatu nahi duzula?`
       }
     });
 
@@ -197,10 +197,10 @@ export class UsersComponent implements OnInit {
       if (confirmed) {
         this.usersService.deleteUser(user.id).subscribe({
           next: () => {
-            this.showSuccess('Usuario eliminado correctamente');
+            this.showSuccess('Erabiltzailea ondo ezabatuta');
             this.loadUsers();
           },
-          error: () => this.showError('Error al eliminar usuario')
+          error: () => this.showError('Errorea erabiltzailea ezabatzean')
         });
       }
     });
@@ -210,16 +210,16 @@ export class UsersComponent implements OnInit {
     const currentUser = this.authService.currentUser();
     if (!currentUser) return false;
     
-    // GOD no puede ser eliminado
+    // GOD ezin da ezabatu
     if (user.role === UserRole.GOD) return false;
     
-    // No puede eliminarse a sí mismo
+    // Ezin da bere burua ezabatu
     if (user.id === currentUser.id) return false;
     
-    // Solo GOD puede eliminar administradores
+    // GODek bakarrik ezaba ditzake administratzaileak
     if (user.role === UserRole.ADMIN && currentUser.role !== UserRole.GOD) return false;
     
-    // GOD y ADMIN pueden eliminar teachers y students
+    // GOD eta ADMIN-ek irakasleak eta ikasleak ezaba ditzakete
     return currentUser.role === UserRole.GOD || currentUser.role === UserRole.ADMIN;
   }
 
@@ -227,10 +227,10 @@ export class UsersComponent implements OnInit {
     const currentUser = this.authService.currentUser();
     if (!currentUser) return false;
     
-    // GOD puede editar a todos
+    // GODek guztiak edita ditzake
     if (currentUser.role === UserRole.GOD) return true;
     
-    // ADMIN puede editar teachers y students
+    // ADMINek irakasleak eta ikasleak edita ditzake
     if (currentUser.role === UserRole.ADMIN) {
       return user.role === UserRole.TEACHER || user.role === UserRole.STUDENT;
     }

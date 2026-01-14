@@ -10,14 +10,14 @@
   </div>
 
   <mat-tab-group [(selectedIndex)]="activeTab" (selectedIndexChange)="activeTab.set($event)">
-    <!-- Tab: Centros Educativos -->
+    <!-- Tab: Ikastetxeak -->
     <mat-tab>
       <ng-template mat-tab-label>
         <mat-icon class="tab-icon">business</mat-icon>
         {{ 'MEETING.CENTERS' | translate }}
       </ng-template>
 
-      <!-- Filtros -->
+      <!-- Iragazkiak -->
       <mat-card class="filters-card">
         <mat-card-content>
           <div class="filters-row">
@@ -59,7 +59,7 @@
         </mat-card-content>
       </mat-card>
 
-      <!-- Contador -->
+      <!-- Kontadorea -->
       <div class="results-info">
         <span class="results-count">
           <mat-icon>business</mat-icon>
@@ -67,9 +67,9 @@
         </span>
       </div>
 
-      <!-- Contenido principal: Tabla + Mapa -->
+      <!-- Eduki nagusia: Taula + Mapa -->
       <div class="main-content">
-        <!-- Tabla de centros -->
+        <!-- Ikastetxeen taula -->
         <mat-card class="table-card">
           @if (loading()) {
             <div class="loading-container">
@@ -169,7 +169,7 @@
       </div>
     </mat-tab>
 
-    <!-- Tab: Mis Reuniones -->
+    <!-- Tab: Nire Bilerak -->
     <mat-tab>
       <ng-template mat-tab-label>
         <mat-icon class="tab-icon">event</mat-icon>
@@ -195,7 +195,7 @@
                     <h3>{{ meeting.title }}</h3>
                     <p>{{ meeting.topic }}</p>
                     <div class="meeting-details">
-                      <span><mat-icon>schedule</mat-icon> {{ meeting.hour }}ª hora</span>
+                      <span><mat-icon>schedule</mat-icon> {{ meeting.hour }}. ordua</span>
                       <span><mat-icon>room</mat-icon> {{ meeting.classroom }}</span>
                       <span><mat-icon>place</mat-icon> {{ meeting.location.center }}</span>
                     </div>

@@ -3,8 +3,8 @@ import { Router, CanActivateFn } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 /**
- * Guard para proteger rutas que requieren autenticación
- * Redirige a /login si el usuario no está autenticado
+ * Autentifikazioa behar duten bideak babesteko guardarra
+ * /login-era birbideratzen du erabiltzailea autentifikatu gabe badago
  */
 export const authGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
@@ -14,13 +14,13 @@ export const authGuard: CanActivateFn = () => {
     return true;
   }
 
-  console.warn('🔒 AuthGuard: Usuario no autenticado, redirigiendo a login');
+  console.warn('[BABESA] AuthGuard: Erabiltzailea autentifikatu gabe, login-era birbideratzen');
   return router.createUrlTree(['/login']);
 };
 
 /**
- * Guard para prevenir acceso a login si ya está autenticado
- * Redirige a /dashboard si el usuario ya tiene sesión activa
+ * Login-era sarbidea ekiditeko guardarra erabiltzailea jada autentifikatuta badago
+ * /dashboard-era birbideratzen du erabiltzaileak saioa irekita badu
  */
 export const noAuthGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
@@ -30,6 +30,6 @@ export const noAuthGuard: CanActivateFn = () => {
     return true;
   }
 
-  console.warn('🔒 NoAuthGuard: Usuario ya autenticado, redirigiendo a dashboard');
+  console.warn('[BABESA] NoAuthGuard: Erabiltzailea jada autentifikatuta, dashboard-era birbideratzen');
   return router.createUrlTree(['/dashboard']);
 };

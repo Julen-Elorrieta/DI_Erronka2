@@ -111,9 +111,9 @@ export class ProfileComponent implements OnInit {
         next: (updatedUser) => {
           this.user.set(updatedUser);
           this.editing.set(false);
-          this.showSuccess('Perfil actualizado correctamente');
+          this.showSuccess('Profila ondo eguneratuta');
         },
-        error: () => this.showError('Error al actualizar perfil')
+        error: () => this.showError('Errorea profila eguneratzean')
       });
     }
   }

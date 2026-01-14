@@ -28,11 +28,11 @@ export class ScheduleComponent implements OnInit {
   loading = signal(true);
 
   days = [
-    { key: 'MONDAY', label: 'Lunes' },
-    { key: 'TUESDAY', label: 'Martes' },
-    { key: 'WEDNESDAY', label: 'Miércoles' },
-    { key: 'THURSDAY', label: 'Jueves' },
-    { key: 'FRIDAY', label: 'Viernes' }
+    { key: 'MONDAY', label: 'Astelehena' },
+    { key: 'TUESDAY', label: 'Asteartea' },
+    { key: 'WEDNESDAY', label: 'Asteazkena' },
+    { key: 'THURSDAY', label: 'Osteguna' },
+    { key: 'FRIDAY', label: 'Ostirala' }
   ];
 
   hours = [

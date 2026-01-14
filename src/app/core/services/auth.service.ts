@@ -37,28 +37,28 @@ export class AuthService {
   }
 
   /**
-   * Inicializa la clave pública para cifrado de contraseñas
-   * En producción, esta clave debe obtenerse del servidor
+   * Gako publikoa hasieratzen du pasahitzak zifratzeko
+   * Produkzioan, gako hau zerbitzaritik lortu behar da
    */
   private async initPublicKey(): Promise<void> {
     try {
       const keyPair = await CryptoUtil.generateKeyPair();
       this.publicKey = keyPair.publicKey;
-      console.log('🔐 Clave pública inicializada');
+      console.log('[INFO] Gako publikoa hasieratuta');
     } catch (error) {
-      console.error('❌ Error inicializando clave pública:', error);
+      console.error('[ERROREA] Gako publikoa hasieratzean:', error);
     }
   }
 
   /**
-   * Realiza login con credenciales cifradas
-   * @param username Nombre de usuario
-   * @param password Contraseña en texto plano (se cifrará antes de enviar)
+   * Login egiten du kredentzialekin zifratuta
+   * @param username Erabiltzaile izena
+   * @param password Pasahitza testu arruntean (bidali aurretik zifratuko da)
    */
   async login(username: string, password: string): Promise<boolean> {
     try {
       if (!this.publicKey) {
-        console.error('❌ Clave pública no disponible');
+        console.error('[ERROREA] Gako publikoa ez dago eskuragarri');
         return false;
       }
 
@@ -67,15 +67,15 @@ export class AuthService {
         password
       );
 
-      // Determinar si usar API real o datos mock
+      // API erreala edo mock datuak erabili erabakitzeko
       let response: LoginResponse;
       
       if (this.USE_MOCK) {
-        console.log('🔧 Modo desarrollo: Usando datos MOCK');
+        console.log('[INFO] Garapen modua: MOCK datuak erabiltzen');
         response = await this.mockLogin(username, password);
       } else {
-        console.log('🌐 Conectando a API real:', this.API_URL);
-        // Petición real al servidor
+        console.log('[INFO] API errealerako konektatzen:', this.API_URL);
+        // Zerbitzarirako benetako eskaera
         response = await this.http.post<LoginResponse>(
           `${this.API_URL}/login`,
           { username, encryptedPassword }
@@ -84,21 +84,21 @@ export class AuthService {
 
       if (response.success && response.user) {
         this.setSession(response.user, response.token || '');
-        console.log('✅ Login exitoso:', response.user.username);
+        console.log('[ONDO] Login egina:', response.user.username);
         return true;
       }
 
-      console.warn('⚠️ Login fallido:', response.message);
+      console.warn('[ABISUA] Login huts egin du:', response.message);
       return false;
     } catch (error) {
-      console.error('❌ Error en login:', error);
+      console.error('[ERROREA] Login-ean:', error);
       return false;
     }
   }
 
   /**
-   * MOCK: Simulación de autenticación
-   * Se usa cuando enableMockData = true en environment
+   * MOCK: Autentifikazioaren simulazioa
+   * enableMockData = true denean erabiltzen da environment-ean
    */
   private async mockLogin(username: string, password: string): Promise<LoginResponse> {
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -123,7 +123,7 @@ export class AuthService {
           username: 'admin',
           email: 'admin@elorrieta.com',
           name: 'Admin',
-          surname: 'Secretaría',
+          surname: 'Idazkaritza',
           role: UserRole.ADMIN,
           photo: 'unknown.jpg'
         }
@@ -134,8 +134,8 @@ export class AuthService {
           id: 3,
           username: 'teacher',
           email: 'teacher@elorrieta.com',
-          name: 'Juan',
-          surname: 'Profesor',
+          name: 'Jon',
+          surname: 'Irakaslea',
           role: UserRole.TEACHER,
           photo: 'unknown.jpg'
         }
@@ -146,8 +146,8 @@ export class AuthService {
           id: 4,
           username: 'student',
           email: 'student@elorrieta.com',
-          name: 'María',
-          surname: 'Alumna',
+          name: 'Miren',
+          surname: 'Ikaslea',
           role: UserRole.STUDENT,
           photo: 'unknown.jpg',
           cycle: '2DAM',
@@ -170,7 +170,7 @@ export class AuthService {
 
     return {
       success: false,
-      message: 'Usuario o contraseña incorrectos'
+      message: 'Erabiltzaile edo pasahitz okerra'
     };
   }
 
@@ -184,7 +184,7 @@ export class AuthService {
     this.currentUserSignal.set(null);
     localStorage.removeItem(this.STORAGE_KEY);
     localStorage.removeItem(this.TOKEN_KEY);
-    console.log('👋 Sesión cerrada');
+    console.log('[INFO] Saioa itxita');
   }
 
   isAuthenticated(): boolean {
@@ -215,9 +215,9 @@ export class AuthService {
       try {
         const user = JSON.parse(userJson) as User;
         this.currentUserSignal.set(user);
-        console.log('✅ Sesión restaurada:', user.username);
+        console.log('[ONDO] Saioa berrezarrita:', user.username);
       } catch (error) {
-        console.error('❌ Error restaurando sesión:', error);
+        console.error('[ERROREA] Saioa berrezartzean:', error);
         this.logout();
       }
     }

@@ -4,57 +4,57 @@ import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 
 /**
- * Interceptor para manejo centralizado de errores HTTP
- * Gestiona respuestas de error comunes (401, 403, 500, etc.)
+ * HTTP erroreak zentralizatuki kudeatzeko interceptorra
+ * Errore erantzun arruntak kudeatzen ditu (401, 403, 500, etab.)
  */
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      let errorMessage = 'Ha ocurrido un error desconocido';
+      let errorMessage = 'Errore ezezaguna gertatu da';
 
       if (error.error instanceof ErrorEvent) {
-        // Error del lado del cliente
-        errorMessage = `Error: ${error.error.message}`;
-        console.error('❌ Error del cliente:', error.error.message);
+        // Bezero aldeko errorea
+        errorMessage = `Errorea: ${error.error.message}`;
+        console.error('[ERROREA] Bezeroaren errorea:', error.error.message);
       } else {
-        // Error del lado del servidor
+        // Zerbitzari aldeko errorea
         switch (error.status) {
           case 0:
-            errorMessage = 'No se pudo conectar con el servidor';
-            console.error('❌ Error de conexión');
+            errorMessage = 'Ezin izan da zerbitzarira konektatu';
+            console.error('[ERROREA] Konexio errorea');
             break;
           case 400:
-            errorMessage = 'Solicitud incorrecta';
-            console.error('❌ Bad Request:', error.error);
+            errorMessage = 'Eskaera okerra';
+            console.error('[ERROREA] Bad Request:', error.error);
             break;
           case 401:
-            errorMessage = 'No autorizado. Por favor, inicia sesión nuevamente';
-            console.error('❌ No autorizado');
-            // Redirigir a login
+            errorMessage = 'Baimenik gabe. Mesedez, hasi saioa berriro';
+            console.error('[ERROREA] Baimenik gabe');
+            // Login-era birbideratu
             router.navigate(['/login']);
             break;
           case 403:
-            errorMessage = 'No tienes permisos para realizar esta acción';
-            console.error('❌ Acceso prohibido');
+            errorMessage = 'Ez daukazu ekintza hau egiteko baimenik';
+            console.error('[ERROREA] Sarbidea debekatuta');
             break;
           case 404:
-            errorMessage = 'Recurso no encontrado';
-            console.error('❌ Not Found:', req.url);
+            errorMessage = 'Baliabidea ez da aurkitu';
+            console.error('[ERROREA] Not Found:', req.url);
             break;
           case 500:
-            errorMessage = 'Error interno del servidor';
-            console.error('❌ Error del servidor:', error.error);
+            errorMessage = 'Zerbitzariaren barne errorea';
+            console.error('[ERROREA] Zerbitzari errorea:', error.error);
             break;
           default:
-            errorMessage = `Error: ${error.status} - ${error.message}`;
-            console.error('❌ Error HTTP:', error);
+            errorMessage = `Errorea: ${error.status} - ${error.message}`;
+            console.error('[ERROREA] HTTP errorea:', error);
         }
       }
 
-      // TODO: Mostrar notificación/toast al usuario con el error
-      // Aquí se podría integrar un servicio de notificaciones
+      // TODO: Erabiltzaileari errorea erakutsi jakinarazpen/toast bidez
+      // Hemen jakinarazpen zerbitzu bat integratu liteke
 
       return throwError(() => new Error(errorMessage));
     })

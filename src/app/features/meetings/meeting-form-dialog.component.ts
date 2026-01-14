@@ -54,19 +54,19 @@ interface DialogData {
           <mat-form-field appearance="outline">
             <mat-label>{{ 'MEETING.HOUR' | translate }}</mat-label>
             <mat-select formControlName="hour" required>
-              <mat-option [value]="1">1ª hora (08:00 - 09:00)</mat-option>
-              <mat-option [value]="2">2ª hora (09:00 - 10:00)</mat-option>
-              <mat-option [value]="3">3ª hora (10:15 - 11:15)</mat-option>
-              <mat-option [value]="4">4ª hora (11:15 - 12:15)</mat-option>
-              <mat-option [value]="5">5ª hora (12:30 - 13:30)</mat-option>
-              <mat-option [value]="6">6ª hora (13:30 - 14:30)</mat-option>
+              <mat-option [value]="1">1. ordua (08:00 - 09:00)</mat-option>
+              <mat-option [value]="2">2. ordua (09:00 - 10:00)</mat-option>
+              <mat-option [value]="3">3. ordua (10:15 - 11:15)</mat-option>
+              <mat-option [value]="4">4. ordua (11:15 - 12:15)</mat-option>
+              <mat-option [value]="5">5. ordua (12:30 - 13:30)</mat-option>
+              <mat-option [value]="6">6. ordua (13:30 - 14:30)</mat-option>
             </mat-select>
           </mat-form-field>
         </div>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>{{ 'MEETING.CLASSROOM' | translate }}</mat-label>
-          <input matInput formControlName="classroom" placeholder="Ej: A-301">
+          <input matInput formControlName="classroom" placeholder="Adib: A-301">
         </mat-form-field>
 
         @if (data.center) {
@@ -160,16 +160,16 @@ export class MeetingFormDialogComponent {
         topic: formValue.topic,
         date: formValue.date,
         hour: formValue.hour,
-        classroom: formValue.classroom || 'Por determinar',
+        classroom: formValue.classroom || 'Zehazteke',
         status: MeetingStatus.PENDING,
         location: {
           center: this.data.center?.name || 'CIFP Elorrieta-Errekamari LHII',
-          address: this.data.center?.address || 'Calle Lehendakari Aguirre, 184',
+          address: this.data.center?.address || 'Lehendakari Aguirre kalea, 184',
           latitude: this.data.center?.coordinates?.latitude,
           longitude: this.data.center?.coordinates?.longitude
         },
         participants: {
-          teacherId: 0, // Se asignará en el servidor
+          teacherId: 0, // Zerbitzarian esleituko da
           studentId: 0
         }
       };

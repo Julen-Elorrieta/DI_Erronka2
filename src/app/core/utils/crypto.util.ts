@@ -1,12 +1,12 @@
 /**
- * Utilidad para cifrado RSA de contraseñas
- * Implementa cifrado con clave pública para envío seguro de credenciales
+ * Pasahitzen RSA zifratzerako erabilgarritasuna
+ * Gako publikoarekin zifraketa inplementatzen du kredentzialak modu seguruan bidaltzeko
  */
 
 export class CryptoUtil {
   /**
-   * Genera un par de claves RSA (pública/privada)
-   * En producción, la clave privada debe estar solo en el servidor
+   * RSA gako pare bat sortzen du (publikoa/pribatua)
+   * Produkzioan, gako pribatua zerbitzarian bakarrik egon behar da
    */
   static async generateKeyPair(): Promise<CryptoKeyPair> {
     return await window.crypto.subtle.generateKey(
@@ -22,7 +22,7 @@ export class CryptoUtil {
   }
 
   /**
-   * Exporta la clave pública en formato PEM
+   * Gako publikoa PEM formatuan esportatzen du
    */
   static async exportPublicKey(publicKey: CryptoKey): Promise<string> {
     const exported = await window.crypto.subtle.exportKey('spki', publicKey);
@@ -32,7 +32,7 @@ export class CryptoUtil {
   }
 
   /**
-   * Importa una clave pública desde formato PEM
+   * Gako publikoa PEM formatutik inportatzen du
    */
   static async importPublicKey(pem: string): Promise<CryptoKey> {
     const pemHeader = '-----BEGIN PUBLIC KEY-----';
@@ -61,10 +61,10 @@ export class CryptoUtil {
   }
 
   /**
-   * Cifra un texto plano con la clave pública
-   * @param publicKey Clave pública para cifrar
-   * @param plaintext Texto a cifrar (ej: contraseña)
-   * @returns Texto cifrado en Base64
+   * Testu arrunta gako publikoarekin zifratzen du
+   * @param publicKey Zifratzeko gako publikoa
+   * @param plaintext Zifratu beharreko testua (adib: pasahitza)
+   * @returns Base64-n zifratutako testua
    */
   static async encryptWithPublicKey(publicKey: CryptoKey, plaintext: string): Promise<string> {
     const encoded = new TextEncoder().encode(plaintext);
@@ -78,8 +78,8 @@ export class CryptoUtil {
   }
 
   /**
-   * Genera un hash SHA-256 de un texto
-   * Útil para validaciones adicionales
+   * Testu baten SHA-256 hash-a sortzen du
+   * Balidazio gehigarrietarako erabilgarria
    */
   static async hashSHA256(text: string): Promise<string> {
     const encoder = new TextEncoder();

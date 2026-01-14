@@ -22,11 +22,11 @@ export class UsersService {
   constructor(private http: HttpClient) {}
 
   /**
-   * Obtiene todos los usuarios con filtros opcionales
+   * Erabiltzaile guztiak lortzen ditu iragazkiekin
    */
   getUsers(filter?: UsersFilter): Observable<User[]> {
     if (this.USE_MOCK) {
-      console.log('🔧 Modo desarrollo: Usando datos MOCK para usuarios');
+      console.log('[INFO] Garapen modua: MOCK datuak erabiltzen erabiltzaileentzat');
       return this.getMockUsers().pipe(
         map(users => {
           let filtered = users;
@@ -58,8 +58,8 @@ export class UsersService {
       );
     }
 
-    // Petición real a la API
-    console.log('🌐 Obteniendo usuarios desde:', this.API_URL);
+    // API errealerako eskaera
+    console.log('[INFO] Erabiltzaileak lortzen hemendik:', this.API_URL);
     let params = new HttpParams();
     if (filter?.role) params = params.set('role', filter.role);
     if (filter?.cycle) params = params.set('cycle', filter.cycle);
@@ -70,7 +70,7 @@ export class UsersService {
   }
 
   /**
-   * Obtiene un usuario por ID
+   * Erabiltzailea lortzen du IDaren arabera
    */
   getUserById(id: number): Observable<User | null> {
     if (this.USE_MOCK) {
@@ -84,12 +84,12 @@ export class UsersService {
   }
 
   /**
-   * Crea un nuevo usuario
+   * Erabiltzaile berria sortzen du
    */
   createUser(user: Omit<User, 'id'>): Observable<User> {
     if (this.USE_MOCK) {
       const newUser = { ...user, id: Date.now() } as User;
-      console.log('✅ Usuario creado (mock):', newUser);
+      console.log('[ONDO] Erabiltzailea sortuta (mock):', newUser);
       return of(newUser).pipe(delay(500));
     }
     
@@ -97,11 +97,11 @@ export class UsersService {
   }
 
   /**
-   * Actualiza un usuario existente
+   * Dagoen erabiltzailea eguneratzen du
    */
   updateUser(id: number, user: Partial<User>): Observable<User> {
     if (this.USE_MOCK) {
-      console.log('✅ Usuario actualizado (mock):', id, user);
+      console.log('[ONDO] Erabiltzailea eguneratuta (mock):', id, user);
       return this.getUserById(id).pipe(
         map(existingUser => ({ ...existingUser, ...user } as User)),
         delay(500)
@@ -112,13 +112,13 @@ export class UsersService {
   }
 
   /**
-   * Elimina un usuario
-   * GOD no puede ser eliminado
-   * Solo GOD puede eliminar usuarios
+   * Erabiltzailea ezabatzen du
+   * GOD ezin da ezabatu
+   * GODek bakarrik ezaba ditzake erabiltzaileak
    */
   deleteUser(id: number): Observable<void> {
     if (this.USE_MOCK) {
-      console.log('✅ Usuario eliminado (mock):', id);
+      console.log('[ONDO] Erabiltzailea ezabatuta (mock):', id);
       return of(void 0).pipe(delay(300));
     }
     
@@ -126,7 +126,7 @@ export class UsersService {
   }
 
   /**
-   * Obtiene estadísticas de usuarios
+   * Erabiltzaileen estatistikak lortzen ditu
    */
   getStats(): Observable<{ totalStudents: number; totalTeachers: number }> {
     if (this.USE_MOCK) {
@@ -143,7 +143,7 @@ export class UsersService {
   }
 
   /**
-   * MOCK: Datos de prueba
+   * MOCK: Proba datuak
    */
   private getMockUsers(): Observable<User[]> {
     const mockUsers: User[] = [
@@ -161,7 +161,7 @@ export class UsersService {
         username: 'admin',
         email: 'admin@elorrieta.com',
         name: 'Admin',
-        surname: 'Secretaría',
+        surname: 'Idazkaritza',
         role: UserRole.ADMIN,
         photo: 'unknown.jpg'
       },
@@ -169,8 +169,8 @@ export class UsersService {
         id: 3,
         username: 'jperez',
         email: 'jperez@elorrieta.com',
-        name: 'Juan',
-        surname: 'Pérez García',
+        name: 'Jon',
+        surname: 'Etxeberria Goia',
         role: UserRole.TEACHER,
         photo: 'unknown.jpg'
       },
@@ -178,8 +178,8 @@ export class UsersService {
         id: 4,
         username: 'mlopez',
         email: 'mlopez@elorrieta.com',
-        name: 'María',
-        surname: 'López Ruiz',
+        name: 'Miren',
+        surname: 'Agirre Zabala',
         role: UserRole.TEACHER,
         photo: 'unknown.jpg'
       },
@@ -187,8 +187,8 @@ export class UsersService {
         id: 5,
         username: 'aalonso',
         email: 'aalonso@elorrieta.com',
-        name: 'Ana',
-        surname: 'Alonso Martín',
+        name: 'Ane',
+        surname: 'Uriarte Mendizabal',
         role: UserRole.STUDENT,
         photo: 'unknown.jpg',
         cycle: '2DAM',
@@ -200,8 +200,8 @@ export class UsersService {
         id: 6,
         username: 'cgomez',
         email: 'cgomez@elorrieta.com',
-        name: 'Carlos',
-        surname: 'Gómez Sánchez',
+        name: 'Koldo',
+        surname: 'Azkona Arrese',
         role: UserRole.STUDENT,
         photo: 'unknown.jpg',
         cycle: '2DAM',
@@ -213,8 +213,8 @@ export class UsersService {
         id: 7,
         username: 'lgarcia',
         email: 'lgarcia@elorrieta.com',
-        name: 'Laura',
-        surname: 'García Fernández',
+        name: 'Leire',
+        surname: 'Goikoetxea Etxaniz',
         role: UserRole.STUDENT,
         photo: 'unknown.jpg',
         cycle: '1DAM',

@@ -69,7 +69,7 @@ interface DialogData {
           </mat-select>
         </mat-form-field>
 
-        <!-- Campos específicos de estudiante -->
+        <!-- Ikaslearen eremu espezifikoak -->
         @if (userForm.get('role')?.value === 'STUDENT') {
           <div class="student-fields">
             <mat-form-field appearance="outline">
@@ -169,7 +169,7 @@ export class UserFormDialogComponent {
     if (this.userForm.valid) {
       const formValue = this.userForm.value;
       
-      // Limpiar campos de estudiante si no es estudiante
+      // Ikaslearen eremuak garbitu ikaslea ez bada
       if (formValue.role !== UserRole.STUDENT) {
         delete formValue.cycle;
         delete formValue.course;

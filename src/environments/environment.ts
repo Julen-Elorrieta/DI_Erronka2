@@ -1,6 +1,6 @@
 /**
- * Configuración de entorno de PRODUCCIÓN
- * Base de datos: elordb en servidor 10.5.104.100
+ * PRODUKZIO ingurunearen konfigurazioa
+ * Datu-basea: elordb 10.5.104.100 zerbitzarian
  */
 export const environment = {
   production: true,

@@ -15,8 +15,8 @@ export class LanguageService {
 
   private initLanguage(): void {
     const savedLang = localStorage.getItem(this.STORAGE_KEY) as Language;
-    const defaultLang = savedLang || 'es';
-    this.translate.setDefaultLang('es');
+    const defaultLang = savedLang || 'eu';
+    this.translate.setDefaultLang('eu');
     this.translate.use(defaultLang);
   }
 
@@ -26,14 +26,14 @@ export class LanguageService {
   }
 
   getCurrentLanguage(): string {
-    return this.translate.currentLang || 'es';
+    return this.translate.currentLang || 'eu';
   }
 
   getAvailableLanguages(): { code: Language, name: string, flag: string }[] {
     return [
-      { code: 'es', name: 'Castellano', flag: '🇪🇸' },
-      { code: 'eu', name: 'Euskera', flag: '🏴' },
-      { code: 'en', name: 'English', flag: '🇬🇧' }
+      { code: 'eu', name: 'Euskera', flag: 'EU' },
+      { code: 'es', name: 'Gaztelania', flag: 'ES' },
+      { code: 'en', name: 'Ingelesa', flag: 'EN' }
     ];
   }
 }

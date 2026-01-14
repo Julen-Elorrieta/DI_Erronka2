@@ -15,7 +15,7 @@ export class ScheduleService {
   constructor(private http: HttpClient) {}
 
   /**
-   * Obtiene el horario de un usuario
+   * Erabiltzaile baten ordutegia lortzen du
    */
   getUserSchedule(userId: number): Observable<Schedule> {
     if (this.USE_MOCK) {
@@ -25,41 +25,41 @@ export class ScheduleService {
   }
 
   /**
-   * MOCK: Genera horario de prueba
+   * MOCK: Proba ordutegia sortzen du
    */
   private getMockSchedule(userId: number): Observable<Schedule> {
     const subjects = [
-      'Desarrollo de Interfaces',
-      'Acceso a Datos',
-      'Programación Multimedia',
-      'Sistemas de Gestión Empresarial',
-      'Proyecto',
-      'Inglés Técnico',
-      'Tutoría'
+      'Interfazeen Garapena',
+      'Datuetarako Sarbidea',
+      'Multimedia Programazioa',
+      'Enpresa Kudeaketa Sistemak',
+      'Proiektua',
+      'Ingelesa Teknikoa',
+      'Tutoretza'
     ];
 
     const slots: ScheduleSlot[] = [];
     
-    // Generar horario aleatorio pero consistente para cada usuario
+    // Erabiltzaile bakoitzarentzat ausazko baina koherentea den ordutegia sortu
     for (let day = 0; day < 5; day++) {
       for (let hour = 1; hour <= 6; hour++) {
         const seed = (userId * 100 + day * 10 + hour) % 10;
         
-        if (seed < 7) { // 70% probabilidad de clase
+        if (seed < 7) { // %70 klase izateko probabilitatea
           slots.push({
             day,
             hour,
             type: seed === 6 ? 'TUTORIA' : 'CLASS',
             subject: subjects[seed % subjects.length],
             cycle: '2DAM',
-            course: '2º'
+            course: '2.'
           });
         } else if (seed === 7) {
           slots.push({
             day,
             hour,
             type: 'GUARDIA',
-            subject: 'Guardia'
+            subject: 'Zaintza'
           });
         } else {
           slots.push({
@@ -75,7 +75,7 @@ export class ScheduleService {
   }
 
   /**
-   * Obtiene un slot específico del horario
+   * Ordutegiaren slot zehatz bat eskuratzen du
    */
   getSlot(schedule: Schedule, day: number, hour: number): ScheduleSlot | undefined {
     return schedule.slots.find(s => s.day === day && s.hour === hour);

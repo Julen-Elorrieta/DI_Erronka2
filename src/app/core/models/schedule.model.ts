@@ -1,5 +1,5 @@
 export interface ScheduleSlot {
-  day: number; // 0-4 (Lunes-Viernes)
+  day: number; // 0-4 (Astelehena-Ostirala)
   hour: number; // 1-6
   type: 'CLASS' | 'TUTORIA' | 'GUARDIA' | 'MEETING' | 'EMPTY';
   subject?: string;
