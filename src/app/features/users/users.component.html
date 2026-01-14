@@ -1,0 +1,142 @@
+<div class="users-container">
+  <div class="page-header">
+    <h1>{{ 'USER.LIST' | translate }}</h1>
+    @if (isAdmin()) {
+      <button mat-raised-button color="primary" (click)="openCreateDialog()">
+        <mat-icon>add</mat-icon>
+        {{ 'USER.CREATE' | translate }}
+      </button>
+    }
+  </div>
+
+  <!-- Filtros -->
+  <mat-card class="filters-card">
+    <mat-card-content>
+      <div class="filters-row">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>{{ 'COMMON.SEARCH' | translate }}</mat-label>
+          <input matInput 
+                 [(ngModel)]="searchTerm" 
+                 (keyup.enter)="onSearch()"
+                 placeholder="Nombre, apellido, email...">
+          <mat-icon matPrefix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="role-field">
+          <mat-label>{{ 'USER.ROLE' | translate }}</mat-label>
+          <mat-select [(ngModel)]="selectedRole" (selectionChange)="onSearch()">
+            <mat-option value="">{{ 'COMMON.ALL' | translate }}</mat-option>
+            @for (role of roles; track role) {
+              <mat-option [value]="role">{{ 'ROLE.' + role | translate }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-button color="primary" (click)="onSearch()">
+          <mat-icon>search</mat-icon>
+          {{ 'COMMON.SEARCH' | translate }}
+        </button>
+
+        <button mat-button (click)="clearFilters()">
+          <mat-icon>clear</mat-icon>
+          {{ 'COMMON.CLEAR' | translate }}
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Contador de resultados -->
+  <div class="results-count">
+    {{ filteredUsers().length }} {{ 'COMMON.RESULTS' | translate }}
+  </div>
+
+  <!-- Tabla de usuarios -->
+  <mat-card class="table-card">
+    @if (loading()) {
+      <div class="loading-container">
+        <mat-spinner diameter="50"></mat-spinner>
+      </div>
+    } @else {
+      <table mat-table [dataSource]="getPaginatedUsers()" class="users-table">
+        <!-- Columna foto -->
+        <ng-container matColumnDef="photo">
+          <th mat-header-cell *matHeaderCellDef>Foto</th>
+          <td mat-cell *matCellDef="let user">
+            <img [src]="getPhotoUrl(user)" 
+                 [alt]="user.name" 
+                 class="user-photo"
+                 (error)="$any($event.target).src='assets/photos/unknown.jpg'">
+          </td>
+        </ng-container>
+
+        <!-- Columna nombre -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>{{ 'USER.NAME' | translate }}</th>
+          <td mat-cell *matCellDef="let user">
+            <div class="user-name">
+              <strong>{{ user.name }} {{ user.surname }}</strong>
+              <span class="username">@{{ user.username }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Columna email -->
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef>{{ 'USER.EMAIL' | translate }}</th>
+          <td mat-cell *matCellDef="let user">{{ user.email }}</td>
+        </ng-container>
+
+        <!-- Columna rol -->
+        <ng-container matColumnDef="role">
+          <th mat-header-cell *matHeaderCellDef>{{ 'USER.ROLE' | translate }}</th>
+          <td mat-cell *matCellDef="let user">
+            <span class="role-badge" [ngClass]="getRoleClass(user.role)">
+              {{ 'ROLE.' + user.role | translate }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Columna acciones -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>{{ 'USER.ACTIONS' | translate }}</th>
+          <td mat-cell *matCellDef="let user">
+            <div class="actions-cell">
+              @if (canEdit(user)) {
+                <button mat-icon-button color="primary" 
+                        (click)="openEditDialog(user)"
+                        [matTooltip]="'USER.EDIT' | translate">
+                  <mat-icon>edit</mat-icon>
+                </button>
+              }
+              @if (canDelete(user)) {
+                <button mat-icon-button color="warn" 
+                        (click)="deleteUser(user)"
+                        [matTooltip]="'USER.DELETE' | translate">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              }
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      @if (filteredUsers().length === 0) {
+        <div class="no-data">
+          <mat-icon>search_off</mat-icon>
+          <p>{{ 'COMMON.NO_RESULTS' | translate }}</p>
+        </div>
+      }
+
+      <mat-paginator [length]="filteredUsers().length"
+                     [pageSize]="pageSize"
+                     [pageIndex]="pageIndex"
+                     [pageSizeOptions]="[5, 10, 25, 50]"
+                     (page)="onPageChange($event)"
+                     showFirstLastButtons>
+      </mat-paginator>
+    }
+  </mat-card>
+</div>

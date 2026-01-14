@@ -28,7 +28,14 @@
     "SURNAME": "Abizenak",
     "EMAIL": "Email-a",
     "ROLE": "Rola",
-    "ACTIONS": "Ekintzak"
+    "USERNAME": "Erabiltzaile izena",
+    "ACTIONS": "Ekintzak",
+    "PROFILE": "Profila",
+    "CYCLE": "Zikloa",
+    "COURSE": "Maila",
+    "GROUP": "Taldea",
+    "IS_DUAL": "Dual FP",
+    "DUAL_MODE": "Dual Modalitatea"
   },
   "ROLE": {
     "GOD": "Super Administratzailea",
@@ -45,10 +52,16 @@
     "TOPIC": "Gaia",
     "DATE": "Data",
     "TIME": "Ordua",
+    "HOUR": "Ordua",
     "LOCATION": "Kokapena",
     "CLASSROOM": "Gela",
     "STATUS": "Egoera",
-    "PARTICIPANTS": "Partaideak"
+    "PARTICIPANTS": "Partaideak",
+    "CENTERS": "Ikastetxeak",
+    "CENTERS_COUNT": "ikastetxe aurkituak",
+    "MY_MEETINGS": "Nire Bilerak",
+    "NO_MEETINGS": "Ez daukazu bilerarik programatuta",
+    "CREATE_IN_CENTER": "Ikastetxe honetan bilera sortu"
   },
   "STATUS": {
     "PENDING": "Zain",
@@ -63,12 +76,47 @@
     "WEDNESDAY": "Asteazkena",
     "THURSDAY": "Osteguna",
     "FRIDAY": "Ostirala",
-    "HOUR": "Ordua"
+    "HOUR": "Ordua",
+    "LEGEND": "Legenda",
+    "CLASS": "Klasea",
+    "TUTORIA": "Tutoretza",
+    "GUARDIA": "Zaintza",
+    "MEETING": "Bilera",
+    "FREE": "Libre",
+    "NO_SCHEDULE": "Ez dago ordutegirik eskuragarri"
   },
   "DASHBOARD": {
     "TOTAL_STUDENTS": "Ikasle Guztira",
     "TOTAL_TEACHERS": "Irakasle Guztira",
-    "TODAY_MEETINGS": "Gaurko Bilerak"
+    "TODAY_MEETINGS": "Gaurko Bilerak",
+    "WELCOME": "Ongi etorri"
+  },
+  "PROFILE": {
+    "TITLE": "Nire Profila",
+    "PERSONAL_DATA": "Datu Pertsonalak",
+    "EDIT": "Profila Editatu"
+  },
+  "FILTER": {
+    "TITULARIDAD": "Titulartasuna",
+    "TERRITORIO": "Lurraldea",
+    "MUNICIPIO": "Udalerria"
+  },
+  "CENTER": {
+    "NAME": "Ikastetxearen Izena",
+    "CODE": "Kodea",
+    "ADDRESS": "Helbidea",
+    "PHONE": "Telefonoa",
+    "EMAIL": "Email-a",
+    "COORDINATES": "Koordenatuak",
+    "DETAILS": "Xehetasunak ikusi",
+    "VIEW_MAP": "Mapan ikusi",
+    "MAP": "Mapa",
+    "SELECTED": "Aukeratutako ikastetxea",
+    "OPEN_MAPS": "Google Maps-en ireki"
+  },
+  "VALIDATION": {
+    "REQUIRED": "Eremu hau derrigorrezkoa da",
+    "EMAIL": "Sartu baliozko email bat"
   },
   "COMMON": {
     "SAVE": "Gorde",
@@ -78,6 +126,12 @@
     "FILTER": "Iragazi",
     "ACTIONS": "Ekintzak",
     "YES": "Bai",
-    "NO": "Ez"
+    "NO": "Ez",
+    "ALL": "Guztiak",
+    "CLEAR": "Garbitu",
+    "RESULTS": "emaitzak",
+    "NO_RESULTS": "Ez da emaitzarik aurkitu",
+    "CLOSE": "Itxi",
+    "LOADING": "Kargatzen..."
   }
 }

@@ -1,0 +1,137 @@
+{
+  "APP": {
+    "TITLE": "ElorAdmin",
+    "SUBTITLE": "Educational Management System"
+  },
+  "LOGIN": {
+    "TITLE": "Login",
+    "USERNAME": "Username",
+    "PASSWORD": "Password",
+    "SUBMIT": "Sign In",
+    "ERROR": "Invalid username or password"
+  },
+  "MENU": {
+    "HOME": "Home",
+    "USERS": "Users",
+    "MEETINGS": "Meetings",
+    "SCHEDULE": "Schedule",
+    "STUDENTS": "Students",
+    "PROFILE": "Profile",
+    "LOGOUT": "Logout"
+  },
+  "USER": {
+    "LIST": "User List",
+    "CREATE": "Create User",
+    "EDIT": "Edit User",
+    "DELETE": "Delete User",
+    "NAME": "Name",
+    "SURNAME": "Surname",
+    "EMAIL": "Email",
+    "ROLE": "Role",
+    "USERNAME": "Username",
+    "ACTIONS": "Actions",
+    "PROFILE": "Profile",
+    "CYCLE": "Program",
+    "COURSE": "Year",
+    "GROUP": "Group",
+    "IS_DUAL": "Dual Training",
+    "DUAL_MODE": "Dual Mode"
+  },
+  "ROLE": {
+    "GOD": "Super Administrator",
+    "ADMIN": "Administrator",
+    "TEACHER": "Teacher",
+    "STUDENT": "Student"
+  },
+  "MEETING": {
+    "LIST": "Meeting List",
+    "CREATE": "Create Meeting",
+    "EDIT": "Edit Meeting",
+    "DELETE": "Delete Meeting",
+    "TITLE": "Title",
+    "TOPIC": "Topic",
+    "DATE": "Date",
+    "TIME": "Time",
+    "HOUR": "Hour",
+    "LOCATION": "Location",
+    "CLASSROOM": "Classroom",
+    "STATUS": "Status",
+    "PARTICIPANTS": "Participants",
+    "CENTERS": "Educational Centers",
+    "CENTERS_COUNT": "centers found",
+    "MY_MEETINGS": "My Meetings",
+    "NO_MEETINGS": "You have no scheduled meetings",
+    "CREATE_IN_CENTER": "Create meeting at this center"
+  },
+  "STATUS": {
+    "PENDING": "Pending",
+    "ACCEPTED": "Accepted",
+    "CANCELLED": "Cancelled",
+    "CONFLICT": "Conflict"
+  },
+  "SCHEDULE": {
+    "TITLE": "Schedule",
+    "MONDAY": "Monday",
+    "TUESDAY": "Tuesday",
+    "WEDNESDAY": "Wednesday",
+    "THURSDAY": "Thursday",
+    "FRIDAY": "Friday",
+    "HOUR": "Hour",
+    "LEGEND": "Legend",
+    "CLASS": "Class",
+    "TUTORIA": "Tutoring",
+    "GUARDIA": "On Duty",
+    "MEETING": "Meeting",
+    "FREE": "Free",
+    "NO_SCHEDULE": "No schedule available"
+  },
+  "DASHBOARD": {
+    "TOTAL_STUDENTS": "Total Students",
+    "TOTAL_TEACHERS": "Total Teachers",
+    "TODAY_MEETINGS": "Today's Meetings",
+    "WELCOME": "Welcome"
+  },
+  "PROFILE": {
+    "TITLE": "My Profile",
+    "PERSONAL_DATA": "Personal Data",
+    "EDIT": "Edit Profile"
+  },
+  "FILTER": {
+    "TITULARIDAD": "Ownership",
+    "TERRITORIO": "Territory",
+    "MUNICIPIO": "Municipality"
+  },
+  "CENTER": {
+    "NAME": "Center Name",
+    "CODE": "Code",
+    "ADDRESS": "Address",
+    "PHONE": "Phone",
+    "EMAIL": "Email",
+    "COORDINATES": "Coordinates",
+    "DETAILS": "View details",
+    "VIEW_MAP": "View on map",
+    "MAP": "Map",
+    "SELECTED": "Selected center",
+    "OPEN_MAPS": "Open in Google Maps"
+  },
+  "VALIDATION": {
+    "REQUIRED": "This field is required",
+    "EMAIL": "Enter a valid email"
+  },
+  "COMMON": {
+    "SAVE": "Save",
+    "CANCEL": "Cancel",
+    "CONFIRM": "Confirm",
+    "SEARCH": "Search",
+    "FILTER": "Filter",
+    "ACTIONS": "Actions",
+    "YES": "Yes",
+    "NO": "No",
+    "ALL": "All",
+    "CLEAR": "Clear",
+    "RESULTS": "results",
+    "NO_RESULTS": "No results found",
+    "CLOSE": "Close",
+    "LOADING": "Loading..."
+  }
+}

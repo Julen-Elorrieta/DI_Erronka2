@@ -27,14 +27,15 @@
         <mat-icon>language</mat-icon>
       </button>
       <mat-menu #langMenu="matMenu">
-        <button mat-menu-item (click)="switchLanguage('es')">
-          <mat-icon>{{ currentLanguage() === 'es' ? 'check' : '' }}</mat-icon>
-          <span>Castellano</span>
-        </button>
-        <button mat-menu-item (click)="switchLanguage('eu')">
-          <mat-icon>{{ currentLanguage() === 'eu' ? 'check' : '' }}</mat-icon>
-          <span>Euskera</span>
-        </button>
+        @for (lang of availableLanguages; track lang.code) {
+          <button mat-menu-item (click)="switchLanguage(lang.code)">
+            <span class="lang-flag">{{ lang.flag }}</span>
+            <span>{{ lang.name }}</span>
+            @if (currentLanguage() === lang.code) {
+              <mat-icon class="check-icon">check</mat-icon>
+            }
+          </button>
+        }
       </mat-menu>
 
       <!-- User Menu -->

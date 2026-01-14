@@ -9,7 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
-import { LanguageService } from '../../core/services/language.service';
+import { LanguageService, Language } from '../../core/services/language.service';
 import { UserRole } from '../../core/models/user.model';
 
 interface MenuItem {
@@ -38,6 +38,7 @@ interface MenuItem {
 })
 export class LayoutComponent {
   currentLanguage = computed(() => this.languageService.getCurrentLanguage());
+  availableLanguages: { code: Language, name: string, flag: string }[] = [];
 
   menuItems: MenuItem[] = [
     { label: 'MENU.HOME', icon: 'home', route: '/dashboard', roles: [UserRole.GOD, UserRole.ADMIN, UserRole.TEACHER, UserRole.STUDENT] },
@@ -58,13 +59,15 @@ export class LayoutComponent {
     public authService: AuthService,
     public languageService: LanguageService,
     private router: Router
-  ) {}
+  ) {
+    this.availableLanguages = this.languageService.getAvailableLanguages();
+  }
 
   get currentUser() {
     return this.authService.currentUser;
   }
 
-  switchLanguage(lang: 'es' | 'eu'): void {
+  switchLanguage(lang: Language): void {
     this.languageService.setLanguage(lang);
   }
 

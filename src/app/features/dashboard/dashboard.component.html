@@ -2,7 +2,7 @@
   <h1 class="page-title">{{ 'MENU.HOME' | translate }}</h1>
 
   <div class="welcome-section">
-    <h2>{{ 'Bienvenido' }}, {{ currentUser()?.name }}!</h2>
+    <h2>{{ 'DASHBOARD.WELCOME' | translate }}, {{ currentUser()?.name }}!</h2>
   </div>
 
   <!-- Admin/God Dashboard -->
@@ -44,27 +44,72 @@
         </mat-card-content>
       </mat-card>
     </div>
+
+    <!-- Quick Actions para Admin -->
+    <div class="quick-actions">
+      <h3>{{ 'COMMON.ACTIONS' | translate }}</h3>
+      <div class="actions-grid">
+        <a mat-raised-button color="primary" routerLink="/users">
+          <mat-icon>people</mat-icon>
+          {{ 'MENU.USERS' | translate }}
+        </a>
+        <a mat-raised-button color="accent" routerLink="/meetings">
+          <mat-icon>event</mat-icon>
+          {{ 'MENU.MEETINGS' | translate }}
+        </a>
+      </div>
+    </div>
   }
 
   <!-- Teacher Dashboard -->
   @if (currentUser()?.role === 'TEACHER') {
     <div class="teacher-dashboard">
-      <mat-card>
+      <mat-card class="info-card">
         <mat-card-header>
+          <mat-icon mat-card-avatar>schedule</mat-icon>
           <mat-card-title>{{ 'SCHEDULE.TITLE' | translate }}</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <p>Vista del horario del profesor (por implementar)</p>
+          <p>{{ 'DASHBOARD.VIEW_SCHEDULE_DESC' | translate }}</p>
         </mat-card-content>
+        <mat-card-actions>
+          <a mat-button color="primary" routerLink="/schedule">
+            {{ 'COMMON.VIEW' | translate }}
+            <mat-icon>arrow_forward</mat-icon>
+          </a>
+        </mat-card-actions>
       </mat-card>
 
-      <mat-card>
+      <mat-card class="info-card">
         <mat-card-header>
-          <mat-card-title>{{ 'MEETING.LIST' | translate }}</mat-card-title>
+          <mat-icon mat-card-avatar>event</mat-icon>
+          <mat-card-title>{{ 'MEETING.MY_MEETINGS' | translate }}</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <p>Próximas reuniones (por implementar)</p>
+          <p>{{ 'DASHBOARD.VIEW_MEETINGS_DESC' | translate }}</p>
         </mat-card-content>
+        <mat-card-actions>
+          <a mat-button color="primary" routerLink="/meetings">
+            {{ 'COMMON.VIEW' | translate }}
+            <mat-icon>arrow_forward</mat-icon>
+          </a>
+        </mat-card-actions>
+      </mat-card>
+
+      <mat-card class="info-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>school</mat-icon>
+          <mat-card-title>{{ 'MENU.STUDENTS' | translate }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>{{ 'DASHBOARD.VIEW_STUDENTS_DESC' | translate }}</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <a mat-button color="primary" routerLink="/students">
+            {{ 'COMMON.VIEW' | translate }}
+            <mat-icon>arrow_forward</mat-icon>
+          </a>
+        </mat-card-actions>
       </mat-card>
     </div>
   }
@@ -72,34 +117,66 @@
   <!-- Student Dashboard -->
   @if (currentUser()?.role === 'STUDENT') {
     <div class="student-dashboard">
-      <mat-card>
+      <mat-card class="profile-summary-card">
         <mat-card-header>
-          <mat-card-title>{{ 'USER.PROFILE' | translate }}</mat-card-title>
+          <mat-icon mat-card-avatar>person</mat-icon>
+          <mat-card-title>{{ currentUser()?.name }} {{ currentUser()?.surname }}</mat-card-title>
+          <mat-card-subtitle>{{ currentUser()?.email }}</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
-          <div class="profile-info">
-            <p><strong>{{ 'USER.NAME' }}:</strong> {{ currentUser()?.name }} {{ currentUser()?.surname }}</p>
-            <p><strong>{{ 'USER.EMAIL' }}:</strong> {{ currentUser()?.email }}</p>
+          <div class="student-details">
+            @if (currentUser()?.cycle) {
+              <div class="detail-item">
+                <mat-icon>school</mat-icon>
+                <span>{{ currentUser()?.cycle }}</span>
+              </div>
+            }
+            @if (currentUser()?.group) {
+              <div class="detail-item">
+                <mat-icon>group</mat-icon>
+                <span>{{ 'USER.GROUP' | translate }}: {{ currentUser()?.group }}</span>
+              </div>
+            }
           </div>
         </mat-card-content>
+        <mat-card-actions>
+          <a mat-button color="primary" routerLink="/profile">
+            {{ 'MENU.PROFILE' | translate }}
+            <mat-icon>arrow_forward</mat-icon>
+          </a>
+        </mat-card-actions>
       </mat-card>
 
-      <mat-card>
+      <mat-card class="info-card">
         <mat-card-header>
+          <mat-icon mat-card-avatar>schedule</mat-icon>
           <mat-card-title>{{ 'SCHEDULE.TITLE' | translate }}</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <p>Vista del horario del estudiante (por implementar)</p>
+          <p>{{ 'DASHBOARD.VIEW_SCHEDULE_DESC' | translate }}</p>
         </mat-card-content>
+        <mat-card-actions>
+          <a mat-button color="primary" routerLink="/schedule">
+            {{ 'COMMON.VIEW' | translate }}
+            <mat-icon>arrow_forward</mat-icon>
+          </a>
+        </mat-card-actions>
       </mat-card>
 
-      <mat-card>
+      <mat-card class="info-card">
         <mat-card-header>
-          <mat-card-title>{{ 'MEETING.LIST' | translate }}</mat-card-title>
+          <mat-icon mat-card-avatar>event</mat-icon>
+          <mat-card-title>{{ 'MEETING.MY_MEETINGS' | translate }}</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <p>Mis reuniones (por implementar)</p>
+          <p>{{ 'DASHBOARD.VIEW_MEETINGS_DESC' | translate }}</p>
         </mat-card-content>
+        <mat-card-actions>
+          <a mat-button color="primary" routerLink="/meetings">
+            {{ 'COMMON.VIEW' | translate }}
+            <mat-icon>arrow_forward</mat-icon>
+          </a>
+        </mat-card-actions>
       </mat-card>
     </div>
   }

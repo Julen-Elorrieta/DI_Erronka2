@@ -1,0 +1,84 @@
+<div class="schedule-container">
+  <h1 class="page-title">{{ 'SCHEDULE.TITLE' | translate }}</h1>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="50"></mat-spinner>
+    </div>
+  } @else {
+    <mat-card class="schedule-card">
+      <mat-card-content>
+        <div class="schedule-table-wrapper">
+          <table class="schedule-table">
+            <thead>
+              <tr>
+                <th class="hour-header">{{ 'SCHEDULE.HOUR' | translate }}</th>
+                @for (day of days; track day.key) {
+                  <th class="day-header">{{ 'SCHEDULE.' + day.key | translate }}</th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (hour of hours; track hour.num) {
+                <tr>
+                  <td class="hour-cell">
+                    <div class="hour-info">
+                      <span class="hour-num">{{ hour.num }}ª</span>
+                      <span class="hour-time">{{ hour.time }}</span>
+                    </div>
+                  </td>
+                  @for (day of days; track day.key; let dayIndex = $index) {
+                    <td class="slot-cell" [ngClass]="getSlotClass(getSlot(dayIndex, hour.num))">
+                      @if (getSlot(dayIndex, hour.num); as slot) {
+                        @if (slot.type !== 'EMPTY') {
+                          <div class="slot-content" [matTooltip]="slot.subject || ''">
+                            @if (getSlotIcon(slot)) {
+                              <mat-icon class="slot-icon">{{ getSlotIcon(slot) }}</mat-icon>
+                            }
+                            <span class="slot-subject">{{ slot.subject }}</span>
+                            @if (slot.cycle) {
+                              <span class="slot-cycle">{{ slot.cycle }}</span>
+                            }
+                          </div>
+                        }
+                      }
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Leyenda -->
+    <mat-card class="legend-card">
+      <mat-card-content>
+        <h3>{{ 'SCHEDULE.LEGEND' | translate }}</h3>
+        <div class="legend-items">
+          <div class="legend-item">
+            <span class="legend-color slot-class"></span>
+            <span>{{ 'SCHEDULE.CLASS' | translate }}</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color slot-tutoria"></span>
+            <span>{{ 'SCHEDULE.TUTORIA' | translate }}</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color slot-guardia"></span>
+            <span>{{ 'SCHEDULE.GUARDIA' | translate }}</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color slot-meeting"></span>
+            <span>{{ 'SCHEDULE.MEETING' | translate }}</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color slot-empty"></span>
+            <span>{{ 'SCHEDULE.FREE' | translate }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

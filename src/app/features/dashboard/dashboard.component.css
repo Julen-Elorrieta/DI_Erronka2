@@ -1,12 +1,13 @@
 .dashboard-container {
   max-width: 1400px;
   margin: 0 auto;
+  padding: 20px;
 }
 
 .page-title {
   font-size: 2rem;
   font-weight: 500;
-  color: #333;
+  color: var(--primary-color);
   margin-bottom: 1rem;
 }
 
@@ -17,7 +18,7 @@
 .welcome-section h2 {
   font-size: 1.5rem;
   font-weight: 400;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .stats-grid {
@@ -65,11 +66,11 @@
 }
 
 .stat-icon.teachers {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
 }
 
 .stat-icon.meetings {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  background: linear-gradient(135deg, #ff6600 0%, #ff9800 100%);
 }
 
 .stat-info {
@@ -79,22 +80,101 @@
 .stat-value {
   font-size: 2.5rem;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   margin: 0;
   line-height: 1;
 }
 
 .stat-label {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--text-secondary);
   margin: 0.5rem 0 0;
 }
 
+/* Quick Actions */
+.quick-actions {
+  margin-top: 2rem;
+}
+
+.quick-actions h3 {
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  font-weight: 400;
+}
+
+.actions-grid {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.actions-grid a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Teacher/Student Dashboard */
 .teacher-dashboard,
 .student-dashboard {
   display: grid;
   gap: 1.5rem;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.info-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.info-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.info-card mat-card-header mat-icon {
+  color: var(--primary-color);
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+}
+
+.info-card mat-card-content p {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.info-card mat-card-actions a {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Profile Summary Card */
+.profile-summary-card mat-card-header mat-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  color: var(--primary-color);
+}
+
+.student-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+}
+
+.detail-item mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
 }
 
 .profile-info {

@@ -28,7 +28,14 @@
     "SURNAME": "Apellidos",
     "EMAIL": "Email",
     "ROLE": "Rol",
-    "ACTIONS": "Acciones"
+    "USERNAME": "Nombre de usuario",
+    "ACTIONS": "Acciones",
+    "PROFILE": "Perfil",
+    "CYCLE": "Ciclo",
+    "COURSE": "Curso",
+    "GROUP": "Grupo",
+    "IS_DUAL": "FP Dual",
+    "DUAL_MODE": "Modalidad Dual"
   },
   "ROLE": {
     "GOD": "Super Administrador",
@@ -45,10 +52,16 @@
     "TOPIC": "Tema",
     "DATE": "Fecha",
     "TIME": "Hora",
+    "HOUR": "Hora",
     "LOCATION": "Ubicación",
     "CLASSROOM": "Aula",
     "STATUS": "Estado",
-    "PARTICIPANTS": "Participantes"
+    "PARTICIPANTS": "Participantes",
+    "CENTERS": "Centros Educativos",
+    "CENTERS_COUNT": "centros encontrados",
+    "MY_MEETINGS": "Mis Reuniones",
+    "NO_MEETINGS": "No tienes reuniones programadas",
+    "CREATE_IN_CENTER": "Crear reunión en este centro"
   },
   "STATUS": {
     "PENDING": "Pendiente",
@@ -63,12 +76,47 @@
     "WEDNESDAY": "Miércoles",
     "THURSDAY": "Jueves",
     "FRIDAY": "Viernes",
-    "HOUR": "Hora"
+    "HOUR": "Hora",
+    "LEGEND": "Leyenda",
+    "CLASS": "Clase",
+    "TUTORIA": "Tutoría",
+    "GUARDIA": "Guardia",
+    "MEETING": "Reunión",
+    "FREE": "Libre",
+    "NO_SCHEDULE": "No hay horario disponible"
   },
   "DASHBOARD": {
     "TOTAL_STUDENTS": "Total Alumnos",
     "TOTAL_TEACHERS": "Total Profesores",
-    "TODAY_MEETINGS": "Reuniones de Hoy"
+    "TODAY_MEETINGS": "Reuniones de Hoy",
+    "WELCOME": "Bienvenido"
+  },
+  "PROFILE": {
+    "TITLE": "Mi Perfil",
+    "PERSONAL_DATA": "Datos Personales",
+    "EDIT": "Editar Perfil"
+  },
+  "FILTER": {
+    "TITULARIDAD": "Titularidad",
+    "TERRITORIO": "Territorio",
+    "MUNICIPIO": "Municipio"
+  },
+  "CENTER": {
+    "NAME": "Nombre del Centro",
+    "CODE": "Código",
+    "ADDRESS": "Dirección",
+    "PHONE": "Teléfono",
+    "EMAIL": "Email",
+    "COORDINATES": "Coordenadas",
+    "DETAILS": "Ver detalles",
+    "VIEW_MAP": "Ver en mapa",
+    "MAP": "Mapa",
+    "SELECTED": "Centro seleccionado",
+    "OPEN_MAPS": "Abrir en Google Maps"
+  },
+  "VALIDATION": {
+    "REQUIRED": "Este campo es obligatorio",
+    "EMAIL": "Introduce un email válido"
   },
   "COMMON": {
     "SAVE": "Guardar",
@@ -78,6 +126,12 @@
     "FILTER": "Filtrar",
     "ACTIONS": "Acciones",
     "YES": "Sí",
-    "NO": "No"
+    "NO": "No",
+    "ALL": "Todos",
+    "CLEAR": "Limpiar",
+    "RESULTS": "resultados",
+    "NO_RESULTS": "No se encontraron resultados",
+    "CLOSE": "Cerrar",
+    "LOADING": "Cargando..."
   }
 }
