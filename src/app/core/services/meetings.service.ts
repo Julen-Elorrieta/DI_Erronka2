@@ -97,10 +97,11 @@ export class MeetingsService {
    * Elimina una reunión
    */
   deleteMeeting(id: number): Observable<void> {
-    // TODO: return this.http.delete<void>(`${this.API_URL}/${id}`);
-    
-    console.log('✅ Reunión eliminada (mock):', id);
-    return of(void 0).pipe(delay(300));
+    if (this.USE_MOCK) {
+      console.log('✅ Reunión eliminada (mock):', id);
+      return of(void 0).pipe(delay(300));
+    }
+    return this.http.delete<void>(`${this.API_URL}/${id}`);
   }
 
   /**
