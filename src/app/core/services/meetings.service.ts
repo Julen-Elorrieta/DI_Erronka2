@@ -18,20 +18,26 @@ export class MeetingsService {
    * Obtiene todas las reuniones
    */
   getMeetings(): Observable<Meeting[]> {
-    // TODO: return this.http.get<Meeting[]>(this.API_URL);
-    return this.getMockMeetings().pipe(delay(300));
+    if (this.USE_MOCK) {
+      return this.getMockMeetings().pipe(delay(300));
+    }
+    return this.http.get<Meeting[]>(this.API_URL);
   }
 
   /**
    * Obtiene las reuniones de un usuario
    */
   getUserMeetings(userId: number): Observable<Meeting[]> {
-    return this.getMockMeetings().pipe(
-      map(meetings => meetings.filter(m =>
-        m.participants.teacherId === userId || m.participants.studentId === userId
-      )),
-      delay(300)
-    );
+    if (this.USE_MOCK) {
+      return this.getMockMeetings().pipe(
+        map(meetings => meetings.filter(m =>
+          m.participants.teacherId === userId || m.participants.studentId === userId
+        )),
+        delay(300)
+      );
+    }
+    const params = new HttpParams().set('userId', userId.toString());
+    return this.http.get<Meeting[]>(this.API_URL, { params });
   }
 
   /**
@@ -41,46 +47,50 @@ export class MeetingsService {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    return this.getMockMeetings().pipe(
-      map(meetings => meetings.filter(m => {
-        const meetingDate = new Date(m.date);
-        meetingDate.setHours(0, 0, 0, 0);
-        return meetingDate.getTime() === today.getTime();
-      })),
-      delay(200)
-    );
+    if (this.USE_MOCK) {
+      return this.getMockMeetings().pipe(
+        map(meetings => meetings.filter(m => {
+          const meetingDate = new Date(m.date);
+          meetingDate.setHours(0, 0, 0, 0);
+          return meetingDate.getTime() === today.getTime();
+        })),
+        delay(200)
+      );
+    }
+    const params = new HttpParams().set('date', today.toISOString().split('T')[0]);
+    return this.http.get<Meeting[]>(`${this.API_URL}/today`, { params });
   }
 
   /**
    * Crea una nueva reunión
    */
   createMeeting(meeting: Omit<Meeting, 'id'>): Observable<Meeting> {
-    // TODO: return this.http.post<Meeting>(this.API_URL, meeting);
-    
-    const newMeeting = { ...meeting, id: Date.now() } as Meeting;
-    console.log('✅ Reunión creada (mock):', newMeeting);
-    
-    return of(newMeeting).pipe(delay(500));
+    if (this.USE_MOCK) {
+      const newMeeting = { ...meeting, id: Date.now() } as Meeting;
+      console.log('✅ Reunión creada (mock):', newMeeting);
+      return of(newMeeting).pipe(delay(500));
+    }
+    return this.http.post<Meeting>(this.API_URL, meeting);
   }
 
   /**
    * Actualiza el estado de una reunión
    */
   updateMeetingStatus(id: number, status: MeetingStatus): Observable<Meeting> {
-    // TODO: return this.http.patch<Meeting>(`${this.API_URL}/${id}/status`, { status });
-    
-    console.log(`✅ Estado de reunión ${id} actualizado a:`, status);
-    
-    return this.getMockMeetings().pipe(
-      map(meetings => {
-        const meeting = meetings.find(m => m.id === id);
-        if (meeting) {
-          meeting.status = status;
-        }
-        return meeting!;
-      }),
-      delay(300)
-    );
+    if (this.USE_MOCK) {
+      console.log(`✅ Estado de reunión ${id} actualizado a:`, status);
+      return this.getMockMeetings().pipe(
+        map(meetings => {
+          const meeting = meetings.find(m => m.id === id);
+          if (meeting) {
+            meeting.status = status;
+          }
+          return meeting!;
+        }),
+        delay(300)
+      );
+    }
+    return this.http.patch<Meeting>(`${this.API_URL}/${id}/status`, { status });
   }
 
   /**
