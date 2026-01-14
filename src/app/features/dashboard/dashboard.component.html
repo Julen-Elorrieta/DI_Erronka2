@@ -7,177 +7,177 @@
 
   <!-- Admin/God Dashboard -->
   @if (isAdminRole()) {
-    <div class="stats-grid">
-      <mat-card class="stat-card">
-        <mat-card-content>
-          <div class="stat-icon students">
-            <mat-icon>school</mat-icon>
-          </div>
-          <div class="stat-info">
-            <h3 class="stat-value">{{ totalStudents() }}</h3>
-            <p class="stat-label">{{ 'DASHBOARD.TOTAL_STUDENTS' | translate }}</p>
-          </div>
-        </mat-card-content>
-      </mat-card>
+  <div class="stats-grid">
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-icon students">
+          <mat-icon>school</mat-icon>
+        </div>
+        <div class="stat-info">
+          <h3 class="stat-value">{{ totalStudents() }}</h3>
+          <p class="stat-label">{{ 'DASHBOARD.TOTAL_STUDENTS' | translate }}</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
 
-      <mat-card class="stat-card">
-        <mat-card-content>
-          <div class="stat-icon teachers">
-            <mat-icon>people</mat-icon>
-          </div>
-          <div class="stat-info">
-            <h3 class="stat-value">{{ totalTeachers() }}</h3>
-            <p class="stat-label">{{ 'DASHBOARD.TOTAL_TEACHERS' | translate }}</p>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="stat-card">
-        <mat-card-content>
-          <div class="stat-icon meetings">
-            <mat-icon>event</mat-icon>
-          </div>
-          <div class="stat-info">
-            <h3 class="stat-value">{{ todayMeetings() }}</h3>
-            <p class="stat-label">{{ 'DASHBOARD.TODAY_MEETINGS' | translate }}</p>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    </div>
-
-    <!-- Quick Actions para Admin -->
-    <div class="quick-actions">
-      <h3>{{ 'COMMON.ACTIONS' | translate }}</h3>
-      <div class="actions-grid">
-        <a mat-raised-button color="primary" routerLink="/users">
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-icon teachers">
           <mat-icon>people</mat-icon>
-          {{ 'MENU.USERS' | translate }}
-        </a>
-        <a mat-raised-button color="accent" routerLink="/meetings">
+        </div>
+        <div class="stat-info">
+          <h3 class="stat-value">{{ totalTeachers() }}</h3>
+          <p class="stat-label">{{ 'DASHBOARD.TOTAL_TEACHERS' | translate }}</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-icon meetings">
           <mat-icon>event</mat-icon>
-          {{ 'MENU.MEETINGS' | translate }}
-        </a>
-      </div>
+        </div>
+        <div class="stat-info">
+          <h3 class="stat-value">{{ todayMeetings() }}</h3>
+          <p class="stat-label">{{ 'DASHBOARD.TODAY_MEETINGS' | translate }}</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Quick Actions para Admin -->
+  <div class="quick-actions">
+    <h3>{{ 'COMMON.ACTIONS' | translate }}</h3>
+    <div class="actions-grid">
+      <a mat-raised-button color="primary" routerLink="/users">
+        <mat-icon>people</mat-icon>
+        {{ 'MENU.USERS' | translate }}
+      </a>
+      <a mat-raised-button color="accent" routerLink="/meetings">
+        <mat-icon>event</mat-icon>
+        {{ 'MENU.MEETINGS' | translate }}
+      </a>
     </div>
+  </div>
   }
 
   <!-- Teacher Dashboard -->
   @if (currentUser()?.role === 'TEACHER') {
-    <div class="teacher-dashboard">
-      <mat-card class="info-card">
-        <mat-card-header>
-          <mat-icon mat-card-avatar>schedule</mat-icon>
-          <mat-card-title>{{ 'SCHEDULE.TITLE' | translate }}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <p>{{ 'DASHBOARD.VIEW_SCHEDULE_DESC' | translate }}</p>
-        </mat-card-content>
-        <mat-card-actions>
-          <a mat-button color="primary" routerLink="/schedule">
-            {{ 'COMMON.VIEW' | translate }}
-            <mat-icon>arrow_forward</mat-icon>
-          </a>
-        </mat-card-actions>
-      </mat-card>
+  <div class="teacher-dashboard">
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>schedule</mat-icon>
+        <mat-card-title>{{ 'SCHEDULE.TITLE' | translate }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>{{ 'DASHBOARD.VIEW_SCHEDULE_DESC' | translate }}</p>
+      </mat-card-content>
+      <mat-card-actions>
+        <a mat-button color="primary" routerLink="/schedule">
+          {{ 'COMMON.VIEW' | translate }}
+          <mat-icon>arrow_forward</mat-icon>
+        </a>
+      </mat-card-actions>
+    </mat-card>
 
-      <mat-card class="info-card">
-        <mat-card-header>
-          <mat-icon mat-card-avatar>event</mat-icon>
-          <mat-card-title>{{ 'MEETING.MY_MEETINGS' | translate }}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <p>{{ 'DASHBOARD.VIEW_MEETINGS_DESC' | translate }}</p>
-        </mat-card-content>
-        <mat-card-actions>
-          <a mat-button color="primary" routerLink="/meetings">
-            {{ 'COMMON.VIEW' | translate }}
-            <mat-icon>arrow_forward</mat-icon>
-          </a>
-        </mat-card-actions>
-      </mat-card>
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>event</mat-icon>
+        <mat-card-title>{{ 'MEETING.MY_MEETINGS' | translate }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>{{ 'DASHBOARD.VIEW_MEETINGS_DESC' | translate }}</p>
+      </mat-card-content>
+      <mat-card-actions>
+        <a mat-button color="primary" routerLink="/meetings">
+          {{ 'COMMON.VIEW' | translate }}
+          <mat-icon>arrow_forward</mat-icon>
+        </a>
+      </mat-card-actions>
+    </mat-card>
 
-      <mat-card class="info-card">
-        <mat-card-header>
-          <mat-icon mat-card-avatar>school</mat-icon>
-          <mat-card-title>{{ 'MENU.STUDENTS' | translate }}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <p>{{ 'DASHBOARD.VIEW_STUDENTS_DESC' | translate }}</p>
-        </mat-card-content>
-        <mat-card-actions>
-          <a mat-button color="primary" routerLink="/students">
-            {{ 'COMMON.VIEW' | translate }}
-            <mat-icon>arrow_forward</mat-icon>
-          </a>
-        </mat-card-actions>
-      </mat-card>
-    </div>
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>school</mat-icon>
+        <mat-card-title>{{ 'MENU.STUDENTS' | translate }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>{{ 'DASHBOARD.VIEW_STUDENTS_DESC' | translate }}</p>
+      </mat-card-content>
+      <mat-card-actions>
+        <a mat-button color="primary" routerLink="/students">
+          {{ 'COMMON.VIEW' | translate }}
+          <mat-icon>arrow_forward</mat-icon>
+        </a>
+      </mat-card-actions>
+    </mat-card>
+  </div>
   }
 
   <!-- Student Dashboard -->
   @if (currentUser()?.role === 'STUDENT') {
-    <div class="student-dashboard">
-      <mat-card class="profile-summary-card">
-        <mat-card-header>
-          <mat-icon mat-card-avatar>person</mat-icon>
-          <mat-card-title>{{ currentUser()?.name }} {{ currentUser()?.surname }}</mat-card-title>
-          <mat-card-subtitle>{{ currentUser()?.email }}</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="student-details">
-            @if (currentUser()?.cycle) {
-              <div class="detail-item">
-                <mat-icon>school</mat-icon>
-                <span>{{ currentUser()?.cycle }}</span>
-              </div>
-            }
-            @if (currentUser()?.group) {
-              <div class="detail-item">
-                <mat-icon>group</mat-icon>
-                <span>{{ 'USER.GROUP' | translate }}: {{ currentUser()?.group }}</span>
-              </div>
-            }
+  <div class="student-dashboard">
+    <mat-card class="profile-summary-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>person</mat-icon>
+        <mat-card-title>{{ currentUser()?.name }} {{ currentUser()?.surname }}</mat-card-title>
+        <mat-card-subtitle>{{ currentUser()?.email }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="student-details">
+          @if (currentUser()?.cycle) {
+          <div class="detail-item">
+            <mat-icon>school</mat-icon>
+            <span>{{ currentUser()?.cycle }}</span>
           </div>
-        </mat-card-content>
-        <mat-card-actions>
-          <a mat-button color="primary" routerLink="/profile">
-            {{ 'MENU.PROFILE' | translate }}
-            <mat-icon>arrow_forward</mat-icon>
-          </a>
-        </mat-card-actions>
-      </mat-card>
+          }
+          @if (currentUser()?.group) {
+          <div class="detail-item">
+            <mat-icon>group</mat-icon>
+            <span>{{ 'USER.GROUP' | translate }}: {{ currentUser()?.group }}</span>
+          </div>
+          }
+        </div>
+      </mat-card-content>
+      <mat-card-actions>
+        <a mat-button color="primary" routerLink="/profile">
+          {{ 'MENU.PROFILE' | translate }}
+          <mat-icon>arrow_forward</mat-icon>
+        </a>
+      </mat-card-actions>
+    </mat-card>
 
-      <mat-card class="info-card">
-        <mat-card-header>
-          <mat-icon mat-card-avatar>schedule</mat-icon>
-          <mat-card-title>{{ 'SCHEDULE.TITLE' | translate }}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <p>{{ 'DASHBOARD.VIEW_SCHEDULE_DESC' | translate }}</p>
-        </mat-card-content>
-        <mat-card-actions>
-          <a mat-button color="primary" routerLink="/schedule">
-            {{ 'COMMON.VIEW' | translate }}
-            <mat-icon>arrow_forward</mat-icon>
-          </a>
-        </mat-card-actions>
-      </mat-card>
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>schedule</mat-icon>
+        <mat-card-title>{{ 'SCHEDULE.TITLE' | translate }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>{{ 'DASHBOARD.VIEW_SCHEDULE_DESC' | translate }}</p>
+      </mat-card-content>
+      <mat-card-actions>
+        <a mat-button color="primary" routerLink="/schedule">
+          {{ 'COMMON.VIEW' | translate }}
+          <mat-icon>arrow_forward</mat-icon>
+        </a>
+      </mat-card-actions>
+    </mat-card>
 
-      <mat-card class="info-card">
-        <mat-card-header>
-          <mat-icon mat-card-avatar>event</mat-icon>
-          <mat-card-title>{{ 'MEETING.MY_MEETINGS' | translate }}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <p>{{ 'DASHBOARD.VIEW_MEETINGS_DESC' | translate }}</p>
-        </mat-card-content>
-        <mat-card-actions>
-          <a mat-button color="primary" routerLink="/meetings">
-            {{ 'COMMON.VIEW' | translate }}
-            <mat-icon>arrow_forward</mat-icon>
-          </a>
-        </mat-card-actions>
-      </mat-card>
-    </div>
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>event</mat-icon>
+        <mat-card-title>{{ 'MEETING.MY_MEETINGS' | translate }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>{{ 'DASHBOARD.VIEW_MEETINGS_DESC' | translate }}</p>
+      </mat-card-content>
+      <mat-card-actions>
+        <a mat-button color="primary" routerLink="/meetings">
+          {{ 'COMMON.VIEW' | translate }}
+          <mat-icon>arrow_forward</mat-icon>
+        </a>
+      </mat-card-actions>
+    </mat-card>
+  </div>
   }
 </div>

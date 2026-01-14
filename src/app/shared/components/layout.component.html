@@ -6,10 +6,10 @@
 
     <mat-nav-list>
       @for (item of filteredMenuItems(); track item.route) {
-        <a mat-list-item [routerLink]="item.route" routerLinkActive="active-link">
-          <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-          <span matListItemTitle>{{ item.label | translate }}</span>
-        </a>
+      <a mat-list-item [routerLink]="item.route" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+        <span matListItemTitle>{{ item.label | translate }}</span>
+      </a>
       }
     </mat-nav-list>
   </mat-sidenav>
@@ -28,13 +28,13 @@
       </button>
       <mat-menu #langMenu="matMenu">
         @for (lang of availableLanguages; track lang.code) {
-          <button mat-menu-item (click)="switchLanguage(lang.code)">
-            <span class="lang-flag">{{ lang.flag }}</span>
-            <span>{{ lang.name }}</span>
-            @if (currentLanguage() === lang.code) {
-              <mat-icon class="check-icon">check</mat-icon>
-            }
-          </button>
+        <button mat-menu-item (click)="switchLanguage(lang.code)">
+          <span class="lang-flag">{{ lang.flag }}</span>
+          <span>{{ lang.name }}</span>
+          @if (currentLanguage() === lang.code) {
+          <mat-icon class="check-icon">check</mat-icon>
+          }
+        </button>
         }
       </mat-menu>
 
