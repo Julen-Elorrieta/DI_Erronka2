@@ -1,0 +1,83 @@
+{
+  "APP": {
+    "TITLE": "ElorAdmin",
+    "SUBTITLE": "Sistema de Gestión Educativa"
+  },
+  "LOGIN": {
+    "TITLE": "Iniciar Sesión",
+    "USERNAME": "Usuario",
+    "PASSWORD": "Contraseña",
+    "SUBMIT": "Entrar",
+    "ERROR": "Usuario o contraseña incorrectos"
+  },
+  "MENU": {
+    "HOME": "Inicio",
+    "USERS": "Usuarios",
+    "MEETINGS": "Reuniones",
+    "SCHEDULE": "Horario",
+    "STUDENTS": "Alumnos",
+    "PROFILE": "Perfil",
+    "LOGOUT": "Cerrar Sesión"
+  },
+  "USER": {
+    "LIST": "Lista de Usuarios",
+    "CREATE": "Crear Usuario",
+    "EDIT": "Editar Usuario",
+    "DELETE": "Eliminar Usuario",
+    "NAME": "Nombre",
+    "SURNAME": "Apellidos",
+    "EMAIL": "Email",
+    "ROLE": "Rol",
+    "ACTIONS": "Acciones"
+  },
+  "ROLE": {
+    "GOD": "Super Administrador",
+    "ADMIN": "Administrador",
+    "TEACHER": "Profesor",
+    "STUDENT": "Alumno"
+  },
+  "MEETING": {
+    "LIST": "Lista de Reuniones",
+    "CREATE": "Crear Reunión",
+    "EDIT": "Editar Reunión",
+    "DELETE": "Eliminar Reunión",
+    "TITLE": "Título",
+    "TOPIC": "Tema",
+    "DATE": "Fecha",
+    "TIME": "Hora",
+    "LOCATION": "Ubicación",
+    "CLASSROOM": "Aula",
+    "STATUS": "Estado",
+    "PARTICIPANTS": "Participantes"
+  },
+  "STATUS": {
+    "PENDING": "Pendiente",
+    "ACCEPTED": "Aceptada",
+    "CANCELLED": "Cancelada",
+    "CONFLICT": "Conflicto"
+  },
+  "SCHEDULE": {
+    "TITLE": "Horario",
+    "MONDAY": "Lunes",
+    "TUESDAY": "Martes",
+    "WEDNESDAY": "Miércoles",
+    "THURSDAY": "Jueves",
+    "FRIDAY": "Viernes",
+    "HOUR": "Hora"
+  },
+  "DASHBOARD": {
+    "TOTAL_STUDENTS": "Total Alumnos",
+    "TOTAL_TEACHERS": "Total Profesores",
+    "TODAY_MEETINGS": "Reuniones de Hoy"
+  },
+  "COMMON": {
+    "SAVE": "Guardar",
+    "CANCEL": "Cancelar",
+    "CONFIRM": "Confirmar",
+    "SEARCH": "Buscar",
+    "FILTER": "Filtrar",
+    "ACTIONS": "Acciones",
+    "YES": "Sí",
+    "NO": "No"
+  }
+}

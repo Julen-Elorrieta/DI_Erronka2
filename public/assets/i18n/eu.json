@@ -1,0 +1,83 @@
+{
+  "APP": {
+    "TITLE": "ElorAdmin",
+    "SUBTITLE": "Hezkuntza Kudeaketa Sistema"
+  },
+  "LOGIN": {
+    "TITLE": "Saioa Hasi",
+    "USERNAME": "Erabiltzailea",
+    "PASSWORD": "Pasahitza",
+    "SUBMIT": "Sartu",
+    "ERROR": "Erabiltzaile edo pasahitz okerra"
+  },
+  "MENU": {
+    "HOME": "Hasiera",
+    "USERS": "Erabiltzaileak",
+    "MEETINGS": "Bilerak",
+    "SCHEDULE": "Ordutegia",
+    "STUDENTS": "Ikasleak",
+    "PROFILE": "Profila",
+    "LOGOUT": "Saioa Itxi"
+  },
+  "USER": {
+    "LIST": "Erabiltzaileen Zerrenda",
+    "CREATE": "Erabiltzailea Sortu",
+    "EDIT": "Erabiltzailea Editatu",
+    "DELETE": "Erabiltzailea Ezabatu",
+    "NAME": "Izena",
+    "SURNAME": "Abizenak",
+    "EMAIL": "Email-a",
+    "ROLE": "Rola",
+    "ACTIONS": "Ekintzak"
+  },
+  "ROLE": {
+    "GOD": "Super Administratzailea",
+    "ADMIN": "Administratzailea",
+    "TEACHER": "Irakaslea",
+    "STUDENT": "Ikaslea"
+  },
+  "MEETING": {
+    "LIST": "Bileren Zerrenda",
+    "CREATE": "Bilera Sortu",
+    "EDIT": "Bilera Editatu",
+    "DELETE": "Bilera Ezabatu",
+    "TITLE": "Izenburua",
+    "TOPIC": "Gaia",
+    "DATE": "Data",
+    "TIME": "Ordua",
+    "LOCATION": "Kokapena",
+    "CLASSROOM": "Gela",
+    "STATUS": "Egoera",
+    "PARTICIPANTS": "Partaideak"
+  },
+  "STATUS": {
+    "PENDING": "Zain",
+    "ACCEPTED": "Onartua",
+    "CANCELLED": "Bertan Behera",
+    "CONFLICT": "Gatazka"
+  },
+  "SCHEDULE": {
+    "TITLE": "Ordutegia",
+    "MONDAY": "Astelehena",
+    "TUESDAY": "Asteartea",
+    "WEDNESDAY": "Asteazkena",
+    "THURSDAY": "Osteguna",
+    "FRIDAY": "Ostirala",
+    "HOUR": "Ordua"
+  },
+  "DASHBOARD": {
+    "TOTAL_STUDENTS": "Ikasle Guztira",
+    "TOTAL_TEACHERS": "Irakasle Guztira",
+    "TODAY_MEETINGS": "Gaurko Bilerak"
+  },
+  "COMMON": {
+    "SAVE": "Gorde",
+    "CANCEL": "Ezeztatu",
+    "CONFIRM": "Berretsi",
+    "SEARCH": "Bilatu",
+    "FILTER": "Iragazi",
+    "ACTIONS": "Ekintzak",
+    "YES": "Bai",
+    "NO": "Ez"
+  }
+}

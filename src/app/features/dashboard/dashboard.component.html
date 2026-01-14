@@ -1,0 +1,106 @@
+<div class="dashboard-container">
+  <h1 class="page-title">{{ 'MENU.HOME' | translate }}</h1>
+
+  <div class="welcome-section">
+    <h2>{{ 'Bienvenido' }}, {{ currentUser()?.name }}!</h2>
+  </div>
+
+  <!-- Admin/God Dashboard -->
+  @if (isAdminRole()) {
+    <div class="stats-grid">
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-icon students">
+            <mat-icon>school</mat-icon>
+          </div>
+          <div class="stat-info">
+            <h3 class="stat-value">{{ totalStudents() }}</h3>
+            <p class="stat-label">{{ 'DASHBOARD.TOTAL_STUDENTS' | translate }}</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-icon teachers">
+            <mat-icon>people</mat-icon>
+          </div>
+          <div class="stat-info">
+            <h3 class="stat-value">{{ totalTeachers() }}</h3>
+            <p class="stat-label">{{ 'DASHBOARD.TOTAL_TEACHERS' | translate }}</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-icon meetings">
+            <mat-icon>event</mat-icon>
+          </div>
+          <div class="stat-info">
+            <h3 class="stat-value">{{ todayMeetings() }}</h3>
+            <p class="stat-label">{{ 'DASHBOARD.TODAY_MEETINGS' | translate }}</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  }
+
+  <!-- Teacher Dashboard -->
+  @if (currentUser()?.role === 'TEACHER') {
+    <div class="teacher-dashboard">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>{{ 'SCHEDULE.TITLE' | translate }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Vista del horario del profesor (por implementar)</p>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>{{ 'MEETING.LIST' | translate }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Próximas reuniones (por implementar)</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  }
+
+  <!-- Student Dashboard -->
+  @if (currentUser()?.role === 'STUDENT') {
+    <div class="student-dashboard">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>{{ 'USER.PROFILE' | translate }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="profile-info">
+            <p><strong>{{ 'USER.NAME' }}:</strong> {{ currentUser()?.name }} {{ currentUser()?.surname }}</p>
+            <p><strong>{{ 'USER.EMAIL' }}:</strong> {{ currentUser()?.email }}</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>{{ 'SCHEDULE.TITLE' | translate }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Vista del horario del estudiante (por implementar)</p>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>{{ 'MEETING.LIST' | translate }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Mis reuniones (por implementar)</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  }
+</div>
