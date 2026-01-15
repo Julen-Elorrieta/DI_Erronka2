@@ -1,0 +1,16 @@
+{
+  "APP": {
+    "TITLE": "Elorrieta-Errekamari",
+    "SUBTITLE": "Login"
+  },
+  "LOGIN": {
+    "USERNAME": "Username",
+    "PASSWORD": "Password",
+    "ERROR": "Invalid credentials",
+    "SUBMIT": "Login"
+  },
+  "MENU": {
+    "HOME": "Welcome to the Home Page",
+    "WELCOME": "Welcome"
+  }
+}
