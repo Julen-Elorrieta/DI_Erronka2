@@ -48,7 +48,8 @@ mat-card-subtitle {
 }
 
 /* Ensure material icons render and align inside form fields */
-mat-form-field mat-icon, .mat-mdc-form-field mat-icon {
+mat-form-field mat-icon,
+.mat-mdc-form-field mat-icon {
   font-family: 'Material Icons';
   font-size: 20px;
   vertical-align: middle;
@@ -56,7 +57,8 @@ mat-form-field mat-icon, .mat-mdc-form-field mat-icon {
 }
 
 /* Suffix icon button styling */
-.mat-mdc-icon-button, button.mat-icon-button {
+.mat-mdc-icon-button,
+button.mat-icon-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -87,7 +89,7 @@ button.mat-mdc-raised-button.submit-button {
 /* Keep readable white text when disabled */
 .mat-mdc-raised-button.submit-button[disabled],
 button.mat-mdc-raised-button.submit-button[disabled] {
-  color: rgba(255,255,255,0.8) !important;
+  color: rgba(255, 255, 255, 0.8) !important;
 }
 
 .login-form {

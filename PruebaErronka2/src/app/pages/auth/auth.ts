@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -8,6 +8,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-auth',
@@ -29,7 +31,7 @@ export class Auth {
   loginForm: FormGroup;
   hidePassword = true;
   loginError = false;
-  
+  private http = inject(HttpClient);
 
   constructor(private fb: FormBuilder, private router: Router) {
     this.loginForm = this.fb.group({
@@ -40,10 +42,22 @@ export class Auth {
 
   onSubmit() {
     if (this.loginForm.valid) {
-      const { username, password } = this.loginForm.value as { username: string; password: string };
-      if (username === 'admin' && password === 'admin') {
-      this.router.navigate(['/dashboard']);
+      const { username, password } = this.loginForm.value;
+      // Llama al backend usando la URL del environment
+      this.http.post(`${environment.apiUrl}/login`, { username, password }).subscribe({
+        next: (response: any) => {
+          if (response.success) {
+            this.loginError = false;
+            this.router.navigate(['/dashboard']);
+          } else {
+            this.loginError = true;
+          }
+        },
+        error: (err) => {
+          console.error('Error during authentication:', err);
+          this.loginError = true;
         }
+      });
     } else {
       this.loginError = true;
     }

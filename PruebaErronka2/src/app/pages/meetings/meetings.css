@@ -1,0 +1,345 @@
+.meetings-container {
+  padding: 20px;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.page-header h1 {
+  color: var(--primary-color);
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.tab-icon {
+  margin-right: 8px;
+}
+
+.filters-card {
+  margin: 20px 0;
+}
+
+.filters-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filter-field {
+  min-width: 180px;
+  flex: 1;
+}
+
+.results-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.results-count {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.main-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.table-card {
+  overflow: hidden;
+}
+
+.centers-table {
+  width: 100%;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px;
+}
+
+.center-name {
+  display: flex;
+  flex-direction: column;
+}
+
+.center-name strong {
+  font-size: 0.9rem;
+}
+
+.center-code {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+}
+
+.titularidad-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.tit-público {
+  background-color: #e3f2fd;
+  color: #1565c0;
+}
+
+.tit-privado {
+  background-color: #fce4ec;
+  color: #c62828;
+}
+
+.tit-concertado {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 2px;
+}
+
+.no-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  color: var(--text-secondary);
+}
+
+.no-data mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+}
+
+/* Mapa */
+.map-card {
+  min-height: 500px;
+}
+
+.map-card mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.map-container {
+  width: 100%;
+  height: 450px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+:host ::ng-deep .map-marker {
+  background: none;
+  border: none;
+}
+
+:host ::ng-deep .marker-icon {
+  font-size: 24px;
+}
+
+:host ::ng-deep .mapboxgl-popup-content {
+  padding: 15px;
+  border-radius: 8px;
+}
+
+:host ::ng-deep .popup-content h4 {
+  margin: 0 0 8px 0;
+  color: var(--primary-color);
+}
+
+:host ::ng-deep .popup-content p {
+  margin: 4px 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* Reuniones */
+.meetings-list-card {
+  margin-top: 20px;
+}
+
+.meetings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.meeting-item {
+  display: flex;
+  gap: 20px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border-left: 4px solid var(--primary-color);
+}
+
+.meeting-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
+  padding: 8px;
+  background: var(--primary-color);
+  border-radius: 8px;
+  color: white;
+}
+
+.meeting-date .day {
+  font-size: 1.5rem;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.meeting-date .month {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.meeting-info {
+  flex: 1;
+}
+
+.meeting-info h3 {
+  margin: 0 0 4px 0;
+  color: var(--text-primary);
+}
+
+.meeting-info>p {
+  margin: 0 0 8px 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.meeting-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.meeting-details span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.meeting-details mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.meeting-status {
+  display: flex;
+  align-items: flex-start;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.status-pending {
+  background-color: #fff3e0;
+  color: #e65100;
+}
+
+.status-accepted {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-cancelled {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.status-conflict {
+  background-color: #fce4ec;
+  color: #ad1457;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .main-content {
+    grid-template-columns: 1fr;
+  }
+
+  .map-card {
+    min-height: 400px;
+  }
+
+  .map-container {
+    height: 350px;
+  }
+}
+
+@media (max-width: 768px) {
+  .meetings-container {
+    padding: 12px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .page-header h1 {
+    text-align: center;
+    font-size: 1.5rem;
+  }
+
+  .filters-row {
+    flex-direction: column;
+  }
+
+  .filter-field {
+    width: 100%;
+  }
+
+  /* Ocultar columnas */
+  .mat-column-dterr,
+  .mat-column-dtituc {
+    display: none;
+  }
+
+  .meeting-item {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .meeting-date {
+    flex-direction: row;
+    gap: 8px;
+    min-width: auto;
+    align-self: flex-start;
+  }
+}

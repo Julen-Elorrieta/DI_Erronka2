@@ -4,6 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "server": "npx ts-node src/server.ts",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
@@ -33,7 +34,15 @@
     "@angular/router": "^21.1.0",
     "@ngx-translate/core": "^17.0.0",
     "@ngx-translate/http-loader": "^8.0.0",
+    "@types/leaflet": "^1.9.21",
+    "axios": "^1.13.2",
+    "body-parser": "^2.2.2",
+    "cors": "^2.8.5",
     "depcheck": "^1.4.7",
+    "express": "^5.2.1",
+    "leaflet": "^1.9.4",
+    "mysql": "^2.18.1",
+    "prettier": "^3.8.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "^0.16.0"
@@ -42,6 +51,10 @@
     "@angular/build": "^21.1.0",
     "@angular/cli": "^21.1.0",
     "@angular/compiler-cli": "^21.1.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/mysql": "^2.15.27",
+    "ts-node": "^10.9.2",
     "typescript": "~5.9.2"
   }
 }

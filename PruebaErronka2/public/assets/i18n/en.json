@@ -12,5 +12,39 @@
   "MENU": {
     "HOME": "Welcome to the Home Page",
     "WELCOME": "Welcome"
+  },
+  "COMMON": {
+    "ALL": "All",
+    "LOADING": "Loading...",
+    "NO_DATA": "No data available",
+    "FILTERS": "Filters",
+    "CLEAR_FILTERS": "Clear Filters",
+    "SEARCH": "Search",
+    "DETAILS": "Details",
+    "CLOSE": "Close",
+    "ACTIONS": "Actions",
+    "CLEAR": "Clear"
+  },
+  "CENTER": {
+    "TITLE": "Centers",
+    "NAME": "Name",
+    "TYPE": "Type",
+    "STATUS": "Status",
+    "MAP": "Map"
+  },
+  "MEETING": {
+    "TITLE": "Meetings",
+    "NAME": "Name",
+    "CENTERS": "Centers",
+    "MY_MEETINGS": "My Meetings",
+    "CENTERS_COUNT": "Centers Count"
+  },
+  "FILTER": {
+    "TYPE": "Type",
+    "STATUS": "Status",
+    "DATE": "Date",
+    "TERRITORIO": "Territory",
+    "MUNICIPIO": "Municipality",
+    "TITULARIDAD": "Ownership"
   }
 }
