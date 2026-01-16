@@ -343,3 +343,11 @@
     align-self: flex-start;
   }
 }
+
+.create-button {
+  color: white !important;
+}
+
+.create-button .mat-icon {
+  color: white !important;
+}

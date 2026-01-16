@@ -43,11 +43,14 @@ export class Auth {
   onSubmit() {
     if (this.loginForm.valid) {
       const { username, password } = this.loginForm.value;
+      // Handle potential string[] type for apiUrl
+      const apiUrl = Array.isArray(environment.apiUrl) ? environment.apiUrl.join('') : environment.apiUrl;
       // Llama al backend usando la URL del environment
-      this.http.post(`${environment.apiUrl}/login`, { username, password }).subscribe({
+      this.http.post(`${apiUrl}/login`, { username, password }).subscribe({
         next: (response: any) => {
           if (response.success) {
             this.loginError = false;
+            localStorage.setItem('user', JSON.stringify(response.user));
             this.router.navigate(['/dashboard']);
           } else {
             this.loginError = true;

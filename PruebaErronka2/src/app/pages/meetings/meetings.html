@@ -2,7 +2,7 @@
   <div class="page-header">
     <h1>{{ 'MEETING.CENTERS' | translate }}</h1>
     @if (canCreateMeeting()) {
-    <button mat-raised-button color="primary" (click)="openCreateMeetingDialog()">
+    <button mat-raised-button color="primary" class="create-button" (click)="openCreateMeetingDialog()">
       <mat-icon>add</mat-icon>
       {{ 'MEETING.CREATE' | translate }}
     </button>
@@ -21,6 +21,14 @@
       <mat-card class="filters-card">
         <mat-card-content>
           <div class="filters-row">
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>{{ 'FILTER.NAME' | translate }}</mat-label>
+              <input matInput [(ngModel)]="searchName" (ngModelChange)="applyFilters()" placeholder="{{ 'FILTER.SEARCH_NAME' | translate }}">
+              <button mat-icon-button matSuffix tabindex="-1" disabled>
+                <mat-icon>search</mat-icon>
+              </button>
+            </mat-form-field>
+
             <mat-form-field appearance="outline" class="filter-field">
               <mat-label>{{ 'FILTER.TITULARIDAD' | translate }}</mat-label>
               <mat-select [(ngModel)]="selectedTitularidad" (selectionChange)="applyFilters()">
@@ -51,10 +59,12 @@
               </mat-select>
             </mat-form-field>
 
+            @if (hasActiveFilters()) {
             <button mat-button (click)="clearFilters()">
               <mat-icon>clear</mat-icon>
               {{ 'COMMON.CLEAR' | translate }}
             </button>
+            }
           </div>
         </mat-card-content>
       </mat-card>

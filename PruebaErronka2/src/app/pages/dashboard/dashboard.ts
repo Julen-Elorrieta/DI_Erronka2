@@ -9,7 +9,7 @@ import { TranslateModule } from '@ngx-translate/core';
   selector: 'app-dashboard',
   imports: [MatCardModule, MatIconModule, MatButtonModule, RouterModule, TranslateModule],
   templateUrl: './dashboard.html',
-  styleUrl: './dashboard.css',
+  styleUrls: ['./dashboard.css']
 })
 export class Dashboard {
   currentUser = signal<any>({ name: 'Admin', role: 'ADMIN' });

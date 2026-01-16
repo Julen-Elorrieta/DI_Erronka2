@@ -2,7 +2,6 @@ import {
   Component,
   OnInit,
   signal,
-  computed,
   AfterViewInit,
   ElementRef,
   ViewChild,
@@ -27,6 +26,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import * as L from 'leaflet';
+import 'leaflet.markercluster';
 
 @Component({
   standalone: true,
@@ -50,9 +50,10 @@ import * as L from 'leaflet';
     DatePipe,
   ],
   templateUrl: './meetings.html',
-  styleUrl: './meetings.css',
+  styleUrls: ['./meetings.css']
 })
 export class Meetings implements OnInit, AfterViewInit {
+  // ...existing code...
   @ViewChild('mapContainer', { static: false }) mapContainer!: ElementRef;
 
   private http = inject(HttpClient);
@@ -70,6 +71,7 @@ export class Meetings implements OnInit, AfterViewInit {
   titularidades: string[] = [];
   territorios: string[] = [];
   municipios: string[] = [];
+  searchName = '';
 
   // Pagination
   pageSize = 10;
@@ -77,8 +79,18 @@ export class Meetings implements OnInit, AfterViewInit {
 
   displayedColumns = ['name', 'DTITUC', 'DTERRC', 'DMUNIC', 'actions'];
 
+  hasActiveFilters(): boolean {
+    return !!(
+      this.selectedTitularidad ||
+      this.selectedTerritorio ||
+      this.selectedMunicipio ||
+      (this.searchName && this.searchName.trim() !== '')
+    );
+  }
+
   // Map
   private map: L.Map | undefined;
+  private markerClusterGroup: any;
   private markers: L.Marker[] = [];
 
   constructor(
@@ -95,36 +107,75 @@ export class Meetings implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     this.initializeMap();
+    // Invalida el tamaño del mapa al cambiar de pestaña para evitar glitches
+    setTimeout(() => {
+      if (this.map) this.map.invalidateSize();
+    }, 300);
   }
 
   private initializeMap() {
-    if (!this.mapContainer) return;
-    this.map = L.map(this.mapContainer.nativeElement).setView([42.85, -2.5], 10);
+    if (!this.mapContainer || this.map) return;
+    this.map = L.map(this.mapContainer.nativeElement, {
+      zoomAnimation: true,
+      fadeAnimation: true,
+      markerZoomAnimation: true,
+      inertia: true,
+      worldCopyJump: true,
+      preferCanvas: true,
+    }).setView([42.85, -2.5], 10);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
+      attribution: '© OpenStreetMap contributors',
     }).addTo(this.map);
+    this.markerClusterGroup = L.markerClusterGroup({
+      animate: true,
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: false,
+      zoomToBoundsOnClick: true,
+    });
+    this.map.addLayer(this.markerClusterGroup);
   }
 
   private updateMarkers() {
-    if (!this.map) return;
-    // Remove existing markers
-    this.markers.forEach(marker => this.map!.removeLayer(marker));
+    if (!this.map || !this.markerClusterGroup) return;
+    this.markerClusterGroup.clearLayers();
     this.markers = [];
-    // Add new markers
-    this.centers().forEach(center => {
+    let filtered = this.centers();
+    if (this.selectedTitularidad) {
+      filtered = filtered.filter((c) => c.DTITUC === this.selectedTitularidad);
+    }
+    if (this.selectedTerritorio) {
+      filtered = filtered.filter((c) => c.DTERRC === this.selectedTerritorio);
+    }
+    if (this.selectedMunicipio) {
+      filtered = filtered.filter((c) => c.DMUNIC === this.selectedMunicipio);
+    }
+    if (this.searchName && this.searchName.trim() !== '') {
+      const search = this.searchName.trim().toLowerCase();
+      filtered = filtered.filter((c) => (c.NOM || '').toLowerCase().includes(search));
+    }
+    filtered.forEach((center) => {
       if (center.LATITUD && center.LONGITUD) {
-        const marker = L.marker([center.LONGITUD, center.LATITUD]).addTo(this.map!);
-        marker.bindPopup(`${center.NOM} (${center.CCEN})`);
+        const marker = L.marker([center.LONGITUD, center.LATITUD], {
+          riseOnHover: true,
+          keyboard: false,
+        });
+        marker.bindPopup(`<b>${center.NOM}</b><br>${center.CCEN}`);
+        this.markerClusterGroup!.addLayer(marker);
         this.markers.push(marker);
       }
     });
+    // Autoajustar vista a los marcadores si hay alguno
+    if (this.markers.length > 0) {
+      const group = new L.FeatureGroup(this.markers);
+      this.map.fitBounds(group.getBounds(), { padding: [30, 30], animate: true, duration: 0.7 });
+    }
   }
 
   loadCenters() {
     this.loading.set(true);
-    this.http.get<any>(`${environment.apiUrl}/meetings`).subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/CENTROS`).subscribe({
       next: (data) => {
-        this.centers.set(data.CENTROS);
+        this.centers.set(data);
         this.loading.set(false);
         this.updateMarkers();
       },
@@ -137,36 +188,44 @@ export class Meetings implements OnInit, AfterViewInit {
   }
 
   loadMeetings() {
-    this.http.get<any[]>(`${environment.apiUrl}/meetings?type=meetings`).subscribe({
-      next: (data) => {
-        this.meetings.set(data);
-      },
-      error: (err) => {
-        console.error('Error loading meetings:', err);
-        this.snackBar.open('Error loading meetings', 'Close');
-      },
-    });
+    // Si tienes reuniones en el JSON, usa el endpoint correspondiente. Si no, puedes dejarlo vacío o eliminarlo.
+    this.meetings.set([]);
   }
 
   loadFilters() {
-    this.http.get<any>(`${environment.apiUrl}/meetings?type=filters`).subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/CENTROS`).subscribe({
       next: (data) => {
-        this.titularidades = data.titularidades || [];
-        this.territorios = data.territorios || [];
-        // Load all municipios
-        this.http.get<any>(`${environment.apiUrl}/meetings?type=municipios`).subscribe({
-          next: (municipiosData) => {
-            this.municipios = municipiosData || [];
-          },
-          error: (err) => {
-            console.error('Error loading municipios:', err);
-          },
-        });
+        this.updateFilterOptions(data);
       },
       error: (err) => {
         console.error('Error loading filters:', err);
       },
     });
+  }
+
+  updateFilterOptions(data: any[]) {
+    let filtered = data;
+    if (this.selectedTitularidad) {
+      filtered = filtered.filter((r) => r.DTITUC === this.selectedTitularidad);
+    }
+    if (this.selectedTerritorio) {
+      filtered = filtered.filter((r) => r.DTERRC === this.selectedTerritorio);
+    }
+    this.titularidades = [
+      ...new Set(
+        data
+          .filter((r) => !this.selectedTerritorio || r.DTERRC === this.selectedTerritorio)
+          .map((r) => r.DTITUC),
+      ),
+    ];
+    this.territorios = [
+      ...new Set(
+        data
+          .filter((r) => !this.selectedTitularidad || r.DTITUC === this.selectedTitularidad)
+          .map((r) => r.DTERRC),
+      ),
+    ];
+    this.municipios = [...new Set(filtered.map((r) => r.DMUNIC))];
   }
 
   canCreateMeeting(): boolean {
@@ -183,32 +242,64 @@ export class Meetings implements OnInit, AfterViewInit {
 
   focusOnCenter(center: any) {
     if (this.map && center.LATITUD && center.LONGITUD) {
-      this.map.flyTo([center.LONGITUD, center.LATITUD], 15);
+      this.map.flyTo([center.LONGITUD, center.LATITUD], 15, {
+        animate: true,
+        duration: 0.7,
+        easeLinearity: 0.25,
+      });
+      // Abrir popup del marcador correspondiente
+      const marker = this.markers.find((m) => {
+        const latlng = m.getLatLng();
+        return latlng.lat === center.LONGITUD && latlng.lng === center.LATITUD;
+      });
+      if (marker) marker.openPopup();
     }
   }
 
   applyFilters() {
-    const params: any = {};
-    if (this.selectedTitularidad) params.titularidad = this.selectedTitularidad;
-    if (this.selectedTerritorio) params.territorio = this.selectedTerritorio;
-    if (this.selectedMunicipio) params.municipio = this.selectedMunicipio;
-
-    this.loading.set(true);
-    this.http.get<any>(`${environment.apiUrl}/meetings`, { params }).subscribe({
+    // El filtrado se hace en el frontend, pero también actualizamos las opciones de los combos
+    this.pageIndex = 0;
+    this.http.get<any[]>(`${environment.apiUrl}/CENTROS`).subscribe({
       next: (data) => {
-        this.centers.set(data.CENTROS);
-        this.loading.set(false);
-        this.updateMarkers();
+        this.updateFilterOptions(data);
+        this.updateMarkersWithFilters();
       },
       error: (err) => {
-        console.error('Error filtering centers:', err);
-        this.loading.set(false);
+        console.error('Error updating filter options:', err);
       },
     });
   }
 
+  updateMarkersWithFilters() {
+    if (!this.map) return;
+    // Remove existing markers
+    this.markers.forEach((marker) => this.map!.removeLayer(marker));
+    this.markers = [];
+    // Add new markers based on filtered centers
+    let filtered = this.centers();
+    if (this.selectedTitularidad) {
+      filtered = filtered.filter((c) => c.DTITUC === this.selectedTitularidad);
+    }
+    if (this.selectedTerritorio) {
+      filtered = filtered.filter((c) => c.DTERRC === this.selectedTerritorio);
+    }
+    if (this.selectedMunicipio) {
+      filtered = filtered.filter((c) => c.DMUNIC === this.selectedMunicipio);
+    }
+    if (this.searchName && this.searchName.trim() !== '') {
+      const search = this.searchName.trim().toLowerCase();
+      filtered = filtered.filter((c) => (c.NOM || '').toLowerCase().includes(search));
+    }
+    filtered.forEach((center) => {
+      if (center.LATITUD && center.LONGITUD) {
+        const marker = L.marker([center.LONGITUD, center.LATITUD]).addTo(this.map!);
+        marker.bindPopup(`${center.NOM} (${center.CCEN})`);
+        this.markers.push(marker);
+      }
+    });
+  }
+
   onTerritorioChange() {
-    this.selectedMunicipio = '';
     this.applyFilters();
   }
 
@@ -221,9 +312,25 @@ export class Meetings implements OnInit, AfterViewInit {
   }
 
   getPaginatedCenters() {
+    let filtered = this.centers();
+    if (this.selectedTitularidad) {
+      filtered = filtered.filter((c) => c.DTITUC === this.selectedTitularidad);
+    }
+    if (this.selectedTerritorio) {
+      filtered = filtered.filter((c) => c.DTERRC === this.selectedTerritorio);
+    }
+    if (this.selectedMunicipio) {
+      filtered = filtered.filter((c) => c.DMUNIC === this.selectedMunicipio);
+    }
+    if (this.searchName && this.searchName.trim() !== '') {
+      const search = this.searchName.trim().toLowerCase();
+      filtered = filtered.filter((c) => (c.NOM || '').toLowerCase().includes(search));
+    }
+    // Actualizar los marcadores del mapa cada vez que se filtra
+    this.updateMarkersWithFilters();
     const start = this.pageIndex * this.pageSize;
     const end = start + this.pageSize;
-    return this.centers().slice(start, end);
+    return filtered.slice(start, end);
   }
 
   onPageChange(event: PageEvent) {

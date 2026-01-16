@@ -45,6 +45,7 @@
     "DATE": "Date",
     "TERRITORIO": "Territory",
     "MUNICIPIO": "Municipality",
-    "TITULARIDAD": "Ownership"
+    "TITULARIDAD": "Ownership",
+    "NAME": "Name"
   }
 }
