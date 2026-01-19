@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
+import { Auth } from '../../core/services/auth';
 
 @Component({
   selector: 'app-login',
@@ -34,6 +35,7 @@ export class LoginComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
+    private auth: Auth,
     private router: Router
   ) {
     this.loginForm = this.fb.group({
@@ -43,16 +45,17 @@ export class LoginComponent {
   }
 
   onSubmit(): void {
-    if (this.loginForm.valid) {
-      const { username, password } = this.loginForm.value;
-      
-      this.authService.login(username, password).then(success => {
-        if (success) {
-          this.router.navigate(['/dashboard']);
-        } else {
-          this.loginError = true;
-        }
-      });
-    }
+      if (this.loginForm.valid) {
+        const { username, password } = this.loginForm.value;
+        
+        this.authService.login(username, password).then(success => {
+          if (success) {
+            this.auth.login();
+          } else {
+            this.loginError = true;
+            
+          }
+        });
+      }
   }
 }

@@ -10,6 +10,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { AuthService } from '../../services/auth-services';
 
 @Component({
   selector: 'app-auth',
@@ -32,6 +33,7 @@ export class Auth {
   hidePassword = true;
   loginError = false;
   private http = inject(HttpClient);
+  private authService: AuthService = inject(AuthService);
 
   constructor(private fb: FormBuilder, private router: Router) {
     this.loginForm = this.fb.group({
@@ -42,27 +44,16 @@ export class Auth {
 
   onSubmit() {
     if (this.loginForm.valid) {
-      const { username, password } = this.loginForm.value;
-      // Handle potential string[] type for apiUrl
-      const apiUrl = Array.isArray(environment.apiUrl) ? environment.apiUrl.join('') : environment.apiUrl;
-      // Llama al backend usando la URL del environment
-      this.http.post(`${apiUrl}/login`, { username, password }).subscribe({
-        next: (response: any) => {
-          if (response.success) {
-            this.loginError = false;
-            localStorage.setItem('user', JSON.stringify(response.user));
-            this.router.navigate(['/dashboard']);
+        const { username, password } = this.loginForm.value;
+        
+        this.authService.login(username, password).then(success => {
+          if (success) {
+            this.authService.login(username, password);
           } else {
             this.loginError = true;
+            
           }
-        },
-        error: (err) => {
-          console.error('Error during authentication:', err);
-          this.loginError = true;
-        }
-      });
-    } else {
-      this.loginError = true;
+        });
     }
   }
 }
