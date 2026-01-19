@@ -629,7 +629,7 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
     // ✅ Actualización incremental de marcadores
     const newMarkerIds = new Set(
       centers
-        .filter(c => c.LATITUD && c.LONGITUD)
+        .filter(c => c.LONGITUD && c.LATITUD)
         .map(c => c.CCEN)
     );
 
@@ -652,7 +652,7 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
 
     // Añadir nuevos marcadores en lotes (para no bloquear UI)
     const markersToAdd = centers.filter(
-      c => c.LATITUD && c.LONGITUD && !this.currentMarkers.has(c.CCEN)
+      c => c.LONGITUD && c.LATITUD && !this.currentMarkers.has(c.CCEN)
     );
 
     if (markersToAdd.length > 0) {
@@ -671,7 +671,7 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
       const batch = centers.slice(index, index + batchSize);
       
       batch.forEach(center => {
-        const marker = L.marker([center.LATITUD, center.LONGITUD], {
+        const marker = L.marker([center.LONGITUD, center.LATITUD], {
           riseOnHover: true,
           centerId: center.CCEN,
         } as any);
@@ -784,8 +784,8 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
   }
 
   focusOnCenter(center: Center): void {
-    if (this.map && center.LATITUD && center.LONGITUD) {
-      this.map.flyTo([center.LATITUD, center.LONGITUD], 15, {
+    if (this.map && center.LONGITUD && center.LATITUD) {
+      this.map.flyTo([center.LONGITUD, center.LATITUD], 15, {
         animate: true,
         duration: 0.7,
       });

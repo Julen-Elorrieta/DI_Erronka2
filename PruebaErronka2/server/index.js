@@ -56,7 +56,7 @@ app.get('/meetings', (req, res) => {
             const titularidades = [...new Set(data.map(r => r.DTITUC))];
             const territorios = [...new Set(data.map(r => r.DTERRC))];
             res.json({ titularidades, territorios });
-        }).catch(err => {
+        }).catch(() => {
             res.status(500).json({ error: 'Error fetching data' });
         });
     } else if (type === 'municipios') {
@@ -68,7 +68,7 @@ app.get('/meetings', (req, res) => {
                 municipios = data.filter(r => r.DTERRC === territorio).map(r => r.DMUNIC);
             }
             res.json([...new Set(municipios)]);
-        }).catch(err => {
+        }).catch(() => {
             res.status(500).json({ error: 'Error fetching data' });
         });
     } else if (type === 'meetings') {
@@ -86,14 +86,42 @@ app.get('/meetings', (req, res) => {
             if (req.query.territorio) data = data.filter(r => r.DTERRC === req.query.territorio);
             if (req.query.municipio) data = data.filter(r => r.DMUNIC === req.query.municipio);
             res.json(data); // <-- Ahora devuelve un array directamente
-        }).catch(err => {
+        }).catch(() => {
             res.status(500).json({ error: 'Error fetching data' });
         });
     }
 });
 
+app.get('/users', (req, res) => {
+    connection.query('SELECT * FROM users', (err, results) => {
+        if (err) {
+            return res.status(500).json({ success: false, error: 'DB error' });
+        }
+        res.json(results);
+    });
+});
 
 
+app.delete('/deleteUser/:username', (req, res) => {
+    const username = req.params.username;
+    connection.query('DELETE FROM users WHERE username = ?', [username], (err, results) => {
+        if (err) {
+            return res.status(500).json({ success: false, error: 'DB error' });
+        }
+        res.json({ success: true });
+    });
+});
+
+app.put('/updateUser/:username', (req, res) => {
+    const username = req.params.username;
+    const updates = req.body;
+    connection.query('UPDATE users SET ? WHERE username = ?', [updates, username], (err, results) => {
+        if (err) {
+            return res.status(500).json({ success: false, error: 'DB error' });
+        }
+        res.json({ success: true });
+    });
+});
 
 app.listen(port, () => {
   console.log(`Servidor backend escuchando en http://localhost:${port}`);

@@ -23,7 +23,10 @@
     "DETAILS": "Details",
     "CLOSE": "Close",
     "ACTIONS": "Actions",
-    "CLEAR": "Clear"
+    "CLEAR": "Clear",
+    "YES_DELETE": "Yes, delete it!",
+    "CANCEL": "Cancel",
+    "ERROR": "Error"
   },
   "CENTER": {
     "TITLE": "Centers",
@@ -37,7 +40,9 @@
     "NAME": "Name",
     "CENTERS": "Centers",
     "MY_MEETINGS": "My Meetings",
-    "CENTERS_COUNT": "Centers Count"
+    "CENTERS_COUNT": "Centers Count",
+    "NO_MEETINGS": "You have no meetings scheduled.",
+    "CREATE": "Create Meeting"
   },
   "FILTER": {
     "TYPE": "Type",
@@ -47,5 +52,34 @@
     "MUNICIPIO": "Municipality",
     "TITULARIDAD": "Ownership",
     "NAME": "Name"
+  },
+  "USER": {
+    "LIST": "User List",
+    "TITLE": "Users",
+    "NAME": "Name",
+    "EMAIL": "Email",
+    "ROLE": "Role",
+    "STATUS": "Status",
+    "CREATE": "Create User",
+    "EDIT": "Edit User",
+    "DELETE": "Delete User",
+    "ACTIONS": "Actions",
+    "USERNAME": "Username",
+    "SURNAME": "Surname",
+    "DNI": "DNI",
+    "NUMBER": "Phone Number",
+    "CONFIRM_DELETE": "Are you sure you want to delete this user?",
+    "DELETE_CONFIRM_TITLE": "Confirm User Deletion",
+    "DELETE_CONFIRM_TEXT": "You are about to delete user {{nombre}}. This action cannot be undone.",
+    "ACTIVE": "Active",
+    "DELETE_SUCCESSFUL": "User deleted successfully",
+    "DELETE_SUCCESSFUL_TEXT": "User {{nombre}} has been deleted."
+  },
+  "ROLE": {
+    "ADMIN": "Administrator",
+    "USER": "User",
+    "GOD": "God",
+    "TEACHER": "Teacher",
+    "STUDENT": "Student"
   }
 }

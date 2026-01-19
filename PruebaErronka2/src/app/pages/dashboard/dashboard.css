@@ -253,3 +253,7 @@
     font-size: 1.2rem;
   }
 }
+
+.users-button {
+  color: white !important;
+}

@@ -1,7 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatCardModule } from '@angular/material/card';
@@ -12,15 +12,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-
-interface User {
-  name: string;
-  surname: string;
-  username: string;
-  email: string;
-  role: string;
-  photo?: string;
-}
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
+import { EditUserDialogComponent as EditUser } from './editUser';
+import { User } from '../../core/models/user.model';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-users',
@@ -39,20 +36,23 @@ interface User {
     MatIconModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
+    MatDialogModule,
   ],
   templateUrl: './users.html',
-  styleUrls: ['./users.css']
+  styleUrls: ['./users.css'],
 })
 export class Users implements OnInit {
   users: User[] = []; // Populate with actual data
   filteredUsers = signal<User[]>([]);
   loading = signal(false);
   searchTerm = '';
-  selectedRole = '';
-  roles = ['admin', 'user']; // Example roles
+  selectedRole: number | null = null;
+  roles = [1, 2];
   pageSize = 10;
   pageIndex = 0;
-  displayedColumns = ['photo', 'name', 'email', 'role', 'actions'];
+  displayedColumns = ['photo', 'username', 'name', 'surname', 'email', 'dni', 'number', 'actions'];
+
+  constructor(private http: HttpClient, private translate: TranslateService, private dialog: MatDialog) {}
 
   ngOnInit() {
     this.loadUsers();
@@ -69,17 +69,22 @@ export class Users implements OnInit {
 
   onSearch() {
     // Implement search logic
-    this.filteredUsers.set(this.users.filter(user =>
-      (user.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-       user.surname.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-       user.email.toLowerCase().includes(this.searchTerm.toLowerCase())) &&
-      (this.selectedRole === '' || user.role === this.selectedRole)
-    ));
+    this.filteredUsers.set(
+      this.users.filter(
+        (user) =>
+          (user.nombre.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+            user.apellidos.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+            user.username.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+            user.email.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+            (user.dni && user.dni.toLowerCase().includes(this.searchTerm.toLowerCase()))) &&
+          (this.selectedRole === null || user.tipo_id === this.selectedRole),
+      ),
+    );
   }
 
   clearFilters() {
     this.searchTerm = '';
-    this.selectedRole = '';
+    this.selectedRole = null;
     this.onSearch();
   }
 
@@ -89,11 +94,13 @@ export class Users implements OnInit {
   }
 
   getPhotoUrl(user: User): string {
-    return user.photo || 'assets/photos/unknown.jpg';
+    return user.argazkia_url || '/unknown.webp';
   }
 
-  getRoleClass(role: string): string {
-    return role.toLowerCase();
+  getRoleClass(role: number): string {
+    if (role === 1) return 'admin';
+    if (role === 2) return 'user';
+    return 'unknown';
   }
 
   canEdit(user: User): boolean {
@@ -101,7 +108,16 @@ export class Users implements OnInit {
   }
 
   openEditDialog(user: User) {
-    // Implement edit dialog
+    const dialogRef = this.dialog.open(EditUser, {
+      data: user,
+      width: '600px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadUsers();
+      }
+    });
   }
 
   canDelete(user: User): boolean {
@@ -109,7 +125,31 @@ export class Users implements OnInit {
   }
 
   deleteUser(user: User) {
-    // Implement delete logic
+    Swal.fire({
+      title: this.translate.instant('USER.DELETE_CONFIRM_TITLE'),
+      text: this.translate.instant('USER.DELETE_CONFIRM_TEXT', { nombre: `${user.nombre} ${user.apellidos}` }),
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: this.translate.instant('COMMON.YES_DELETE'),
+      cancelButtonText: this.translate.instant('COMMON.CANCEL'),
+    }).then((result) => {
+      if (result.isConfirmed) {
+      const apiUrl = Array.isArray(environment.apiUrl)
+        ? environment.apiUrl.join('')
+        : environment.apiUrl;
+      this.http.delete(`${apiUrl}/deleteUser/${user.username}`).subscribe({
+        next: () => {
+        console.log(`User ${user.username} deleted successfully.`);
+        this.loadUsers();
+        Swal.fire(this.translate.instant('USER.DELETE_SUCCESSFUL'), this.translate.instant('USER.DELETE_SUCCESSFUL_TEXT', { nombre: `${user.nombre} ${user.apellidos}` }), 'success');
+        },
+        error: (err) => {
+        console.error(`Error deleting user ${user.username}:`, err);
+        Swal.fire(this.translate.instant('COMMON.ERROR'), this.translate.instant('USER.DELETE_ERROR', { nombre: `${user.nombre} ${user.apellidos}` }), 'error');
+        },
+      });
+      }
+    });
   }
 
   onPageChange(event: PageEvent) {
@@ -118,10 +158,21 @@ export class Users implements OnInit {
   }
 
   private loadUsers() {
-    // Load users from service
     this.loading.set(true);
-    // Example: this.userService.getUsers().subscribe(users => { this.users = users; this.filteredUsers.set(users); this.loading.set(false); });
-    this.filteredUsers.set(this.users);
-    this.loading.set(false);
+    const apiUrl = Array.isArray(environment.apiUrl)
+      ? environment.apiUrl.join('')
+      : environment.apiUrl;
+    this.http.get<User[]>(`${apiUrl}/users`).subscribe({
+      next: (users: User[]) => {
+        console.log('Usuarios cargados:', users);
+        this.users = users;
+        this.filteredUsers.set(users);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error('Error loading users:', err);
+        this.loading.set(false);
+      },
+    });
   }
 }

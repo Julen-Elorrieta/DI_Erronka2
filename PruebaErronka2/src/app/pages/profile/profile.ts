@@ -11,9 +11,17 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { User, UserRole } from '../../core/models/user.model';
+import { User } from '../../core/models/user.model';
 import { Schedule, ScheduleSlot } from '../../core/models/schedule.model';
 import { Meeting } from '../../core/models/meeting.model';
+
+// Define or import UserRole enum if not already imported
+export enum UserRole {
+  GOD = 'GOD',
+  ADMIN = 'ADMIN',
+  TEACHER = 'TEACHER',
+  STUDENT = 'STUDENT'
+}
 
 @Component({
   selector: 'app-profile',
@@ -44,7 +52,6 @@ export class ProfileComponent implements OnInit {
   editing = signal(false);
   
   profileForm!: FormGroup;
-  UserRole = UserRole;
 
   days = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY'];
   hours = [1, 2, 3, 4, 5, 6];
@@ -61,8 +68,8 @@ export class ProfileComponent implements OnInit {
 
   private initForm(user: User): void {
     this.profileForm = this.fb.group({
-      name: [user.name, Validators.required],
-      surname: [user.surname, Validators.required],
+      nombre: [user.nombre, Validators.required],
+      apellidos: [user.apellidos, Validators.required],
       email: [user.email, [Validators.required, Validators.email]]
     });
   }
@@ -102,7 +109,7 @@ export class ProfileComponent implements OnInit {
 
   getPhotoUrl(): string {
     const user = this.user();
-    return user?.photo ? `assets/photos/${user.photo}` : 'assets/photos/unknown.jpg';
+    return user && (user as any).photo ? `assets/photos/${(user as any).photo}` : 'assets/photos/unknown.jpg';
   }
 
   getRoleIcon(): string {
@@ -112,7 +119,8 @@ export class ProfileComponent implements OnInit {
       [UserRole.TEACHER]: 'school',
       [UserRole.STUDENT]: 'person'
     };
-    return icons[this.user()?.role || UserRole.STUDENT];
+    // @ts-expect-error: tipo_id may not be UserRole, but we expect it to be compatible
+    return icons[(this.user()?.tipo_id as UserRole) || UserRole.STUDENT];
   }
 
   getSlot(day: number, hour: number): ScheduleSlot | undefined {
