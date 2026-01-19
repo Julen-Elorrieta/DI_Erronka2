@@ -2,64 +2,91 @@
   <div class="page-header">
     <h1>{{ 'MEETING.CENTERS' | translate }}</h1>
     @if (canCreateMeeting()) {
-    <button mat-raised-button color="primary" class="create-button" (click)="openCreateMeetingDialog()">
+    <button 
+      mat-raised-button 
+      color="primary" 
+      class="create-button" 
+      (click)="openCreateMeetingDialog()">
       <mat-icon>add</mat-icon>
       {{ 'MEETING.CREATE' | translate }}
     </button>
     }
   </div>
 
-  <mat-tab-group [(selectedIndex)]="activeTab" (selectedIndexChange)="activeTab.set($event)">
-    <!-- Tab: Ikastetxeak -->
+  <!-- ✅ Uso de async pipe para activeTab -->
+  <mat-tab-group 
+    [selectedIndex]="activeTab$ | async" 
+    (selectedIndexChange)="onTabChange($event)">
+    
+    <!-- ============================================ -->
+    <!-- TAB: CENTROS -->
+    <!-- ============================================ -->
     <mat-tab>
       <ng-template mat-tab-label>
         <mat-icon class="tab-icon">business</mat-icon>
         {{ 'MEETING.CENTERS' | translate }}
       </ng-template>
 
-      <!-- Iragazkiak -->
+      <!-- FILTROS -->
+      @if (processedData$ | async; as data) {
       <mat-card class="filters-card">
         <mat-card-content>
           <div class="filters-row">
+            
+            <!-- Búsqueda de texto -->
             <mat-form-field appearance="outline" class="filter-field">
               <mat-label>{{ 'FILTER.NAME' | translate }}</mat-label>
-              <input matInput [(ngModel)]="searchName" (ngModelChange)="applyFilters()" placeholder="{{ 'FILTER.SEARCH_NAME' | translate }}">
+              <input 
+                matInput 
+                [value]="(filters$ | async)?.searchText || ''"
+                (input)="onSearchChange($any($event.target).value)"
+                placeholder="{{ 'FILTER.SEARCH_NAME' | translate }}">
               <button mat-icon-button matSuffix tabindex="-1" disabled>
                 <mat-icon>search</mat-icon>
               </button>
             </mat-form-field>
 
+            <!-- Titularidad -->
             <mat-form-field appearance="outline" class="filter-field">
               <mat-label>{{ 'FILTER.TITULARIDAD' | translate }}</mat-label>
-              <mat-select [(ngModel)]="selectedTitularidad" (selectionChange)="applyFilters()">
+              <mat-select 
+                [value]="(filters$ | async)?.titularidad || ''"
+                (selectionChange)="onTitularidadChange($event.value)">
                 <mat-option value="">{{ 'COMMON.ALL' | translate }}</mat-option>
-                @for (t of titularidades; track t) {
+                @for (t of data.filterOptions.titularidades; track t) {
                 <mat-option [value]="t">{{ t }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
 
+            <!-- Territorio -->
             <mat-form-field appearance="outline" class="filter-field">
               <mat-label>{{ 'FILTER.TERRITORIO' | translate }}</mat-label>
-              <mat-select [(ngModel)]="selectedTerritorio" (selectionChange)="onTerritorioChange()">
+              <mat-select 
+                [value]="(filters$ | async)?.territorio || ''"
+                (selectionChange)="onTerritorioChange($event.value)">
                 <mat-option value="">{{ 'COMMON.ALL' | translate }}</mat-option>
-                @for (t of territorios; track t) {
+                @for (t of data.filterOptions.territorios; track t) {
                 <mat-option [value]="t">{{ t }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
 
+            <!-- Municipio -->
             <mat-form-field appearance="outline" class="filter-field">
               <mat-label>{{ 'FILTER.MUNICIPIO' | translate }}</mat-label>
-              <mat-select [(ngModel)]="selectedMunicipio" (selectionChange)="applyFilters()">
+              <mat-select 
+                [value]="(filters$ | async)?.municipio || ''"
+                (selectionChange)="onMunicipioChange($event.value)">
                 <mat-option value="">{{ 'COMMON.ALL' | translate }}</mat-option>
-                @for (m of municipios; track m) {
+                @for (m of data.filterOptions.municipios; track m) {
                 <mat-option [value]="m">{{ m }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
 
-            @if (hasActiveFilters()) {
+            <!-- Botón limpiar filtros -->
+            @if (data.hasActiveFilters) {
             <button mat-button (click)="clearFilters()">
               <mat-icon>clear</mat-icon>
               {{ 'COMMON.CLEAR' | translate }}
@@ -69,24 +96,32 @@
         </mat-card-content>
       </mat-card>
 
-      <!-- Kontadorea -->
+      <!-- CONTADOR DE RESULTADOS -->
       <div class="results-info">
         <span class="results-count">
           <mat-icon>business</mat-icon>
-          {{ centers().length }} {{ 'MEETING.CENTERS_COUNT' | translate }}
+          {{ data.total }} {{ 'MEETING.CENTERS_COUNT' | translate }}
         </span>
       </div>
 
-      <!-- Eduki nagusia: Taula + Mapa -->
+      <!-- CONTENIDO PRINCIPAL: TABLA + MAPA -->
       <div class="main-content">
-        <!-- Ikastetxeen taula -->
+        
+        <!-- TABLA DE CENTROS -->
         <mat-card class="table-card">
-          @if (loading()) {
+          @if (loading$ | async) {
           <div class="loading-container">
             <mat-spinner diameter="50"></mat-spinner>
           </div>
           } @else {
-          <table mat-table [dataSource]="getPaginatedCenters()" class="centers-table">
+          
+          <!-- ✅ Tabla con datos -->
+          <table 
+            mat-table 
+            [dataSource]="data.paginated" 
+            class="centers-table">
+            
+            <!-- Columna: Nombre -->
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef>{{ 'CENTER.NAME' | translate }}</th>
               <td mat-cell *matCellDef="let center">
@@ -97,6 +132,7 @@
               </td>
             </ng-container>
 
+            <!-- Columna: Titularidad -->
             <ng-container matColumnDef="DTITUC">
               <th mat-header-cell *matHeaderCellDef>{{ 'FILTER.TITULARIDAD' | translate }}</th>
               <td mat-cell *matCellDef="let center">
@@ -106,32 +142,44 @@
               </td>
             </ng-container>
 
+            <!-- Columna: Territorio -->
             <ng-container matColumnDef="DTERRC">
               <th mat-header-cell *matHeaderCellDef>{{ 'FILTER.TERRITORIO' | translate }}</th>
               <td mat-cell *matCellDef="let center">{{ center.DTERRC }}</td>
             </ng-container>
 
+            <!-- Columna: Municipio -->
             <ng-container matColumnDef="DMUNIC">
               <th mat-header-cell *matHeaderCellDef>{{ 'FILTER.MUNICIPIO' | translate }}</th>
               <td mat-cell *matCellDef="let center">{{ center.DMUNIC }}</td>
             </ng-container>
 
+            <!-- Columna: Acciones -->
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.ACTIONS' | translate }}</th>
               <td mat-cell *matCellDef="let center">
                 <div class="actions-cell">
-                  <button mat-icon-button color="primary" (click)="openCenterDetail(center)"
+                  <button 
+                    mat-icon-button 
+                    color="primary" 
+                    (click)="openCenterDetail(center)"
                     [matTooltip]="'CENTER.DETAILS' | translate">
                     <mat-icon>info</mat-icon>
                   </button>
                   @if (center.LATITUD && center.LONGITUD) {
-                  <button mat-icon-button color="accent" (click)="focusOnCenter(center)"
+                  <button 
+                    mat-icon-button 
+                    color="accent" 
+                    (click)="focusOnCenter(center)"
                     [matTooltip]="'CENTER.VIEW_MAP' | translate">
                     <mat-icon>place</mat-icon>
                   </button>
                   }
                   @if (canCreateMeeting()) {
-                  <button mat-icon-button color="primary" (click)="openCreateMeetingDialog(center)"
+                  <button 
+                    mat-icon-button 
+                    color="primary" 
+                    (click)="openCreateMeetingDialog(center)"
                     [matTooltip]="'MEETING.CREATE_IN_CENTER' | translate">
                     <mat-icon>event</mat-icon>
                   </button>
@@ -144,20 +192,29 @@
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
           </table>
 
-          @if (centers().length === 0) {
+          <!-- Sin resultados -->
+          @if (data.total === 0) {
           <div class="no-data">
             <mat-icon>search_off</mat-icon>
             <p>{{ 'COMMON.NO_RESULTS' | translate }}</p>
           </div>
           }
 
-          <mat-paginator [length]="centers().length" [pageSize]="pageSize" [pageIndex]="pageIndex"
-            [pageSizeOptions]="[5, 10, 25]" (page)="onPageChange($event)" showFirstLastButtons>
+          <!-- Paginador reactivo -->
+          @if (pagination$ | async; as pag) {
+          <mat-paginator 
+            [length]="data.total"
+            [pageSize]="pag.pageSize"
+            [pageIndex]="pag.pageIndex"
+            [pageSizeOptions]="pageSizeOptions"
+            (page)="onPageChange($event)"
+            showFirstLastButtons>
           </mat-paginator>
+          }
           }
         </mat-card>
 
-        <!-- Mapa -->
+        <!-- MAPA -->
         <mat-card class="map-card">
           <mat-card-header>
             <mat-card-title>
@@ -166,13 +223,17 @@
             </mat-card-title>
           </mat-card-header>
           <mat-card-content>
-            <div #mapContainer class="map-container"></div>
+            <div #mapContainer class="map-container" style="width: 100%; height: 500px;"></div>
           </mat-card-content>
         </mat-card>
       </div>
+      }
+
     </mat-tab>
 
-    <!-- Tab: Nire Bilerak -->
+    <!-- ============================================ -->
+    <!-- TAB: MIS REUNIONES -->
+    <!-- ============================================ -->
     <mat-tab>
       <ng-template mat-tab-label>
         <mat-icon class="tab-icon">event</mat-icon>
@@ -181,41 +242,43 @@
 
       <mat-card class="meetings-list-card">
         <mat-card-content>
-          @if (meetings().length === 0) {
-          <div class="no-data">
-            <mat-icon>event_busy</mat-icon>
-            <p>{{ 'MEETING.NO_MEETINGS' | translate }}</p>
-          </div>
-          } @else {
-          <div class="meetings-list">
-            @for (meeting of meetings(); track $index) {
-            <div class="meeting-item">
-              <div class="meeting-date">
-                <span class="day">{{ meeting.date | date:'dd' }}</span>
-                <span class="month">{{ meeting.date | date:'MMM' }}</span>
-              </div>
-              <div class="meeting-info">
-                <h3>{{ meeting.title }}</h3>
-                <div class="meeting-details">
-                  <span>
-                    <mat-icon>schedule</mat-icon> {{ meeting.hour }}. ordua
-                  </span>
-                  <span>
-                    <mat-icon>room</mat-icon> {{ meeting.classroom }}
-                  </span>
-                  <span>
-                    <mat-icon>place</mat-icon> {{ meeting.center }}
+          @if (meetings$ | async; as meetings) {
+            @if (meetings.length === 0) {
+            <div class="no-data">
+              <mat-icon>event_busy</mat-icon>
+              <p>{{ 'MEETING.NO_MEETINGS' | translate }}</p>
+            </div>
+            } @else {
+            <div class="meetings-list">
+              @for (meeting of meetings; track trackByMeeting($index, meeting)) {
+              <div class="meeting-item">
+                <div class="meeting-date">
+                  <span class="day">{{ meeting.date | date:'dd' }}</span>
+                  <span class="month">{{ meeting.date | date:'MMM' }}</span>
+                </div>
+                <div class="meeting-info">
+                  <h3>{{ meeting.title }}</h3>
+                  <div class="meeting-details">
+                    <span>
+                      <mat-icon>schedule</mat-icon> {{ meeting.hour }}
+                    </span>
+                    <span>
+                      <mat-icon>room</mat-icon> {{ meeting.classroom }}
+                    </span>
+                    <span>
+                      <mat-icon>place</mat-icon> {{ meeting.center }}
+                    </span>
+                  </div>
+                </div>
+                <div class="meeting-status">
+                  <span class="status-badge" [ngClass]="getStatusClass(meeting.status)">
+                    {{ 'STATUS.' + meeting.status | translate }}
                   </span>
                 </div>
               </div>
-              <div class="meeting-status">
-                <span class="status-badge" [ngClass]="getStatusClass(meeting.status)">
-                  {{ 'STATUS.' + meeting.status | translate }}
-                </span>
-              </div>
+              }
             </div>
             }
-          </div>
           }
         </mat-card-content>
       </mat-card>

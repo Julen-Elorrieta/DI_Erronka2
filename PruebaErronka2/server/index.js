@@ -85,7 +85,7 @@ app.get('/meetings', (req, res) => {
             if (req.query.titularidad) data = data.filter(r => r.DTITUC === req.query.titularidad);
             if (req.query.territorio) data = data.filter(r => r.DTERRC === req.query.territorio);
             if (req.query.municipio) data = data.filter(r => r.DMUNIC === req.query.municipio);
-            res.json({ "CENTROS": data });
+            res.json(data); // <-- Ahora devuelve un array directamente
         }).catch(err => {
             res.status(500).json({ error: 'Error fetching data' });
         });

@@ -1,71 +1,111 @@
+/* ============================================================================
+   OPTIMIZACIONES CSS PARA RENDIMIENTO
+   ============================================================================ */
+
+/* ✅ Usar transform y opacity para animaciones (GPU acelerado) */
+/* ✅ will-change solo cuando sea necesario */
+/* ✅ contain para aislar repintados */
+
 .meetings-container {
-  padding: 20px;
-  max-width: 1600px;
+  padding: 24px;
+  max-width: 1400px;
   margin: 0 auto;
+  /* ✅ Aislar repintados en este contenedor */
+  contain: layout style;
 }
 
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-  gap: 16px;
+  margin-bottom: 24px;
+  /* Evitar layout shifts */
+  min-height: 64px;
 }
 
 .page-header h1 {
-  color: var(--primary-color);
   margin: 0;
-  font-size: 1.8rem;
+  font-size: 28px;
+  font-weight: 500;
 }
 
-.tab-icon {
-  margin-right: 8px;
+.create-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
+
+/* ============================================================================
+   FILTROS
+   ============================================================================ */
 
 .filters-card {
-  margin: 20px 0;
+  margin-bottom: 20px;
+  /* ✅ Promover a capa compuesta solo cuando hover */
+  transition: box-shadow 0.2s ease;
 }
 
 .filters-row {
   display: flex;
   gap: 16px;
-  align-items: center;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .filter-field {
-  min-width: 180px;
   flex: 1;
+  min-width: 200px;
 }
+
+/* ============================================================================
+   RESULTADOS
+   ============================================================================ */
 
 .results-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 8px;
 }
 
 .results-count {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: var(--text-secondary);
-  font-size: 0.95rem;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.7);
 }
+
+/* ============================================================================
+   CONTENIDO PRINCIPAL
+   ============================================================================ */
 
 .main-content {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  grid-template-columns: 1fr 500px;
+  gap: 24px;
+  /* ✅ Aislar repintados */
+  contain: layout;
 }
+
+@media (max-width: 1200px) {
+  .main-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================================
+   TABLA
+   ============================================================================ */
 
 .table-card {
-  overflow: hidden;
-}
-
-.centers-table {
-  width: 100%;
+  /* ✅ Altura fija para evitar layout shifts */
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
 }
 
 .loading-container {
@@ -75,110 +115,136 @@
   padding: 60px;
 }
 
+.centers-table {
+  width: 100%;
+  /* ✅ Optimizar repintado de tablas */
+  contain: layout style;
+}
+
+/* ✅ Usar transform para hover (GPU acelerado) */
+.centers-table tbody tr {
+  transition: background-color 0.15s ease;
+  cursor: pointer;
+}
+
+.centers-table tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+  /* ✅ No usar transform aquí para evitar issues con sticky headers */
+}
+
 .center-name {
   display: flex;
   flex-direction: column;
+  gap: 4px;
 }
 
 .center-name strong {
-  font-size: 0.9rem;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
 }
 
 .center-code {
-  color: var(--text-secondary);
-  font-size: 0.75rem;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.54);
 }
+
+/* ============================================================================
+   BADGES
+   ============================================================================ */
 
 .titularidad-badge {
   display: inline-block;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: 12px;
-  font-size: 0.75rem;
+  font-size: 12px;
   font-weight: 500;
+  background: rgba(0, 0, 0, 0.08);
+  /* ✅ Evitar repintados innecesarios */
+  will-change: auto;
 }
 
-.tit-público {
-  background-color: #e3f2fd;
-  color: #1565c0;
+.titularidad-badge.tit-pública,
+.titularidad-badge.tit-publica {
+  background: #e3f2fd;
+  color: #1976d2;
 }
 
-.tit-privado {
-  background-color: #fce4ec;
-  color: #c62828;
+.titularidad-badge.tit-privada {
+  background: #fce4ec;
+  color: #c2185b;
 }
 
-.tit-concertado {
-  background-color: #e8f5e9;
-  color: #2e7d32;
+.titularidad-badge.tit-concertada {
+  background: #f3e5f5;
+  color: #7b1fa2;
 }
+
+/* ============================================================================
+   ACCIONES
+   ============================================================================ */
 
 .actions-cell {
   display: flex;
-  gap: 2px;
+  gap: 4px;
+  /* ✅ Aislar repintados de botones */
+  contain: layout;
 }
+
+/* ============================================================================
+   MAPA
+   ============================================================================ */
+
+.map-card {
+  /* ✅ Altura fija para evitar layout shifts */
+  height: fit-content;
+  position: sticky;
+  top: 24px;
+}
+
+.map-container {
+  width: 100%;
+  height: 500px;
+  border-radius: 8px;
+  overflow: hidden;
+  /* ✅ Promover a capa compuesta para animaciones suaves */
+  will-change: transform;
+  /* ✅ Aislar completamente el repintado del mapa */
+  contain: strict;
+}
+
+/* ============================================================================
+   ESTADO VACÍO
+   ============================================================================ */
 
 .no-data {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px;
-  color: var(--text-secondary);
+  padding: 60px 20px;
+  color: rgba(0, 0, 0, 0.38);
+  text-align: center;
 }
 
 .no-data mat-icon {
-  font-size: 48px;
-  width: 48px;
-  height: 48px;
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
   margin-bottom: 16px;
+  opacity: 0.3;
 }
 
-/* Mapa */
-.map-card {
-  min-height: 500px;
+.no-data p {
+  margin: 0;
+  font-size: 16px;
 }
 
-.map-card mat-card-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+/* ============================================================================
+   REUNIONES
+   ============================================================================ */
 
-.map-container {
-  width: 100%;
-  height: 450px;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-:host ::ng-deep .map-marker {
-  background: none;
-  border: none;
-}
-
-:host ::ng-deep .marker-icon {
-  font-size: 24px;
-}
-
-:host ::ng-deep .mapboxgl-popup-content {
-  padding: 15px;
-  border-radius: 8px;
-}
-
-:host ::ng-deep .popup-content h4 {
-  margin: 0 0 8px 0;
-  color: var(--primary-color);
-}
-
-:host ::ng-deep .popup-content p {
-  margin: 4px 0;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-}
-
-/* Reuniones */
 .meetings-list-card {
-  margin-top: 20px;
+  margin-top: 24px;
 }
 
 .meetings-list {
@@ -189,11 +255,18 @@
 
 .meeting-item {
   display: flex;
-  gap: 20px;
+  gap: 16px;
   padding: 16px;
-  background: #f8f9fa;
-  border-radius: 12px;
-  border-left: 4px solid var(--primary-color);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  /* ✅ Animación suave con transform */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.meeting-item:hover {
+  /* ✅ GPU acelerado */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .meeting-date {
@@ -203,20 +276,21 @@
   justify-content: center;
   min-width: 60px;
   padding: 8px;
-  background: var(--primary-color);
-  border-radius: 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
+  border-radius: 8px;
 }
 
 .meeting-date .day {
-  font-size: 1.5rem;
-  font-weight: bold;
+  font-size: 24px;
+  font-weight: 700;
   line-height: 1;
 }
 
 .meeting-date .month {
-  font-size: 0.75rem;
+  font-size: 12px;
   text-transform: uppercase;
+  margin-top: 4px;
 }
 
 .meeting-info {
@@ -224,22 +298,17 @@
 }
 
 .meeting-info h3 {
-  margin: 0 0 4px 0;
-  color: var(--text-primary);
-}
-
-.meeting-info>p {
   margin: 0 0 8px 0;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .meeting-details {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.6);
 }
 
 .meeting-details span {
@@ -249,74 +318,55 @@
 }
 
 .meeting-details mat-icon {
-  font-size: 16px;
-  width: 16px;
-  height: 16px;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
 }
 
 .meeting-status {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
 }
 
 .status-badge {
-  padding: 6px 12px;
+  padding: 6px 16px;
   border-radius: 16px;
-  font-size: 0.75rem;
+  font-size: 12px;
   font-weight: 500;
   text-transform: uppercase;
 }
 
-.status-pending {
-  background-color: #fff3e0;
-  color: #e65100;
+.status-badge.status-pending,
+.status-badge.status-pendiente {
+  background: #fff3e0;
+  color: #f57c00;
 }
 
-.status-accepted {
-  background-color: #e8f5e9;
-  color: #2e7d32;
+.status-badge.status-confirmed,
+.status-badge.status-confirmada {
+  background: #e8f5e9;
+  color: #388e3c;
 }
 
-.status-cancelled {
-  background-color: #ffebee;
-  color: #c62828;
+.status-badge.status-cancelled,
+.status-badge.status-cancelada {
+  background: #ffebee;
+  color: #d32f2f;
 }
 
-.status-conflict {
-  background-color: #fce4ec;
-  color: #ad1457;
+/* ============================================================================
+   TABS
+   ============================================================================ */
+
+.tab-icon {
+  margin-right: 8px;
 }
 
-/* Responsive */
-@media (max-width: 1200px) {
-  .main-content {
-    grid-template-columns: 1fr;
-  }
-
-  .map-card {
-    min-height: 400px;
-  }
-
-  .map-container {
-    height: 350px;
-  }
-}
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
 
 @media (max-width: 768px) {
-  .meetings-container {
-    padding: 12px;
-  }
-
-  .page-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .page-header h1 {
-    text-align: center;
-    font-size: 1.5rem;
-  }
-
   .filters-row {
     flex-direction: column;
   }
@@ -325,29 +375,61 @@
     width: 100%;
   }
 
-  /* Ocultar columnas */
-  .mat-column-dterr,
-  .mat-column-dtituc {
-    display: none;
+  .main-content {
+    grid-template-columns: 1fr;
+  }
+
+  .map-card {
+    position: static;
+  }
+
+  .map-container {
+    height: 400px;
   }
 
   .meeting-item {
     flex-direction: column;
-    gap: 12px;
   }
 
   .meeting-date {
+    width: 100%;
     flex-direction: row;
-    gap: 8px;
-    min-width: auto;
-    align-self: flex-start;
+    justify-content: flex-start;
   }
 }
 
-.create-button {
-  color: white !important;
+/* ============================================================================
+   OPTIMIZACIONES ADICIONALES
+   ============================================================================ */
+
+/* ✅ Reducir repintados en scroll */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.create-button .mat-icon {
-  color: white !important;
+/* ✅ Optimizar selectores de Material */
+::ng-deep .mat-mdc-table {
+  contain: layout style;
+}
+
+::ng-deep .mat-mdc-paginator {
+  contain: layout;
+}
+
+/* ✅ Evitar layout shifts en iconos */
+mat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ✅ Smooth scrolling nativo */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ✅ Acelerar animaciones de Material */
+::ng-deep .mat-mdc-tab-body-content {
+  will-change: transform;
 }
