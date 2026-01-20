@@ -372,7 +372,7 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.http
-      .get<Center[]>(`${environment.apiUrl}/meetings`)
+      .get<Center[]>(`${environment.apiUrl}/centers`)
       .pipe(
         map(centers => this.preprocessCenters(centers)),
         tap(centers => setCachedCenters(centers)),

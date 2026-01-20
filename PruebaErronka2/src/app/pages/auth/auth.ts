@@ -8,9 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
-import { AuthService } from '../../services/auth-services';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-auth',
@@ -32,8 +30,7 @@ export class Auth {
   loginForm: FormGroup;
   hidePassword = true;
   loginError = false;
-  private http = inject(HttpClient);
-  private authService: AuthService = inject(AuthService);
+  private authService = inject(AuthService);
 
   constructor(private fb: FormBuilder, private router: Router) {
     this.loginForm = this.fb.group({
@@ -44,16 +41,12 @@ export class Auth {
 
   onSubmit() {
     if (this.loginForm.valid) {
-        const { username, password } = this.loginForm.value;
-        
-        this.authService.login(username, password).then(success => {
-          if (success) {
-            this.authService.login(username, password);
-          } else {
-            this.loginError = true;
-            
-          }
-        });
+      const { username, password } = this.loginForm.value;
+      this.authService.login(username, password, this.router, (loginError: boolean) => {
+        this.loginError = loginError;
+      });
+    } else {
+      this.loginError = true;
     }
   }
 }

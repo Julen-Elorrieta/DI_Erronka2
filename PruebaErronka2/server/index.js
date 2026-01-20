@@ -48,7 +48,7 @@ app.post('/login', (req, res) => {
 });
 
 
-app.get('/meetings', (req, res) => {
+app.get('/centers', (req, res) => {
     const type = req.query.type;
     if (type === 'filters') {
         axios.get('http://10.5.104.100/ikastetxeak.json').then(response => {
@@ -92,7 +92,7 @@ app.get('/meetings', (req, res) => {
     }
 });
 
-app.get('/users', (req, res) => {
+app.get('/users', (_req, res) => {
     connection.query('SELECT * FROM users', (err, results) => {
         if (err) {
             return res.status(500).json({ success: false, error: 'DB error' });
@@ -104,7 +104,7 @@ app.get('/users', (req, res) => {
 
 app.delete('/deleteUser/:username', (req, res) => {
     const username = req.params.username;
-    connection.query('DELETE FROM users WHERE username = ?', [username], (err, results) => {
+    connection.query('DELETE FROM users WHERE username = ?', [username], (err) => {
         if (err) {
             return res.status(500).json({ success: false, error: 'DB error' });
         }
@@ -115,11 +115,20 @@ app.delete('/deleteUser/:username', (req, res) => {
 app.put('/updateUser/:username', (req, res) => {
     const username = req.params.username;
     const updates = req.body;
-    connection.query('UPDATE users SET ? WHERE username = ?', [updates, username], (err, results) => {
+    connection.query('UPDATE users SET ? WHERE username = ?', [updates, username], (err) => {
         if (err) {
             return res.status(500).json({ success: false, error: 'DB error' });
         }
         res.json({ success: true });
+    });
+});
+
+app.get('/meetings', (_req, res) => {
+    connection.query('SELECT COUNT(*) AS count FROM reuniones', (err, results) => {
+        if (err) {
+            return res.status(500).json({ success: false, error: 'DB error' });
+        }
+        res.json({ count: results[0].count });
     });
 });
 

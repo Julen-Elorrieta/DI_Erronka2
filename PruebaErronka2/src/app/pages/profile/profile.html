@@ -17,46 +17,21 @@
           <mat-card-content>
             <div class="profile-header">
               <div class="avatar-section">
-                <img [src]="getPhotoUrl()" [alt]="user()?.name" class="profile-avatar"
+                <img [src]="getPhotoUrl()" [alt]="user()?.nombre" class="profile-avatar"
                   (error)="$any($event.target).src='assets/photos/unknown.jpg'">
-                <div class="role-badge" [ngClass]="'role-' + user()?.role?.toLowerCase()">
+                <div class="role-badge" [ngClass]="'role-' + user()?.tipo_id">
                   <mat-icon>{{ getRoleIcon() }}</mat-icon>
-                  {{ 'ROLE.' + user()?.role | translate }}
+                  {{ 'ROLE.' + user()?.tipo_id | translate }}
                 </div>
               </div>
-
               <div class="profile-info">
                 @if (!editing()) {
-                <h2>{{ user()?.name }} {{ user()?.surname }}</h2>
+                <h2>{{ user()?.nombre }} {{ user()?.apellidos }}</h2>
                 <p class="username">@{{ user()?.username }}</p>
                 <p class="email">
                   <mat-icon>email</mat-icon>
                   {{ user()?.email }}
                 </p>
-
-                @if (user()?.role === UserRole.STUDENT) {
-                <div class="student-info">
-                  <mat-divider></mat-divider>
-                  <div class="info-row">
-                    <span>
-                      <mat-icon>school</mat-icon> {{ 'USER.CYCLE' | translate }}:
-                    </span>
-                    <strong>{{ user()?.cycle }}</strong>
-                  </div>
-                  <div class="info-row">
-                    <span>
-                      <mat-icon>group</mat-icon> {{ 'USER.GROUP' | translate }}:
-                    </span>
-                    <strong>{{ user()?.group }}</strong>
-                  </div>
-                  @if (user()?.isDual) {
-                  <div class="dual-badge">
-                    <mat-icon>work</mat-icon>
-                    {{ 'USER.DUAL_MODE' | translate }}
-                  </div>
-                  }
-                </div>
-                }
 
                 <button mat-raised-button color="primary" (click)="toggleEdit()">
                   <mat-icon>edit</mat-icon>
