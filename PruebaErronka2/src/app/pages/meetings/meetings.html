@@ -9,7 +9,6 @@
     }
   </div>
 
-  <!-- ✅ Uso de async pipe para activeTab -->
   <mat-tab-group [selectedIndex]="activeTab$ | async" (selectedIndexChange)="onTabChange($event)">
 
     <!-- ============================================ -->
@@ -21,13 +20,11 @@
         {{ 'MEETING.CENTERS' | translate }}
       </ng-template>
 
-      <!-- FILTROS -->
       @if (processedData$ | async; as data) {
       <mat-card class="filters-card">
         <mat-card-content>
           <div class="filters-row">
 
-            <!-- Búsqueda de texto -->
             <mat-form-field appearance="outline" class="filter-field">
               <mat-label>{{ 'FILTER.NAME' | translate }}</mat-label>
               <input matInput [value]="(filters$ | async)?.searchText || ''"
@@ -38,7 +35,6 @@
               </button>
             </mat-form-field>
 
-            <!-- Titularidad -->
             <mat-form-field appearance="outline" class="filter-field">
               <mat-label>{{ 'FILTER.TITULARIDAD' | translate }}</mat-label>
               <mat-select [value]="(filters$ | async)?.titularidad || ''"
@@ -50,7 +46,6 @@
               </mat-select>
             </mat-form-field>
 
-            <!-- Territorio -->
             <mat-form-field appearance="outline" class="filter-field">
               <mat-label>{{ 'FILTER.TERRITORIO' | translate }}</mat-label>
               <mat-select [value]="(filters$ | async)?.territorio || ''"
@@ -62,7 +57,6 @@
               </mat-select>
             </mat-form-field>
 
-            <!-- Municipio -->
             <mat-form-field appearance="outline" class="filter-field">
               <mat-label>{{ 'FILTER.MUNICIPIO' | translate }}</mat-label>
               <mat-select [value]="(filters$ | async)?.municipio || ''"
@@ -74,7 +68,6 @@
               </mat-select>
             </mat-form-field>
 
-            <!-- Botón limpiar filtros -->
             @if (data.hasActiveFilters) {
             <button mat-button (click)="clearFilters()">
               <mat-icon>clear</mat-icon>
@@ -85,7 +78,6 @@
         </mat-card-content>
       </mat-card>
 
-      <!-- CONTADOR DE RESULTADOS -->
       <div class="results-info">
         <span class="results-count">
           <mat-icon>business</mat-icon>
@@ -93,10 +85,8 @@
         </span>
       </div>
 
-      <!-- CONTENIDO PRINCIPAL: TABLA + MAPA -->
       <div class="main-content">
 
-        <!-- TABLA DE CENTROS -->
         <mat-card class="table-card">
           @if (loading$ | async) {
           <div class="loading-container">
@@ -104,10 +94,8 @@
           </div>
           } @else {
 
-          <!-- ✅ Tabla con datos -->
           <table mat-table [dataSource]="data.paginated" class="centers-table">
 
-            <!-- Columna: Nombre -->
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef>{{ 'CENTER.NAME' | translate }}</th>
               <td mat-cell *matCellDef="let center">
@@ -118,7 +106,6 @@
               </td>
             </ng-container>
 
-            <!-- Columna: Titularidad -->
             <ng-container matColumnDef="DTITUC">
               <th mat-header-cell *matHeaderCellDef>{{ 'FILTER.TITULARIDAD' | translate }}</th>
               <td mat-cell *matCellDef="let center">
@@ -128,19 +115,16 @@
               </td>
             </ng-container>
 
-            <!-- Columna: Territorio -->
             <ng-container matColumnDef="DTERRC">
               <th mat-header-cell *matHeaderCellDef>{{ 'FILTER.TERRITORIO' | translate }}</th>
               <td mat-cell *matCellDef="let center">{{ center.DTERRC }}</td>
             </ng-container>
 
-            <!-- Columna: Municipio -->
             <ng-container matColumnDef="DMUNIC">
               <th mat-header-cell *matHeaderCellDef>{{ 'FILTER.MUNICIPIO' | translate }}</th>
               <td mat-cell *matCellDef="let center">{{ center.DMUNIC }}</td>
             </ng-container>
 
-            <!-- Columna: Acciones -->
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.ACTIONS' | translate }}</th>
               <td mat-cell *matCellDef="let center">
@@ -169,7 +153,6 @@
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
           </table>
 
-          <!-- Sin resultados -->
           @if (data.total === 0) {
           <div class="no-data">
             <mat-icon>search_off</mat-icon>
@@ -177,7 +160,6 @@
           </div>
           }
 
-          <!-- Paginador reactivo -->
           @if (pagination$ | async; as pag) {
           <mat-paginator [length]="data.total" [pageSize]="pag.pageSize" [pageIndex]="pag.pageIndex"
             [pageSizeOptions]="pageSizeOptions" (page)="onPageChange($event)" showFirstLastButtons>
@@ -186,7 +168,6 @@
           }
         </mat-card>
 
-        <!-- MAPA -->
         <mat-card class="map-card">
           <mat-card-header>
             <mat-card-title>
@@ -214,43 +195,87 @@
 
       <mat-card class="meetings-list-card">
         <mat-card-content>
-          @if (meetings$ | async; as meetings) {
-          @if (meetings.length === 0) {
-          <div class="no-data">
-            <mat-icon>event_busy</mat-icon>
-            <p>{{ 'MEETING.NO_MEETINGS' | translate }}</p>
+          @if (loadingMeetings$ | async) {
+          <div class="loading-container">
+            <mat-spinner diameter="50"></mat-spinner>
+            <p style="margin-top: 16px; color: rgba(0,0,0,0.6);">Cargando reuniones...</p>
           </div>
           } @else {
-          <div class="meetings-list">
-            @for (meeting of meetings; track trackByMeeting($index, meeting)) {
-            <div class="meeting-item">
-              <div class="meeting-date">
-                <span class="day">{{ meeting.date | date:'dd' }}</span>
-                <span class="month">{{ meeting.date | date:'MMM' }}</span>
-              </div>
-              <div class="meeting-info">
-                <h3>{{ meeting.title }}</h3>
-                <div class="meeting-details">
-                  <span>
-                    <mat-icon>schedule</mat-icon> {{ meeting.hour }}
-                  </span>
-                  <span>
-                    <mat-icon>room</mat-icon> {{ meeting.classroom }}
-                  </span>
-                  <span>
-                    <mat-icon>place</mat-icon> {{ meeting.center }}
-                  </span>
+            @if (meetings$ | async; as meetings) {
+              @if (meetings.length === 0) {
+                <div class="no-data">
+                  <mat-icon>event_busy</mat-icon>
+                  <p>{{ 'MEETING.NO_MEETINGS' | translate }}</p>
+                  <small style="margin-top: 8px; color: rgba(0,0,0,0.5);">No tienes reuniones programadas</small>
                 </div>
-              </div>
-              <div class="meeting-status">
-                <span class="status-badge" [ngClass]="getStatusClass(meeting.status)">
-                  {{ 'STATUS.' + meeting.status | translate }}
-                </span>
-              </div>
-            </div>
+              } @else {
+                <div class="meetings-list">
+                  @for (meeting of meetings; track trackByMeeting($index, meeting)) {
+                  <div class="meeting-item">
+                    <div class="meeting-date">
+                      <span class="day">{{ meeting.date | date:'dd' }}</span>
+                      <span class="month">{{ meeting.date | date:'MMM' }}</span>
+                      <span class="year">{{ meeting.date | date:'yyyy' }}</span>
+                    </div>
+                    <div class="meeting-info">
+                      <h3>{{ meeting.title }}</h3>
+                      @if (meeting.subject) {
+                      <p class="meeting-subject">{{ meeting.subject }}</p>
+                      }
+                      <div class="meeting-details">
+                        <span>
+                          <mat-icon>schedule</mat-icon> {{ meeting.hour }}
+                        </span>
+                        <span>
+                          <mat-icon>room</mat-icon> {{ meeting.classroom }}
+                        </span>
+                        <span>
+                          <mat-icon>place</mat-icon> {{ meeting.centerName }}
+                        </span>
+                      </div>
+                      <div class="meeting-meta">
+                        @if (meeting.teacherId) {
+                        <span class="meta-badge">
+                          <mat-icon>person</mat-icon> Profesor ID: {{ meeting.teacherId }}
+                        </span>
+                        }
+                        @if (meeting.studentId) {
+                        <span class="meta-badge">
+                          <mat-icon>school</mat-icon> Alumno ID: {{ meeting.studentId }}
+                        </span>
+                        }
+                      </div>
+                    </div>
+                    <div class="meeting-actions">
+                      <div class="meeting-status">
+                        <span class="status-badge" [ngClass]="getStatusClass(meeting.status)">
+                          {{ getStatusLabel(meeting.status) }}
+                        </span>
+                      </div>
+                      
+                      <!-- ✅ Botones de acción según el estado (ENUM: pendiente, aceptada, denegada, conflicto) -->
+                      @if (canChangeStatus(meeting)) {
+                      <button mat-icon-button [matMenuTriggerFor]="statusMenu" 
+                              matTooltip="Cambiar estado"
+                              class="status-menu-button">
+                        <mat-icon>more_vert</mat-icon>
+                      </button>
+                      
+                      <mat-menu #statusMenu="matMenu">
+                        @for (action of getAvailableStatusActions(meeting); track action.status) {
+                        <button mat-menu-item (click)="updateMeetingStatus(meeting, action.status)">
+                          <mat-icon [color]="action.color">{{ action.icon }}</mat-icon>
+                          <span>{{ action.label }}</span>
+                        </button>
+                        }
+                      </mat-menu>
+                      }
+                    </div>
+                  </div>
+                  }
+                </div>
+              }
             }
-          </div>
-          }
           }
         </mat-card-content>
       </mat-card>

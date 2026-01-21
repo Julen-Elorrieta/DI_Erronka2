@@ -21,10 +21,10 @@
 
         <mat-form-field appearance="outline" class="role-field">
           <mat-label>{{ 'USER.ROLE' | translate }}</mat-label>
-          <mat-select [(ngModel)]="selectedRole" (selectionChange)="onSearch()">
+          <mat-select [(ngModel)]="selectedRole" (ngModelChange)="getUsersByRole($event)" [compareWith]="compareRoles" placeholder="">
             <mat-option [value]="null">{{ 'COMMON.ALL' | translate }}</mat-option>
             @for (role of roles; track role) {
-            <mat-option [value]="role">{{ 'ROLE.' + (role === 1 ? 'ADMIN' : 'USER') | translate }}</mat-option>
+            <mat-option [value]="role">{{ 'ROLE.' + (getUserRoleFromTipoId(role)) | translate }}</mat-option>
             }
           </mat-select>
         </mat-form-field>

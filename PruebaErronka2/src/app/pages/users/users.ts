@@ -16,7 +16,7 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { EditUserDialogComponent as EditUser } from './editUser';
-import { User } from '../../core/models/user.model';
+import { User, getUserRoleFromTipoId, UserRole } from '../../core/models/user.model';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -42,17 +42,23 @@ import Swal from 'sweetalert2';
   styleUrls: ['./users.css'],
 })
 export class Users implements OnInit {
+      compareRoles = (a: any, b: any) => a === b;
+    getUserRoleFromTipoId = getUserRoleFromTipoId;
   users: User[] = []; // Populate with actual data
   filteredUsers = signal<User[]>([]);
   loading = signal(false);
   searchTerm = '';
   selectedRole: number | null = null;
-  roles = [1, 2];
+  roles = [1, 2, 3, 4]; // tipo_id values for GOD, ADMIN, TEACHER, STUDENT
   pageSize = 10;
   pageIndex = 0;
   displayedColumns = ['photo', 'username', 'name', 'surname', 'email', 'dni', 'number', 'actions'];
 
-  constructor(private http: HttpClient, private translate: TranslateService, private dialog: MatDialog) {}
+  constructor(
+    private http: HttpClient,
+    private translate: TranslateService,
+    private dialog: MatDialog,
+  ) {}
 
   ngOnInit() {
     this.loadUsers();
@@ -110,14 +116,37 @@ export class Users implements OnInit {
   openEditDialog(user: User) {
     const dialogRef = this.dialog.open(EditUser, {
       data: user,
-      width: '600px'
+      width: '600px',
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.loadUsers();
       }
     });
+  }
+
+  getUsersByRole(role: number): User[] {
+    this.loading.set(true);
+    const apiUrl = Array.isArray(environment.apiUrl)
+      ? environment.apiUrl.join('')
+      : environment.apiUrl;
+    let url = `${apiUrl}/filterUserByRole`;
+    if (role !== null && role !== undefined) {
+      url += `?tipo_id=${role}`;
+    }
+    this.http.get<User[]>(url).subscribe({
+      next: (users: User[]) => {
+        this.users = users;
+        this.filteredUsers.set(users);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error('Error filtering users by role:', err);
+        this.loading.set(false);
+      },
+    });
+    return this.filteredUsers();
   }
 
   canDelete(user: User): boolean {
@@ -127,27 +156,41 @@ export class Users implements OnInit {
   deleteUser(user: User) {
     Swal.fire({
       title: this.translate.instant('USER.DELETE_CONFIRM_TITLE'),
-      text: this.translate.instant('USER.DELETE_CONFIRM_TEXT', { nombre: `${user.nombre} ${user.apellidos}` }),
+      text: this.translate.instant('USER.DELETE_CONFIRM_TEXT', {
+        nombre: `${user.nombre} ${user.apellidos}`,
+      }),
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: this.translate.instant('COMMON.YES_DELETE'),
       cancelButtonText: this.translate.instant('COMMON.CANCEL'),
     }).then((result) => {
       if (result.isConfirmed) {
-      const apiUrl = Array.isArray(environment.apiUrl)
-        ? environment.apiUrl.join('')
-        : environment.apiUrl;
-      this.http.delete(`${apiUrl}/deleteUser/${user.username}`).subscribe({
-        next: () => {
-        console.log(`User ${user.username} deleted successfully.`);
-        this.loadUsers();
-        Swal.fire(this.translate.instant('USER.DELETE_SUCCESSFUL'), this.translate.instant('USER.DELETE_SUCCESSFUL_TEXT', { nombre: `${user.nombre} ${user.apellidos}` }), 'success');
-        },
-        error: (err) => {
-        console.error(`Error deleting user ${user.username}:`, err);
-        Swal.fire(this.translate.instant('COMMON.ERROR'), this.translate.instant('USER.DELETE_ERROR', { nombre: `${user.nombre} ${user.apellidos}` }), 'error');
-        },
-      });
+        const apiUrl = Array.isArray(environment.apiUrl)
+          ? environment.apiUrl.join('')
+          : environment.apiUrl;
+        this.http.delete(`${apiUrl}/deleteUser/${user.username}`).subscribe({
+          next: () => {
+            console.log(`User ${user.username} deleted successfully.`);
+            this.loadUsers();
+            Swal.fire(
+              this.translate.instant('USER.DELETE_SUCCESSFUL'),
+              this.translate.instant('USER.DELETE_SUCCESSFUL_TEXT', {
+                nombre: `${user.nombre} ${user.apellidos}`,
+              }),
+              'success',
+            );
+          },
+          error: (err) => {
+            console.error(`Error deleting user ${user.username}:`, err);
+            Swal.fire(
+              this.translate.instant('COMMON.ERROR'),
+              this.translate.instant('USER.DELETE_ERROR', {
+                nombre: `${user.nombre} ${user.apellidos}`,
+              }),
+              'error',
+            );
+          },
+        });
       }
     });
   }
@@ -164,7 +207,6 @@ export class Users implements OnInit {
       : environment.apiUrl;
     this.http.get<User[]>(`${apiUrl}/users`).subscribe({
       next: (users: User[]) => {
-        console.log('Usuarios cargados:', users);
         this.users = users;
         this.filteredUsers.set(users);
         this.loading.set(false);

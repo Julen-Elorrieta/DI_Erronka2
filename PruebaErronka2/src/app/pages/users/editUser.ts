@@ -4,7 +4,6 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
@@ -21,7 +20,6 @@ import { User } from '../../core/models/user.model';
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
     MatButtonModule,
     MatIconModule,
     TranslateModule,
@@ -46,23 +44,18 @@ import { User } from '../../core/models/user.model';
         </mat-form-field>
 
         <mat-form-field appearance="outline">
+          <mat-label>{{ 'USER.PASSWORD' | translate }}</mat-label>
+          <input matInput formControlName="password" type="password">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
           <mat-label>{{ 'USER.EMAIL' | translate }}</mat-label>
           <input matInput formControlName="email" type="email" required>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>{{ 'USER.ROLE' | translate }}</mat-label>
-          <mat-select formControlName="role" required>
-            <mat-option [value]="1">{{ 'ROLE.GOD' | translate }}</mat-option>
-            <mat-option [value]="2">{{ 'ROLE.ADMIN' | translate }}</mat-option>
-            <mat-option [value]="3">{{ 'ROLE.TEACHER' | translate }}</mat-option>
-            <mat-option [value]="4">{{ 'ROLE.STUDENT' | translate }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'USER.DNI' | translate }}</mat-label>
-          <input matInput formControlName="dni">
+          <mat-label>{{ 'USER.ADDRESS' | translate }}</mat-label>
+          <input matInput formControlName="direccion">
         </mat-form-field>
 
         <mat-form-field appearance="outline">
@@ -74,11 +67,16 @@ import { User } from '../../core/models/user.model';
           <mat-label>{{ 'USER.PHONE2' | translate }}</mat-label>
           <input matInput formControlName="telefono2">
         </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'USER.PHOTO_URL' | translate }}</mat-label>
+          <input matInput formControlName="argazkia_url">
+        </mat-form-field>
       </form>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</button>
-      <button mat-raised-button color="primary" (click)="onSave()" [disabled]="editForm.invalid">
+      <button mat-raised-button color="primary" (click)="onSave()" [disabled]="editForm.invalid" style="color: white;">
         {{ 'COMMON.SAVE' | translate }}
       </button>
     </mat-dialog-actions>
@@ -105,11 +103,12 @@ export class EditUserDialogComponent {
       nombre: [data.nombre, Validators.required],
       apellidos: [data.apellidos, Validators.required],
       username: [data.username, Validators.required],
+      password: [data.password],
       email: [data.email, [Validators.required, Validators.email]],
-      role: [data.tipo_id, Validators.required],
-      dni: [data.dni],
+      direccion: [data.direccion],
       telefono1: [data.telefono1],
       telefono2: [data.telefono2],
+      argazkia_url: [data.argazkia_url],
     });
   }
 
@@ -120,13 +119,12 @@ export class EditUserDialogComponent {
   onSave(): void {
     if (this.editForm.valid) {
       const apiUrl = Array.isArray(environment.apiUrl) ? environment.apiUrl.join('') : environment.apiUrl;
-      this.http.put(`${apiUrl}/updateUser/${this.data.username}`, this.editForm.value).subscribe({
+      this.http.put(`${apiUrl}/updateUser/${this.data.id}`, this.editForm.value).subscribe({
         next: () => {
           this.dialogRef.close(this.editForm.value);
         },
         error: (err) => {
           console.error('Error updating user:', err);
-          // Optionally show error message
         }
       });
     }

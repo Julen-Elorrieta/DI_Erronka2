@@ -2,15 +2,10 @@
    OPTIMIZACIONES CSS PARA RENDIMIENTO
    ============================================================================ */
 
-/* ✅ Usar transform y opacity para animaciones (GPU acelerado) */
-/* ✅ will-change solo cuando sea necesario */
-/* ✅ contain para aislar repintados */
-
 .meetings-container {
   padding: 24px;
   max-width: 1400px;
   margin: 0 auto;
-  /* ✅ Aislar repintados en este contenedor */
   contain: layout style;
 }
 
@@ -19,7 +14,6 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
-  /* Evitar layout shifts */
   min-height: 64px;
 }
 
@@ -42,7 +36,6 @@
 
 .filters-card {
   margin-bottom: 20px;
-  /* ✅ Promover a capa compuesta solo cuando hover */
   transition: box-shadow 0.2s ease;
 }
 
@@ -88,7 +81,6 @@
   display: grid;
   grid-template-columns: 1fr 500px;
   gap: 24px;
-  /* ✅ Aislar repintados */
   contain: layout;
 }
 
@@ -103,7 +95,6 @@
    ============================================================================ */
 
 .table-card {
-  /* ✅ Altura fija para evitar layout shifts */
   min-height: 600px;
   display: flex;
   flex-direction: column;
@@ -111,18 +102,18 @@
 
 .loading-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   padding: 60px;
+  gap: 16px;
 }
 
 .centers-table {
   width: 100%;
-  /* ✅ Optimizar repintado de tablas */
   contain: layout style;
 }
 
-/* ✅ Usar transform para hover (GPU acelerado) */
 .centers-table tbody tr {
   transition: background-color 0.15s ease;
   cursor: pointer;
@@ -130,7 +121,6 @@
 
 .centers-table tbody tr:hover {
   background-color: rgba(0, 0, 0, 0.04);
-  /* ✅ No usar transform aquí para evitar issues con sticky headers */
 }
 
 .center-name {
@@ -160,7 +150,6 @@
   font-size: 12px;
   font-weight: 500;
   background: rgba(0, 0, 0, 0.08);
-  /* ✅ Evitar repintados innecesarios */
   will-change: auto;
 }
 
@@ -187,7 +176,6 @@
 .actions-cell {
   display: flex;
   gap: 4px;
-  /* ✅ Aislar repintados de botones */
   contain: layout;
 }
 
@@ -196,7 +184,6 @@
    ============================================================================ */
 
 .map-card {
-  /* ✅ Altura fija para evitar layout shifts */
   height: fit-content;
   position: sticky;
   top: 24px;
@@ -207,9 +194,7 @@
   height: 500px;
   border-radius: 8px;
   overflow: hidden;
-  /* ✅ Promover a capa compuesta para animaciones suaves */
   will-change: transform;
-  /* ✅ Aislar completamente el repintado del mapa */
   contain: strict;
 }
 
@@ -240,6 +225,13 @@
   font-size: 16px;
 }
 
+.no-data small {
+  display: block;
+  margin-top: 8px;
+  font-size: 14px;
+  opacity: 0.7;
+}
+
 /* ============================================================================
    REUNIONES
    ============================================================================ */
@@ -260,48 +252,71 @@
   padding: 16px;
   border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 8px;
-  /* ✅ Animación suave con transform */
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: white;
+  position: relative;
 }
 
 .meeting-item:hover {
-  /* ✅ GPU acelerado */
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+/* ✅ Fecha con año incluido */
 .meeting-date {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-width: 60px;
-  padding: 8px;
+  min-width: 70px;
+  padding: 12px 8px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border-radius: 8px;
+  flex-shrink: 0;
 }
 
 .meeting-date .day {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 700;
   line-height: 1;
 }
 
 .meeting-date .month {
-  font-size: 12px;
+  font-size: 13px;
   text-transform: uppercase;
   margin-top: 4px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
 }
 
+.meeting-date .year {
+  font-size: 11px;
+  margin-top: 2px;
+  opacity: 0.8;
+}
+
+/* ✅ Información de la reunión */
 .meeting-info {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .meeting-info h3 {
-  margin: 0 0 8px 0;
-  font-size: 16px;
+  margin: 0;
+  font-size: 18px;
   font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.meeting-subject {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.6);
+  font-style: italic;
+  line-height: 1.4;
 }
 
 .meeting-details {
@@ -324,17 +339,56 @@
   height: 18px;
 }
 
+/* ✅ Meta información (IDs de profesor/alumno) */
+.meeting-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.meta-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.meta-badge mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+/* ✅ Acciones de la reunión (estado + botón de menú) */
+.meeting-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+  min-width: 140px;
+}
+
 .meeting-status {
   display: flex;
   align-items: center;
+  gap: 8px;
 }
 
+/* ✅ Estados ENUM: pendiente, aceptada, denegada, conflicto */
 .status-badge {
-  padding: 6px 16px;
+  padding: 8px 16px;
   border-radius: 16px;
   font-size: 12px;
   font-weight: 500;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 .status-badge.status-pending,
@@ -343,16 +397,48 @@
   color: #f57c00;
 }
 
-.status-badge.status-confirmed,
-.status-badge.status-confirmada {
+.status-badge.status-aceptada,
+.status-badge.status-accepted {
   background: #e8f5e9;
   color: #388e3c;
 }
 
-.status-badge.status-cancelled,
-.status-badge.status-cancelada {
+.status-badge.status-denegada,
+.status-badge.status-denied {
   background: #ffebee;
   color: #d32f2f;
+}
+
+.status-badge.status-conflicto,
+.status-badge.status-conflict {
+  background: #fff9c4;
+  color: #f57f17;
+  border: 1px solid #fbc02d;
+}
+
+/* ✅ Botón de menú de acciones */
+.status-menu-button {
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.status-menu-button:hover {
+  opacity: 1;
+}
+
+.meeting-item:hover .status-menu-button {
+  opacity: 1;
+}
+
+/* ✅ Estilos para los items del menú */
+::ng-deep .mat-mdc-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+::ng-deep .mat-mdc-menu-item mat-icon {
+  margin-right: 8px;
 }
 
 /* ============================================================================
@@ -396,6 +482,25 @@
     width: 100%;
     flex-direction: row;
     justify-content: flex-start;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .meeting-date .day,
+  .meeting-date .month,
+  .meeting-date .year {
+    margin: 0;
+  }
+
+  .meeting-actions {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .meeting-status {
+    flex: 1;
   }
 }
 
@@ -403,13 +508,11 @@
    OPTIMIZACIONES ADICIONALES
    ============================================================================ */
 
-/* ✅ Reducir repintados en scroll */
 * {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ✅ Optimizar selectores de Material */
 ::ng-deep .mat-mdc-table {
   contain: layout style;
 }
@@ -418,19 +521,16 @@
   contain: layout;
 }
 
-/* ✅ Evitar layout shifts en iconos */
 mat-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
-/* ✅ Smooth scrolling nativo */
 html {
   scroll-behavior: smooth;
 }
 
-/* ✅ Acelerar animaciones de Material */
 ::ng-deep .mat-mdc-tab-body-content {
   will-change: transform;
 }

@@ -28,108 +28,223 @@ connection.connect((err) => {
 });
 
 app.post('/login', (req, res) => {
-  const { username, password } = req.body;
+  const {
+    username,
+    password
+  } = req.body;
   connection.query(
     'SELECT * FROM users WHERE username = ? AND password = ?',
     [username, password],
     (err, results) => {
       if (err) {
-        return res.status(500).json({ success: false, error: 'DB error' });
+        return res.status(500).json({
+          success: false,
+          error: 'DB error'
+        });
       }
       if (results && results.length > 0) {
-        // Usuario y contraseña correctos
-        res.json({ success: true });
+        res.json({
+          success: true
+        });
       } else {
-        // Usuario o contraseña incorrectos
-        res.json({ success: false });
+        res.json({
+          success: false
+        });
       }
     }
   );
 });
 
-
 app.get('/centers', (req, res) => {
-    const type = req.query.type;
-    if (type === 'filters') {
-        axios.get('http://10.5.104.100/ikastetxeak.json').then(response => {
-            const data = response.data.CENTROS;
-            const titularidades = [...new Set(data.map(r => r.DTITUC))];
-            const territorios = [...new Set(data.map(r => r.DTERRC))];
-            res.json({ titularidades, territorios });
-        }).catch(() => {
-            res.status(500).json({ error: 'Error fetching data' });
+  const type = req.query.type;
+  if (type === 'filters') {
+    axios.get('http://10.5.104.100/ikastetxeak.json').then(response => {
+      const data = response.data.CENTROS;
+      const titularidades = [...new Set(data.map(r => r.DTITUC))];
+      const territorios = [...new Set(data.map(r => r.DTERRC))];
+      res.json({
+        titularidades,
+        territorios
+      });
+    }).catch(() => {
+      res.status(500).json({
+        error: 'Error fetching data'
+      });
+    });
+  } else if (type === 'municipios') {
+    const territorio = req.query.territorio;
+    axios.get('http://10.5.104.100/ikastetxeak.json').then(response => {
+      const data = response.data.CENTROS;
+      let municipios = data.map(r => r.DMUNIC);
+      if (territorio) {
+        municipios = data.filter(r => r.DTERRC === territorio).map(r => r.DMUNIC);
+      }
+      res.json([...new Set(municipios)]);
+    }).catch(() => {
+      res.status(500).json({
+        error: 'Error fetching data'
+      });
+    });
+  } else if (type === 'meetings') {
+    connection.query('SELECT * FROM reuniones ORDER BY fecha DESC', (err, results) => {
+      if (err) {
+        console.error('Error fetching meetings:', err);
+        return res.status(500).json({
+          success: false,
+          error: 'DB error'
         });
-    } else if (type === 'municipios') {
-        const territorio = req.query.territorio;
-        axios.get('http://10.5.104.100/ikastetxeak.json').then(response => {
-            const data = response.data.CENTROS;
-            let municipios = data.map(r => r.DMUNIC);
-            if (territorio) {
-                municipios = data.filter(r => r.DTERRC === territorio).map(r => r.DMUNIC);
-            }
-            res.json([...new Set(municipios)]);
-        }).catch(() => {
-            res.status(500).json({ error: 'Error fetching data' });
-        });
-    } else if (type === 'meetings') {
-        connection.query('SELECT * FROM reuniones', (err, results) => {
-            if (err) {
-                return res.status(500).json({ success: false, error: 'DB error' });
-            }
-            res.json(results);
-        });
-    } else {
-        // Default: centers
-        axios.get('http://10.5.104.100/ikastetxeak.json').then(response => {
-            let data = response.data.CENTROS;
-            if (req.query.titularidad) data = data.filter(r => r.DTITUC === req.query.titularidad);
-            if (req.query.territorio) data = data.filter(r => r.DTERRC === req.query.territorio);
-            if (req.query.municipio) data = data.filter(r => r.DMUNIC === req.query.municipio);
-            res.json(data); // <-- Ahora devuelve un array directamente
-        }).catch(() => {
-            res.status(500).json({ error: 'Error fetching data' });
-        });
-    }
+      }
+      const mappedResults = results.map(reunion => ({
+        ...reunion,
+        estado: reunion.estado_eus || reunion.estado || 'pendiente'
+      }));
+      res.json(mappedResults);
+    });
+  } else {
+    // Default: centers
+    axios.get('http://10.5.104.100/ikastetxeak.json').then(response => {
+      let data = response.data.CENTROS;
+      if (req.query.titularidad) data = data.filter(r => r.DTITUC === req.query.titularidad);
+      if (req.query.territorio) data = data.filter(r => r.DTERRC === req.query.territorio);
+      if (req.query.municipio) data = data.filter(r => r.DMUNIC === req.query.municipio);
+      res.json(data);
+    }).catch(() => {
+      res.status(500).json({
+        error: 'Error fetching data'
+      });
+    });
+  }
 });
 
 app.get('/users', (_req, res) => {
-    connection.query('SELECT * FROM users', (err, results) => {
-        if (err) {
-            return res.status(500).json({ success: false, error: 'DB error' });
-        }
-        res.json(results);
-    });
+  connection.query('SELECT * FROM users', (err, results) => {
+    if (err) {
+      return res.status(500).json({
+        success: false,
+        error: 'DB error'
+      });
+    }
+    res.json(results);
+  });
 });
 
+app.put('/updateUser/:id', (req, res) => {
+  const userId = req.params.id;
+  const userData = req.body;
+  connection.query('UPDATE users SET ? WHERE id = ?', [userData, userId], (err) => {
+    if (err) {
+      return res.status(500).json({
+        success: false,
+        error: 'DB error'
+      });
+    }
+    res.json({
+      success: true
+    });
+  });
+});
 
 app.delete('/deleteUser/:username', (req, res) => {
-    const username = req.params.username;
-    connection.query('DELETE FROM users WHERE username = ?', [username], (err) => {
-        if (err) {
-            return res.status(500).json({ success: false, error: 'DB error' });
-        }
-        res.json({ success: true });
+  const username = req.params.username;
+  connection.query('DELETE FROM users WHERE username = ?', [username], (err) => {
+    if (err) {
+      return res.status(500).json({
+        success: false,
+        error: 'DB error'
+      });
+    }
+    res.json({
+      success: true
     });
+  });
 });
 
-app.put('/updateUser/:username', (req, res) => {
-    const username = req.params.username;
-    const updates = req.body;
-    connection.query('UPDATE users SET ? WHERE username = ?', [updates, username], (err) => {
-        if (err) {
-            return res.status(500).json({ success: false, error: 'DB error' });
-        }
-        res.json({ success: true });
-    });
+app.get('/filterUserByRole', (req, res) => {
+  const tipoId = req.query.tipo_id;
+  let query = 'SELECT * FROM users';
+  const params = [];
+  if (tipoId) {
+    query += ' WHERE tipo_id = ?';
+    params.push(tipoId);
+  }
+  connection.query(query, params, (err, results) => {
+    if (err) {
+      return res.status(500).json({
+        success: false,
+        error: 'DB error'
+      });
+    }
+    res.json(results);
+  });
 });
 
-app.get('/meetings', (_req, res) => {
-    connection.query('SELECT COUNT(*) AS count FROM reuniones', (err, results) => {
-        if (err) {
-            return res.status(500).json({ success: false, error: 'DB error' });
-        }
-        res.json({ count: results[0].count });
+
+// ✅ ACTUALIZAR ESTADO DE REUNIÓN
+// Columna en BD: estado_eus (ENUM: 'pendiente', 'aceptada', 'denegada', 'conflicto')
+app.put('/updateMeeting/:id', (req, res) => {
+  const meetingId = req.params.id;
+  const nuevoEstado = req.body.estado;
+
+  console.log('=== UPDATE MEETING ===');
+  console.log('ID recibido:', meetingId);
+  console.log('Nuevo estado recibido:', nuevoEstado);
+
+
+  // SEGUNDO: Actualizar usando la columna estado_eus
+  const query = 'UPDATE reuniones SET estado = ? WHERE id_reunion = ?';
+
+  connection.query(query, [nuevoEstado, meetingId], (err2, result) => {
+    if (err2) {
+      console.error('ERROR en UPDATE:', err2);
+      return res.status(500).json({
+        success: false,
+        error: 'Error en base de datos',
+        details: err2.message
+      });
+    }
+  });
+});
+
+app.get('/countMeetings', (_req, res) => {
+  connection.query('SELECT COUNT(*) AS count FROM reuniones', (err, results) => {
+    if (err) {
+      return res.status(500).json({
+        success: false,
+        error: 'DB error'
+      });
+    }
+    res.json({
+      count: results[0].count
     });
+  });
+});
+
+app.get('/countUsers', (_req, res) => {
+  connection.query('SELECT COUNT(*) AS count FROM users WHERE tipo_id = 4', (err, results) => {
+    if (err) {
+      return res.status(500).json({
+        success: false,
+        error: 'DB error'
+      });
+    }
+    res.json({
+      count: results[0].count
+    });
+  });
+});
+
+app.get('/countTeachers', (_req, res) => {
+  connection.query('SELECT COUNT(*) AS count FROM users WHERE tipo_id = 3', (err, results) => {
+    if (err) {
+      return res.status(500).json({
+        success: false,
+        error: 'DB error'
+      });
+    }
+    res.json({
+      count: results[0].count
+    });
+  });
 });
 
 app.listen(port, () => {
