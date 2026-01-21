@@ -42,13 +42,12 @@ import Swal from 'sweetalert2';
   styleUrls: ['./users.css'],
 })
 export class Users implements OnInit {
-      compareRoles = (a: any, b: any) => a === b;
-    getUserRoleFromTipoId = getUserRoleFromTipoId;
-  users: User[] = []; // Populate with actual data
+  getUserRoleFromTipoId = getUserRoleFromTipoId;
+  users: User[] = [];
   filteredUsers = signal<User[]>([]);
   loading = signal(false);
   searchTerm = '';
-  selectedRole: number | null = null;
+  selectedRole: string | number = '';
   roles = [1, 2, 3, 4]; // tipo_id values for GOD, ADMIN, TEACHER, STUDENT
   pageSize = 10;
   pageIndex = 0;
@@ -61,6 +60,7 @@ export class Users implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.selectedRole = ''; // Asegurar valor inicial
     this.loadUsers();
   }
 
@@ -73,25 +73,42 @@ export class Users implements OnInit {
     // Implement create dialog
   }
 
+  onRoleChange(value: string | number) {
+    this.selectedRole = value;
+    this.getUsersByRole(value);
+  }
+
   onSearch() {
-    // Implement search logic
+    const searchLower = this.searchTerm.toLowerCase().trim();
+    
     this.filteredUsers.set(
-      this.users.filter(
-        (user) =>
-          (user.nombre.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-            user.apellidos.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-            user.username.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-            user.email.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-            (user.dni && user.dni.toLowerCase().includes(this.searchTerm.toLowerCase()))) &&
-          (this.selectedRole === null || user.tipo_id === this.selectedRole),
-      ),
+      this.users.filter((user) => {
+        // Filtro de búsqueda por texto
+        const matchesSearch = !searchLower || 
+          user.nombre?.toLowerCase().includes(searchLower) ||
+          user.apellidos?.toLowerCase().includes(searchLower) ||
+          user.username?.toLowerCase().includes(searchLower) ||
+          user.email?.toLowerCase().includes(searchLower) ||
+          (user.dni && user.dni.toLowerCase().includes(searchLower)) ||
+          (user.telefono1 && user.telefono1.toString().includes(searchLower)) ||
+          (user.telefono2 && user.telefono2.toString().includes(searchLower));
+        
+        // Filtro de rol - ahora comparamos con string vacío
+        const matchesRole = this.selectedRole === '' || user.tipo_id === this.selectedRole;
+        
+        return matchesSearch && matchesRole;
+      }),
     );
+    
+    // Resetear paginación al buscar
+    this.pageIndex = 0;
   }
 
   clearFilters() {
     this.searchTerm = '';
-    this.selectedRole = null;
-    this.onSearch();
+    this.selectedRole = ''; // Cambiamos a string vacío
+    this.filteredUsers.set(this.users);
+    this.pageIndex = 0;
   }
 
   getPaginatedUsers(): User[] {
@@ -126,19 +143,22 @@ export class Users implements OnInit {
     });
   }
 
-  getUsersByRole(role: number): User[] {
+  getUsersByRole(role: number | string): void {
     this.loading.set(true);
     const apiUrl = Array.isArray(environment.apiUrl)
       ? environment.apiUrl.join('')
       : environment.apiUrl;
     let url = `${apiUrl}/filterUserByRole`;
-    if (role !== null && role !== undefined) {
+    
+    // Solo añade el parámetro si no es string vacío
+    if (role !== '' && role !== null && role !== undefined) {
       url += `?tipo_id=${role}`;
     }
+    
     this.http.get<User[]>(url).subscribe({
       next: (users: User[]) => {
         this.users = users;
-        this.filteredUsers.set(users);
+        this.onSearch(); // Aplicar búsqueda actual después de filtrar por rol
         this.loading.set(false);
       },
       error: (err) => {
@@ -146,7 +166,6 @@ export class Users implements OnInit {
         this.loading.set(false);
       },
     });
-    return this.filteredUsers();
   }
 
   canDelete(user: User): boolean {

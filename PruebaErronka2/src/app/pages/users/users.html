@@ -15,14 +15,14 @@
       <div class="filters-row">
         <mat-form-field appearance="outline" class="search-field">
           <mat-label>{{ 'COMMON.SEARCH' | translate }}</mat-label>
-          <input matInput [(ngModel)]="searchTerm" (keyup.enter)="onSearch()" placeholder="Izena, abizena, email...">
+          <input matInput [(ngModel)]="searchTerm" (input)="onSearch()" placeholder="Izena, abizena, email...">
           <mat-icon matPrefix>search</mat-icon>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="role-field">
           <mat-label>{{ 'USER.ROLE' | translate }}</mat-label>
-          <mat-select [(ngModel)]="selectedRole" (ngModelChange)="getUsersByRole($event)" [compareWith]="compareRoles" placeholder="">
-            <mat-option [value]="null">{{ 'COMMON.ALL' | translate }}</mat-option>
+          <mat-select [value]="selectedRole || ''" (selectionChange)="onRoleChange($event.value)">
+            <mat-option value="">{{ 'COMMON.ALL' | translate }}</mat-option>
             @for (role of roles; track role) {
             <mat-option [value]="role">{{ 'ROLE.' + (getUserRoleFromTipoId(role)) | translate }}</mat-option>
             }
