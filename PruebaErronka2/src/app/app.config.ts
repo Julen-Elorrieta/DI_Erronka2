@@ -1,10 +1,10 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChangeDetection, importProvidersFrom } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, HttpClient } from '@angular/common/http';
-
+import { provideHttpClient, HttpClient, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { authInterceptor } from './core/interceptors/auth.interceptor';
 
 // Factory for TranslateHttpLoader
 export function HttpLoaderFactory(http: HttpClient) {
@@ -16,7 +16,9 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(),
+    provideHttpClient(
+      withInterceptors([authInterceptor]) // Añadido el interceptor JWT aquí
+    ),
     importProvidersFrom(
       TranslateModule.forRoot({
         loader: {

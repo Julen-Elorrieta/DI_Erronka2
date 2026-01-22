@@ -24,16 +24,16 @@ export class Dashboard {
   authService: AuthService = inject(AuthService);
 
   constructor(private http: HttpClient) {
+    // El guard ya se encarga de verificar la autenticación
+    // Solo necesitas cargar los datos
     this.fetchMeetingsCount();
     this.fetchUsersCount();
     this.fetchTeachersCount();
-    this.authenticate();
   }
 
-  authenticate(): void {
-    if (!this.authService.isLoggedIn()) {
-      this.router.navigate(['/login']);
-    }
+  // Método para cerrar sesión (opcional, úsalo en tu template)
+  logout(): void {
+    this.authService.logout(this.router);
   }
 
   fetchMeetingsCount(): void {

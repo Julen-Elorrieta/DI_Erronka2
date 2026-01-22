@@ -1,12 +1,16 @@
-// Simple backend Express para login con MySQL y datos de JSON
+// Backend Express con JWT para login con MySQL
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
 const axios = require('axios');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const port = 3000;
+
+// IMPORTANTE: Cambia esto por una clave secreta única y segura
+const SECRET_KEY = 'mi-clave-super-secreta-2024-cambiar-en-produccion';
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -27,49 +31,104 @@ connection.connect((err) => {
   }
 });
 
+// ============================================
+// MIDDLEWARE PARA VERIFICAR TOKEN JWT
+// ============================================
+const verifyToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+  
+  if (!token) {
+    return res.status(401).json({ success: false, error: 'No token provided' });
+  }
+
+  jwt.verify(token, SECRET_KEY, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ success: false, error: 'Invalid or expired token' });
+    }
+    req.userId = decoded.id;
+    req.username = decoded.username;
+    req.tipoId = decoded.tipo_id;
+    next();
+  });
+};
+
+// ============================================
+// LOGIN - NO PROTEGIDO (genera el token)
+// ============================================
 app.post('/login', (req, res) => {
-  const {
-    username,
-    password
-  } = req.body;
+  const { username, password } = req.body;
+  
   connection.query(
-    'SELECT * FROM users WHERE username = ? AND password = ?',
+    'SELECT id, username, tipo_id FROM users WHERE username = ? AND password = ?',
     [username, password],
     (err, results) => {
       if (err) {
-        return res.status(500).json({
-          success: false,
-          error: 'DB error'
-        });
+        console.error('Error en login:', err);
+        return res.status(500).json({ success: false, error: 'DB error' });
       }
+      
       if (results && results.length > 0) {
+        const user = results[0];
+        
+        // Generar token JWT válido por 8 horas
+        const token = jwt.sign(
+          { 
+            id: user.id, 
+            username: user.username,
+            tipo_id: user.tipo_id
+          },
+          SECRET_KEY,
+          { expiresIn: '8h' }
+        );
+        
+        console.log('Login exitoso para:', user.username);
+        
         res.json({
-          success: true
+          success: true,
+          token: token,
+          user: {
+            id: user.id,
+            username: user.username,
+            tipo_id: user.tipo_id
+          }
         });
       } else {
-        res.json({
-          success: false
-        });
+        res.json({ success: false, error: 'Invalid credentials' });
       }
     }
   );
 });
 
-app.get('/centers', (req, res) => {
+// ============================================
+// VERIFICAR TOKEN - Endpoint para validar token
+// ============================================
+app.get('/verify-token', verifyToken, (req, res) => {
+  res.json({ 
+    success: true, 
+    user: { 
+      id: req.userId, 
+      username: req.username,
+      tipo_id: req.tipoId
+    } 
+  });
+});
+
+// ============================================
+// RUTAS PROTEGIDAS (requieren token válido)
+// ============================================
+
+app.get('/centers', verifyToken, (req, res) => {
   const type = req.query.type;
+  
   if (type === 'filters') {
     axios.get('http://10.5.104.100/ikastetxeak.json').then(response => {
       const data = response.data.CENTROS;
       const titularidades = [...new Set(data.map(r => r.DTITUC))];
       const territorios = [...new Set(data.map(r => r.DTERRC))];
-      res.json({
-        titularidades,
-        territorios
-      });
+      res.json({ titularidades, territorios });
     }).catch(() => {
-      res.status(500).json({
-        error: 'Error fetching data'
-      });
+      res.status(500).json({ error: 'Error fetching data' });
     });
   } else if (type === 'municipios') {
     const territorio = req.query.territorio;
@@ -81,18 +140,13 @@ app.get('/centers', (req, res) => {
       }
       res.json([...new Set(municipios)]);
     }).catch(() => {
-      res.status(500).json({
-        error: 'Error fetching data'
-      });
+      res.status(500).json({ error: 'Error fetching data' });
     });
   } else if (type === 'meetings') {
     connection.query('SELECT * FROM reuniones ORDER BY fecha DESC', (err, results) => {
       if (err) {
         console.error('Error fetching meetings:', err);
-        return res.status(500).json({
-          success: false,
-          error: 'DB error'
-        });
+        return res.status(500).json({ success: false, error: 'DB error' });
       }
       const mappedResults = results.map(reunion => ({
         ...reunion,
@@ -101,7 +155,6 @@ app.get('/centers', (req, res) => {
       res.json(mappedResults);
     });
   } else {
-    // Default: centers
     axios.get('http://10.5.104.100/ikastetxeak.json').then(response => {
       let data = response.data.CENTROS;
       if (req.query.titularidad) data = data.filter(r => r.DTITUC === req.query.titularidad);
@@ -109,57 +162,42 @@ app.get('/centers', (req, res) => {
       if (req.query.municipio) data = data.filter(r => r.DMUNIC === req.query.municipio);
       res.json(data);
     }).catch(() => {
-      res.status(500).json({
-        error: 'Error fetching data'
-      });
+      res.status(500).json({ error: 'Error fetching data' });
     });
   }
 });
 
-app.get('/users', (_req, res) => {
+app.get('/users', verifyToken, (_req, res) => {
   connection.query('SELECT * FROM users', (err, results) => {
     if (err) {
-      return res.status(500).json({
-        success: false,
-        error: 'DB error'
-      });
+      return res.status(500).json({ success: false, error: 'DB error' });
     }
     res.json(results);
   });
 });
 
-app.put('/updateUser/:id', (req, res) => {
+app.put('/updateUser/:id', verifyToken, (req, res) => {
   const userId = req.params.id;
   const userData = req.body;
   connection.query('UPDATE users SET ? WHERE id = ?', [userData, userId], (err) => {
     if (err) {
-      return res.status(500).json({
-        success: false,
-        error: 'DB error'
-      });
+      return res.status(500).json({ success: false, error: 'DB error' });
     }
-    res.json({
-      success: true
-    });
+    res.json({ success: true });
   });
 });
 
-app.delete('/deleteUser/:username', (req, res) => {
+app.delete('/deleteUser/:username', verifyToken, (req, res) => {
   const username = req.params.username;
   connection.query('DELETE FROM users WHERE username = ?', [username], (err) => {
     if (err) {
-      return res.status(500).json({
-        success: false,
-        error: 'DB error'
-      });
+      return res.status(500).json({ success: false, error: 'DB error' });
     }
-    res.json({
-      success: true
-    });
+    res.json({ success: true });
   });
 });
 
-app.get('/filterUserByRole', (req, res) => {
+app.get('/filterUserByRole', verifyToken, (req, res) => {
   const tipoId = req.query.tipo_id;
   let query = 'SELECT * FROM users';
   const params = [];
@@ -169,19 +207,13 @@ app.get('/filterUserByRole', (req, res) => {
   }
   connection.query(query, params, (err, results) => {
     if (err) {
-      return res.status(500).json({
-        success: false,
-        error: 'DB error'
-      });
+      return res.status(500).json({ success: false, error: 'DB error' });
     }
     res.json(results);
   });
 });
 
-
-// ✅ ACTUALIZAR ESTADO DE REUNIÓN
-// Columna en BD: estado_eus (ENUM: 'pendiente', 'aceptada', 'denegada', 'conflicto')
-app.put('/updateMeeting/:id', (req, res) => {
+app.put('/updateMeeting/:id', verifyToken, (req, res) => {
   const meetingId = req.params.id;
   const nuevoEstado = req.body.estado;
 
@@ -189,61 +221,45 @@ app.put('/updateMeeting/:id', (req, res) => {
   console.log('ID recibido:', meetingId);
   console.log('Nuevo estado recibido:', nuevoEstado);
 
-
-  // SEGUNDO: Actualizar usando la columna estado_eus
   const query = 'UPDATE reuniones SET estado = ? WHERE id_reunion = ?';
 
-  connection.query(query, [nuevoEstado, meetingId], (err2, result) => {
-    if (err2) {
-      console.error('ERROR en UPDATE:', err2);
+  connection.query(query, [nuevoEstado, meetingId], (err, result) => {
+    if (err) {
+      console.error('ERROR en UPDATE:', err);
       return res.status(500).json({
         success: false,
         error: 'Error en base de datos',
-        details: err2.message
+        details: err.message
       });
     }
+    res.json({ success: true });
   });
 });
 
-app.get('/countMeetings', (_req, res) => {
+app.get('/countMeetings', verifyToken, (_req, res) => {
   connection.query('SELECT COUNT(*) AS count FROM reuniones', (err, results) => {
     if (err) {
-      return res.status(500).json({
-        success: false,
-        error: 'DB error'
-      });
+      return res.status(500).json({ success: false, error: 'DB error' });
     }
-    res.json({
-      count: results[0].count
-    });
+    res.json({ count: results[0].count });
   });
 });
 
-app.get('/countUsers', (_req, res) => {
+app.get('/countUsers', verifyToken, (_req, res) => {
   connection.query('SELECT COUNT(*) AS count FROM users WHERE tipo_id = 4', (err, results) => {
     if (err) {
-      return res.status(500).json({
-        success: false,
-        error: 'DB error'
-      });
+      return res.status(500).json({ success: false, error: 'DB error' });
     }
-    res.json({
-      count: results[0].count
-    });
+    res.json({ count: results[0].count });
   });
 });
 
-app.get('/countTeachers', (_req, res) => {
+app.get('/countTeachers', verifyToken, (_req, res) => {
   connection.query('SELECT COUNT(*) AS count FROM users WHERE tipo_id = 3', (err, results) => {
     if (err) {
-      return res.status(500).json({
-        success: false,
-        error: 'DB error'
-      });
+      return res.status(500).json({ success: false, error: 'DB error' });
     }
-    res.json({
-      count: results[0].count
-    });
+    res.json({ count: results[0].count });
   });
 });
 
