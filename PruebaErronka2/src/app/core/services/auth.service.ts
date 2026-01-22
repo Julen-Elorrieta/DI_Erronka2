@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { User } from '../models/user.model';
 import { environment } from '../../../environments/environment';
 import { Observable, catchError, map, of } from 'rxjs';
+import { ApiUtil } from '../utils/api.util';
 
 @Injectable({
   providedIn: 'root'
@@ -33,9 +34,7 @@ export class AuthService {
   }
 
   login(username: string, password: string, router: Router, setLoginError: (loginError: boolean) => void): void {
-    const apiUrl = Array.isArray(environment.apiUrl) ? environment.apiUrl.join('') : environment.apiUrl;
-    
-    this.http.post<any>(`${apiUrl}/login`, { username, password }).subscribe({
+    this.http.post<any>(ApiUtil.buildUrl('/login'), { username, password }).subscribe({
       next: (response: any) => {
         if (response.success && response.token) {
           setLoginError(false);
@@ -65,9 +64,7 @@ export class AuthService {
       return of(false);
     }
 
-    const apiUrl = Array.isArray(environment.apiUrl) ? environment.apiUrl.join('') : environment.apiUrl;
-    
-    return this.http.get<any>(`${apiUrl}/verify-token`).pipe(
+    return this.http.get<any>(ApiUtil.buildUrl('/verify-token')).pipe(
       map(response => {
         if (response.success) {
           this.currentUserSignal.set(response.user);
@@ -89,6 +86,10 @@ export class AuthService {
 
   getToken(): string | null {
     return localStorage.getItem('token');
+  }
+
+  getUser(): User | null {
+    return this.currentUserSignal();
   }
 
   private clearAuth(): void {

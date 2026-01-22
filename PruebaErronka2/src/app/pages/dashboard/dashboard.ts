@@ -16,12 +16,19 @@ import { AuthService } from '../../core/services/auth.service';
 })
 export class Dashboard {
   currentUser = signal<any>({ name: 'Admin', role: 'ADMIN' });
-  isAdminRole = computed(() => true);
+  isAdminRole = computed(() => {
+    const user = this.authService.currentUser();
+    return user && (user.tipo_id === 1 || user.tipo_id === 2); // 1 = GOD, 2 = Admin
+  });
   totalStudents = signal<number>(0);
   totalTeachers = signal<number>(0);
   todayMeetings = signal<number>(0);
   router: Router = inject(Router);
   authService: AuthService = inject(AuthService);
+
+  private readonly apiUrl = Array.isArray(environment.apiUrl)
+    ? environment.apiUrl.join('')
+    : environment.apiUrl;
 
   constructor(private http: HttpClient) {
     // El guard ya se encarga de verificar la autenticación
@@ -36,60 +43,31 @@ export class Dashboard {
     this.authService.logout(this.router);
   }
 
-  fetchMeetingsCount(): void {
-    const apiUrl = Array.isArray(environment.apiUrl)
-      ? environment.apiUrl.join('')
-      : environment.apiUrl;
-    this.http.get<any>(`${apiUrl}/countMeetings`).subscribe({
+  private fetchData<T>(endpoint: string, targetSignal: any): void {
+    this.http.get<T>(`${this.apiUrl}${endpoint}`).subscribe({
       next: (response: any) => {
         if (typeof response.count === 'number') {
-          this.todayMeetings.set(response.count);
+          targetSignal.set(response.count);
         } else {
-          this.todayMeetings.set(0);
+          targetSignal.set(0);
         }
       },
       error: (err) => {
-        console.error('Error fetching meetings:', err);
-        this.todayMeetings.set(0);
+        console.error(`Error fetching ${endpoint}:`, err);
+        targetSignal.set(0);
       },
     });
+  }
+
+  fetchMeetingsCount(): void {
+    this.fetchData('/countMeetings', this.todayMeetings);
   }
 
   fetchUsersCount(): void {
-    const apiUrl = Array.isArray(environment.apiUrl)
-      ? environment.apiUrl.join('')
-      : environment.apiUrl;
-    this.http.get<any>(`${apiUrl}/countUsers`).subscribe({
-      next: (response: any) => {
-        if (typeof response.count === 'number') {
-          this.totalStudents.set(response.count);
-        } else {
-          this.totalStudents.set(0);
-        }
-      },
-      error: (err) => {
-        console.error('Error fetching users count:', err);
-        this.totalStudents.set(0);
-      },
-    });
+    this.fetchData('/countUsers', this.totalStudents);
   }
 
   fetchTeachersCount(): void {
-    const apiUrl = Array.isArray(environment.apiUrl)
-      ? environment.apiUrl.join('')
-      : environment.apiUrl;
-    this.http.get<any>(`${apiUrl}/countTeachers`).subscribe({
-      next: (response: any) => {
-        if (typeof response.count === 'number') {
-          this.totalTeachers.set(response.count);
-        } else {
-          this.totalTeachers.set(0);
-        }
-      },
-      error: (err) => {
-        console.error('Error fetching users count:', err);
-        this.totalTeachers.set(0);
-      },
-    });
+    this.fetchData('/countTeachers', this.totalTeachers);
   }
 }

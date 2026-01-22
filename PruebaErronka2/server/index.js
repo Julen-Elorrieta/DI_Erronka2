@@ -60,7 +60,7 @@ app.post('/login', (req, res) => {
   const { username, password } = req.body;
   
   connection.query(
-    'SELECT id, username, tipo_id FROM users WHERE username = ? AND password = ?',
+    'SELECT id, email, username, password, nombre, apellidos, dni, direccion, telefono1, telefono2, tipo_id, argazkia_url FROM users WHERE username = ? AND password = ?',
     [username, password],
     (err, results) => {
       if (err) {
@@ -89,8 +89,16 @@ app.post('/login', (req, res) => {
           token: token,
           user: {
             id: user.id,
+            email: user.email,
             username: user.username,
-            tipo_id: user.tipo_id
+            nombre: user.nombre,
+            apellidos: user.apellidos,
+            dni: user.dni,
+            direccion: user.direccion,
+            telefono1: user.telefono1,
+            telefono2: user.telefono2,
+            tipo_id: user.tipo_id,
+            argazkia_url: user.argazkia_url
           }
         });
       } else {
@@ -104,14 +112,25 @@ app.post('/login', (req, res) => {
 // VERIFICAR TOKEN - Endpoint para validar token
 // ============================================
 app.get('/verify-token', verifyToken, (req, res) => {
-  res.json({ 
-    success: true, 
-    user: { 
-      id: req.userId, 
-      username: req.username,
-      tipo_id: req.tipoId
-    } 
-  });
+  connection.query(
+    'SELECT id, email, username, nombre, apellidos, dni, direccion, telefono1, telefono2, tipo_id, argazkia_url FROM users WHERE id = ?',
+    [req.userId],
+    (err, results) => {
+      if (err) {
+        return res.status(500).json({ success: false, error: 'DB error' });
+      }
+      
+      if (results && results.length > 0) {
+        const user = results[0];
+        res.json({ 
+          success: true, 
+          user: user
+        });
+      } else {
+        res.status(401).json({ success: false, error: 'User not found' });
+      }
+    }
+  );
 });
 
 // ============================================
@@ -213,6 +232,157 @@ app.get('/filterUserByRole', verifyToken, (req, res) => {
   });
 });
 
+// ============================================
+// ENDPOINTS DE SCHEDULE (HORARIOS)
+// ============================================
+
+app.get('/schedule/:userId', verifyToken, (req, res) => {
+  const userId = req.params.userId;
+  
+  // Verificar permisos: solo puede ver su propio horario (excepto GOD/ADMIN)
+  if (req.tipoId !== 1 && req.tipoId !== 2 && req.userId !== parseInt(userId)) {
+    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+  }
+
+  // Obtener horarios del profesor/usuario
+  connection.query(
+    `SELECT h.id, h.dia, h.hora, h.profe_id, h.modulo_id, h.aula, h.observaciones,
+            m.nombre as subject, m.nombre_eus, c.nombre as cycle
+     FROM horarios h
+     LEFT JOIN modulos m ON h.modulo_id = m.id
+     LEFT JOIN ciclos c ON m.ciclo_id = c.id
+     WHERE h.profe_id = ?
+     ORDER BY CASE h.dia
+       WHEN 'LUNES' THEN 0
+       WHEN 'MARTES' THEN 1
+       WHEN 'MIERCOLES' THEN 2
+       WHEN 'JUEVES' THEN 3
+       WHEN 'VIERNES' THEN 4
+     END, h.hora`,
+    [userId],
+    (err, results) => {
+      if (err) {
+        console.error('Error fetching schedule:', err);
+        return res.status(500).json({ success: false, error: 'DB error' });
+      }
+      
+      // Transformar resultados al formato esperado
+      const slots = results.map(row => ({
+        day: ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES'].indexOf(row.dia),
+        hour: row.hora,
+        type: row.observaciones ? (row.observaciones.includes('Tutoria') ? 'TUTORIA' : 
+               row.observaciones.includes('Guardia') ? 'GUARDIA' : 'CLASS') : 'CLASS',
+        subject: row.subject,
+        cycle: row.cycle
+      }));
+
+      res.json({
+        userId: userId,
+        slots: slots
+      });
+    }
+  );
+});
+
+// ============================================
+// ENDPOINTS DE MEETINGS
+// ============================================
+
+app.get('/meetings', verifyToken, (req, res) => {
+  connection.query('SELECT * FROM reuniones ORDER BY fecha DESC', (err, results) => {
+    if (err) {
+      return res.status(500).json({ success: false, error: 'DB error' });
+    }
+    res.json(results || []);
+  });
+});
+
+app.get('/meetings/user/:userId', verifyToken, (req, res) => {
+  const userId = req.params.userId;
+  
+  // Verificar permisos
+  if (req.tipoId !== 1 && req.tipoId !== 2 && req.userId !== parseInt(userId)) {
+    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+  }
+
+  const query = 'SELECT * FROM reuniones WHERE profesor_id = ? OR alumno_id = ? ORDER BY fecha DESC';
+  connection.query(query, [userId, userId], (err, results) => {
+    if (err) {
+      return res.status(500).json({ success: false, error: 'DB error' });
+    }
+    res.json(results || []);
+  });
+});
+
+app.get('/meetings/:meetingId', verifyToken, (req, res) => {
+  const meetingId = req.params.meetingId;
+  
+  connection.query('SELECT * FROM reuniones WHERE id_reunion = ?', [meetingId], (err, results) => {
+    if (err) {
+      return res.status(500).json({ success: false, error: 'DB error' });
+    }
+    
+    if (results && results.length > 0) {
+      res.json(results[0]);
+    } else {
+      res.status(404).json({ success: false, error: 'Meeting not found' });
+    }
+  });
+});
+
+app.post('/meetings', verifyToken, (req, res) => {
+  const { title, topic, fecha, classroom, id_centro, profesor_id, alumno_id } = req.body;
+
+  const query = `INSERT INTO reuniones (titulo, asunto, fecha, aula, id_centro, profesor_id, alumno_id, estado)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, 'pendiente')`;
+
+  connection.query(query, [title, topic, fecha, classroom, id_centro, profesor_id, alumno_id], (err, result) => {
+    if (err) {
+      return res.status(500).json({ success: false, error: 'DB error', details: err.message });
+    }
+    res.json({ success: true, id: result.insertId });
+  });
+});
+
+app.put('/meetings/:meetingId', verifyToken, (req, res) => {
+  const meetingId = req.params.meetingId;
+  const { title, topic, fecha, classroom } = req.body;
+
+  const query = 'UPDATE reuniones SET titulo = ?, asunto = ?, fecha = ?, aula = ? WHERE id_reunion = ?';
+
+  connection.query(query, [title, topic, fecha, classroom, meetingId], (err, result) => {
+    if (err) {
+      return res.status(500).json({ success: false, error: 'DB error', details: err.message });
+    }
+    res.json({ success: true });
+  });
+});
+
+app.put('/meetings/:meetingId/status', verifyToken, (req, res) => {
+  const meetingId = req.params.meetingId;
+  const { status } = req.body;
+
+  const query = 'UPDATE reuniones SET estado = ? WHERE id_reunion = ?';
+
+  connection.query(query, [status, meetingId], (err, result) => {
+    if (err) {
+      return res.status(500).json({ success: false, error: 'DB error', details: err.message });
+    }
+    res.json({ success: true });
+  });
+});
+
+app.delete('/meetings/:meetingId', verifyToken, (req, res) => {
+  const meetingId = req.params.meetingId;
+
+  connection.query('DELETE FROM reuniones WHERE id_reunion = ?', [meetingId], (err, result) => {
+    if (err) {
+      return res.status(500).json({ success: false, error: 'DB error', details: err.message });
+    }
+    res.json({ success: true });
+  });
+});
+
 app.put('/updateMeeting/:id', verifyToken, (req, res) => {
   const meetingId = req.params.id;
   const nuevoEstado = req.body.estado;
@@ -260,6 +430,306 @@ app.get('/countTeachers', verifyToken, (_req, res) => {
       return res.status(500).json({ success: false, error: 'DB error' });
     }
     res.json({ count: results[0].count });
+  });
+});
+
+// ============================================
+// ENDPOINTS DE CICLOS (Degree programs)
+// ============================================
+
+app.get('/ciclos', verifyToken, (_req, res) => {
+  connection.query('SELECT * FROM ciclos', (err, results) => {
+    if (err) {
+      return res.status(500).json({ success: false, error: 'DB error' });
+    }
+    res.json(results);
+  });
+});
+
+app.post('/ciclos', verifyToken, (req, res) => {
+  // Solo ADMIN (tipo_id 2) y GOD (tipo_id 1)
+  if (req.tipoId !== 1 && req.tipoId !== 2) {
+    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+  }
+  
+  const { nombre } = req.body;
+  const query = 'INSERT INTO ciclos (nombre) VALUES (?)';
+  
+  connection.query(query, [nombre], (err, result) => {
+    if (err) {
+      return res.status(500).json({ success: false, error: 'DB error', details: err.message });
+    }
+    res.json({ success: true, id: result.insertId });
+  });
+});
+
+app.put('/ciclos/:id', verifyToken, (req, res) => {
+  if (req.tipoId !== 1 && req.tipoId !== 2) {
+    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+  }
+  
+  const { nombre } = req.body;
+  const query = 'UPDATE ciclos SET nombre = ? WHERE id = ?';
+  
+  connection.query(query, [nombre, req.params.id], (err) => {
+    if (err) {
+      return res.status(500).json({ success: false, error: 'DB error' });
+    }
+    res.json({ success: true });
+  });
+});
+
+app.delete('/ciclos/:id', verifyToken, (req, res) => {
+  if (req.tipoId !== 1 && req.tipoId !== 2) {
+    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+  }
+  
+  connection.query('DELETE FROM ciclos WHERE id = ?', [req.params.id], (err) => {
+    if (err) {
+      return res.status(500).json({ success: false, error: 'DB error' });
+    }
+    res.json({ success: true });
+  });
+});
+
+// ============================================
+// ENDPOINTS DE MÓDULOS
+// ============================================
+
+app.get('/modulos', verifyToken, (_req, res) => {
+  const query = `SELECT m.*, c.nombre as ciclo_nombre FROM modulos m 
+                 LEFT JOIN ciclos c ON m.ciclo_id = c.id
+                 ORDER BY m.ciclo_id, m.curso, m.nombre`;
+  
+  connection.query(query, (err, results) => {
+    if (err) {
+      return res.status(500).json({ success: false, error: 'DB error' });
+    }
+    res.json(results);
+  });
+});
+
+app.post('/modulos', verifyToken, (req, res) => {
+  if (req.tipoId !== 1 && req.tipoId !== 2) {
+    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+  }
+  
+  const { nombre, nombre_eus, horas, ciclo_id, curso } = req.body;
+  const query = 'INSERT INTO modulos (nombre, nombre_eus, horas, ciclo_id, curso) VALUES (?, ?, ?, ?, ?)';
+  
+  connection.query(query, [nombre, nombre_eus, horas, ciclo_id, curso], (err, result) => {
+    if (err) {
+      return res.status(500).json({ success: false, error: 'DB error', details: err.message });
+    }
+    res.json({ success: true, id: result.insertId });
+  });
+});
+
+app.put('/modulos/:id', verifyToken, (req, res) => {
+  if (req.tipoId !== 1 && req.tipoId !== 2) {
+    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+  }
+  
+  const { nombre, nombre_eus, horas, ciclo_id, curso } = req.body;
+  const query = 'UPDATE modulos SET nombre = ?, nombre_eus = ?, horas = ?, ciclo_id = ?, curso = ? WHERE id = ?';
+  
+  connection.query(query, [nombre, nombre_eus, horas, ciclo_id, curso, req.params.id], (err) => {
+    if (err) {
+      return res.status(500).json({ success: false, error: 'DB error' });
+    }
+    res.json({ success: true });
+  });
+});
+
+app.delete('/modulos/:id', verifyToken, (req, res) => {
+  if (req.tipoId !== 1 && req.tipoId !== 2) {
+    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+  }
+  
+  connection.query('DELETE FROM modulos WHERE id = ?', [req.params.id], (err) => {
+    if (err) {
+      return res.status(500).json({ success: false, error: 'DB error' });
+    }
+    res.json({ success: true });
+  });
+});
+
+// ============================================
+// ENDPOINTS DE HORARIOS
+// ============================================
+
+app.get('/horarios', verifyToken, (req, res) => {
+  let query = `SELECT h.*, u.nombre as profesor_nombre, u.apellidos, m.nombre as modulo_nombre
+               FROM horarios h
+               LEFT JOIN users u ON h.profe_id = u.id
+               LEFT JOIN modulos m ON h.modulo_id = m.id`;
+  
+  // Si es profesor, solo puede ver sus propios horarios
+  if (req.tipoId === 3) {
+    query += ` WHERE h.profe_id = ${req.userId}`;
+  }
+  
+  query += ` ORDER BY CASE h.dia
+    WHEN 'LUNES' THEN 0 WHEN 'MARTES' THEN 1 WHEN 'MIERCOLES' THEN 2 
+    WHEN 'JUEVES' THEN 3 WHEN 'VIERNES' THEN 4 END, h.hora`;
+  
+  connection.query(query, (err, results) => {
+    if (err) {
+      return res.status(500).json({ success: false, error: 'DB error' });
+    }
+    res.json(results);
+  });
+});
+
+app.post('/horarios', verifyToken, (req, res) => {
+  if (req.tipoId !== 1 && req.tipoId !== 2) {
+    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+  }
+  
+  const { dia, hora, profe_id, modulo_id, aula, observaciones } = req.body;
+  const query = 'INSERT INTO horarios (dia, hora, profe_id, modulo_id, aula, observaciones) VALUES (?, ?, ?, ?, ?, ?)';
+  
+  connection.query(query, [dia, hora, profe_id, modulo_id, aula, observaciones], (err, result) => {
+    if (err) {
+      return res.status(500).json({ success: false, error: 'DB error', details: err.message });
+    }
+    res.json({ success: true, id: result.insertId });
+  });
+});
+
+app.put('/horarios/:id', verifyToken, (req, res) => {
+  if (req.tipoId !== 1 && req.tipoId !== 2) {
+    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+  }
+  
+  const { dia, hora, profe_id, modulo_id, aula, observaciones } = req.body;
+  const query = 'UPDATE horarios SET dia = ?, hora = ?, profe_id = ?, modulo_id = ?, aula = ?, observaciones = ? WHERE id = ?';
+  
+  connection.query(query, [dia, hora, profe_id, modulo_id, aula, observaciones, req.params.id], (err) => {
+    if (err) {
+      return res.status(500).json({ success: false, error: 'DB error' });
+    }
+    res.json({ success: true });
+  });
+});
+
+app.delete('/horarios/:id', verifyToken, (req, res) => {
+  if (req.tipoId !== 1 && req.tipoId !== 2) {
+    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+  }
+  
+  connection.query('DELETE FROM horarios WHERE id = ?', [req.params.id], (err) => {
+    if (err) {
+      return res.status(500).json({ success: false, error: 'DB error' });
+    }
+    res.json({ success: true });
+  });
+});
+
+// ============================================
+// ENDPOINTS DE MATRICULACIONES
+// ============================================
+
+app.get('/matriculaciones', verifyToken, (req, res) => {
+  let query = `SELECT m.*, u.nombre as alumno_nombre, u.apellidos, c.nombre as ciclo_nombre
+               FROM matriculaciones m
+               LEFT JOIN users u ON m.alum_id = u.id
+               LEFT JOIN ciclos c ON m.ciclo_id = c.id`;
+  
+  // Si es alumno, solo puede ver sus matriculaciones
+  if (req.tipoId === 4) {
+    query += ` WHERE m.alum_id = ${req.userId}`;
+  }
+  
+  connection.query(query, (err, results) => {
+    if (err) {
+      return res.status(500).json({ success: false, error: 'DB error' });
+    }
+    res.json(results);
+  });
+});
+
+app.post('/matriculaciones', verifyToken, (req, res) => {
+  if (req.tipoId !== 1 && req.tipoId !== 2) {
+    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+  }
+  
+  const { alum_id, ciclo_id, curso, fecha } = req.body;
+  const query = 'INSERT INTO matriculaciones (alum_id, ciclo_id, curso, fecha) VALUES (?, ?, ?, ?)';
+  
+  connection.query(query, [alum_id, ciclo_id, curso, fecha], (err, result) => {
+    if (err) {
+      return res.status(500).json({ success: false, error: 'DB error', details: err.message });
+    }
+    res.json({ success: true, id: result.insertId });
+  });
+});
+
+app.put('/matriculaciones/:id', verifyToken, (req, res) => {
+  if (req.tipoId !== 1 && req.tipoId !== 2) {
+    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+  }
+  
+  const { alum_id, ciclo_id, curso, fecha } = req.body;
+  const query = 'UPDATE matriculaciones SET alum_id = ?, ciclo_id = ?, curso = ?, fecha = ? WHERE id = ?';
+  
+  connection.query(query, [alum_id, ciclo_id, curso, fecha, req.params.id], (err) => {
+    if (err) {
+      return res.status(500).json({ success: false, error: 'DB error' });
+    }
+    res.json({ success: true });
+  });
+});
+
+app.delete('/matriculaciones/:id', verifyToken, (req, res) => {
+  if (req.tipoId !== 1 && req.tipoId !== 2) {
+    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+  }
+  
+  connection.query('DELETE FROM matriculaciones WHERE id = ?', [req.params.id], (err) => {
+    if (err) {
+      return res.status(500).json({ success: false, error: 'DB error' });
+    }
+    res.json({ success: true });
+  });
+});
+
+// ============================================
+// ENDPOINTS DE USUARIO (CRUD adicional)
+// ============================================
+
+app.post('/users', verifyToken, (req, res) => {
+  if (req.tipoId !== 1 && req.tipoId !== 2) {
+    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+  }
+  
+  const { email, username, password, nombre, apellidos, dni, direccion, telefono1, telefono2, tipo_id } = req.body;
+  const query = `INSERT INTO users (email, username, password, nombre, apellidos, dni, direccion, telefono1, telefono2, tipo_id)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  
+  connection.query(query, [email, username, password, nombre, apellidos, dni, direccion, telefono1, telefono2, tipo_id], (err, result) => {
+    if (err) {
+      return res.status(500).json({ success: false, error: 'DB error', details: err.message });
+    }
+    res.json({ success: true, id: result.insertId });
+  });
+});
+
+app.get('/users/:id', verifyToken, (req, res) => {
+  // Verificar permisos: solo GOD/ADMIN o el mismo usuario
+  if (req.tipoId !== 1 && req.tipoId !== 2 && req.userId !== parseInt(req.params.id)) {
+    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+  }
+  
+  connection.query('SELECT * FROM users WHERE id = ?', [req.params.id], (err, results) => {
+    if (err) {
+      return res.status(500).json({ success: false, error: 'DB error' });
+    }
+    if (results && results.length > 0) {
+      res.json(results[0]);
+    } else {
+      res.status(404).json({ success: false, error: 'User not found' });
+    }
   });
 });
 

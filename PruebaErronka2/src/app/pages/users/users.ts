@@ -20,6 +20,8 @@ import { User, getUserRoleFromTipoId, UserRole } from '../../core/models/user.mo
 import Swal from 'sweetalert2';
 import { AuthService } from '../../core/services/auth.service';
 import { Router } from '@angular/router';
+import { UsersService } from '../../core/services/users.service';
+import { ApiUtil } from '../../core/utils/api.util';
 
 @Component({
   selector: 'app-users',
@@ -50,12 +52,16 @@ export class Users implements OnInit {
   loading = signal(false);
   searchTerm = '';
   selectedRole: string | number = '';
-  roles = [1, 2, 3, 4]; // tipo_id values for GOD, ADMIN, TEACHER, STUDENT
+  roles = [1, 2, 3, 4];
   pageSize = 10;
   pageIndex = 0;
   displayedColumns = ['photo', 'username', 'name', 'surname', 'email', 'dni', 'number', 'actions'];
   authService: AuthService = inject(AuthService);
+  usersService: UsersService = inject(UsersService);
   router: Router = inject(Router);
+
+  // Validación de permisos
+  currentUserRole = signal<UserRole | null>(null);
 
   constructor(
     private http: HttpClient,
@@ -66,19 +72,33 @@ export class Users implements OnInit {
   }
 
   authenticate(): void {
-    if (!this.authService.isLoggedIn()) {
+    const currentUser = this.authService.currentUser();
+    if (!this.authService.isLoggedIn() || !currentUser) {
       this.router.navigate(['/login']);
+      return;
+    }
+
+    // Validar que solo GOD y ADMIN pueden acceder a esta página
+    const userRole = getUserRoleFromTipoId(currentUser.tipo_id);
+    this.currentUserRole.set(userRole);
+
+    if (userRole !== UserRole.GOD && userRole !== UserRole.ADMIN) {
+      this.router.navigate(['/dashboard']);
     }
   }
 
   ngOnInit() {
-    this.selectedRole = ''; // Asegurar valor inicial
+    this.selectedRole = '';
     this.loadUsers();
   }
 
   isAdmin(): boolean {
-    // Implement logic to check if current user is admin
-    return true; // Placeholder
+    const role = this.currentUserRole();
+    return role === UserRole.GOD || role === UserRole.ADMIN;
+  }
+
+  isGod(): boolean {
+    return this.currentUserRole() === UserRole.GOD;
   }
 
   openCreateDialog() {
@@ -158,20 +178,12 @@ export class Users implements OnInit {
 
   getUsersByRole(role: number | string): void {
     this.loading.set(true);
-    const apiUrl = Array.isArray(environment.apiUrl)
-      ? environment.apiUrl.join('')
-      : environment.apiUrl;
-    let url = `${apiUrl}/filterUserByRole`;
-
-    // Solo añade el parámetro si no es string vacío
-    if (role !== '' && role !== null && role !== undefined) {
-      url += `?tipo_id=${role}`;
-    }
+    const url = ApiUtil.buildUrl('/filterUserByRole', role ? { tipo_id: role } : {});
 
     this.http.get<User[]>(url).subscribe({
       next: (users: User[]) => {
         this.users = users;
-        this.onSearch(); // Aplicar búsqueda actual después de filtrar por rol
+        this.onSearch();
         this.loading.set(false);
       },
       error: (err) => {
@@ -197,10 +209,7 @@ export class Users implements OnInit {
       cancelButtonText: this.translate.instant('COMMON.CANCEL'),
     }).then((result) => {
       if (result.isConfirmed) {
-        const apiUrl = Array.isArray(environment.apiUrl)
-          ? environment.apiUrl.join('')
-          : environment.apiUrl;
-        this.http.delete(`${apiUrl}/deleteUser/${user.username}`).subscribe({
+        this.http.delete(ApiUtil.buildUrl(`/deleteUser/${user.username}`)).subscribe({
           next: () => {
             console.log(`User ${user.username} deleted successfully.`);
             this.loadUsers();
@@ -234,10 +243,8 @@ export class Users implements OnInit {
 
   private loadUsers() {
     this.loading.set(true);
-    const apiUrl = Array.isArray(environment.apiUrl)
-      ? environment.apiUrl.join('')
-      : environment.apiUrl;
-    this.http.get<User[]>(`${apiUrl}/users`).subscribe({
+    const url = ApiUtil.buildUrl('/users');
+    this.http.get<User[]>(url).subscribe({
       next: (users: User[]) => {
         this.users = users;
         this.filteredUsers.set(users);

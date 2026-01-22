@@ -10,6 +10,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { User } from '../../core/models/user.model';
+import { ApiUtil } from '../../core/utils/api.util';
 
 @Component({
   selector: 'app-edit-user-dialog',
@@ -118,8 +119,7 @@ export class EditUserDialogComponent {
 
   onSave(): void {
     if (this.editForm.valid) {
-      const apiUrl = Array.isArray(environment.apiUrl) ? environment.apiUrl.join('') : environment.apiUrl;
-      this.http.put(`${apiUrl}/updateUser/${this.data.id}`, this.editForm.value).subscribe({
+      this.http.put(ApiUtil.buildUrl(`/updateUser/${this.data.id}`), this.editForm.value).subscribe({
         next: () => {
           this.dialogRef.close(this.editForm.value);
         },

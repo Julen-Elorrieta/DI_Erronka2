@@ -18,7 +18,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -43,7 +43,10 @@ import {
   shareReplay,
 } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
+import { MeetingsService } from '../../core/services/meetings.service';
+import { MeetingDialogComponent } from './meetingDialog';
 import { Router } from '@angular/router';
+import { ApiUtil } from '../../core/utils/api.util';
 
 // ============================================================================
 // INTERFACES
@@ -149,8 +152,8 @@ function setCachedCenters(data: Center[]): void {
     MatProgressSpinnerModule,
     MatTabsModule,
     MatMenuModule,
-    TranslateModule,
-  ],
+    TranslateModule
+],
   templateUrl: './meetings.html',
   styleUrls: ['./meetings.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -176,6 +179,8 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
   private readonly http = inject(HttpClient);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
+  private readonly dialog = inject(MatDialog);
+  private readonly meetingsService = inject(MeetingsService);
 
   @ViewChild('mapContainer', { static: false }) mapContainer!: ElementRef;
 
@@ -353,7 +358,7 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.http
-      .get<Center[]>(`${environment.apiUrl}/centers`)
+      .get<Center[]>(ApiUtil.buildUrl('/centers'))
       .pipe(
         map((centers) => this.preprocessCenters(centers)),
         tap((centers) => setCachedCenters(centers)),
@@ -379,14 +384,10 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
   // ============================================================================
 
   private loadMeetings(): void {
-    const apiUrl = Array.isArray(environment.apiUrl)
-      ? environment.apiUrl.join('')
-      : environment.apiUrl;
-
     this.loadingMeetingsSource$.next(true);
 
     this.http
-      .get<any[]>(`${apiUrl}/centers?type=meetings`)
+      .get<any[]>(ApiUtil.buildUrl('/centers', { type: 'meetings' }))
       .pipe(
         map((reuniones) => this.transformMeetingsData(reuniones)),
         catchError((err) => {
@@ -435,39 +436,6 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
     const centers = this.centersSource$.value;
     const center = centers.find((c) => c.CCEN === centroId.toString());
     return center?.NOM || `Centro ${centroId}`;
-  }
-
-  // ============================================================================
-  // ACTUALIZACIÓN DE ESTADO DE REUNIÓN (ENUM: pendiente, aceptada, denegada, conflicto)
-  // ============================================================================
-
-  updateMeetingStatus(meeting: Meeting, newStatus: string): void {
-    const apiUrl = Array.isArray(environment.apiUrl)
-      ? environment.apiUrl.join('')
-      : environment.apiUrl;
-
-    const url = `${apiUrl}/updateMeeting/${meeting.id}`;
-    const body = { estado: newStatus };
-
-    const currentMeetings = this.meetingsSource$.value;
-
-    // Actualizar en el UI inmediatamente (optimistic update)
-    const updatedMeetings = currentMeetings.map((m) =>
-      m.id === meeting.id ? { ...m, status: newStatus } : m,
-    );
-    this.meetingsSource$.next(updatedMeetings);
-
-    // Llamar al backend
-    this.http.put(url, body).subscribe({
-      next: (response: any) => {
-        if (response.success) {
-        }
-      },
-      error: (error) => {
-        // Revertir cambios
-        this.meetingsSource$.next(currentMeetings);
-      },
-    });
   }
 
   getStatusLabel(status: string): string {
@@ -792,8 +760,97 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
     return true;
   }
 
+  // ============================================================================
+  // MÉTODOS HELPER - ERROR HANDLING Y DIALOG GENÉRICOS
+  // ============================================================================
+
+  private showSnackBar(message: string, error: boolean = false): void {
+    this.snackBar.open(
+      message,
+      this.translate.instant('COMMON.CLOSE') || 'Cerrar',
+      { duration: 3000, panelClass: error ? 'error-snackbar' : 'success-snackbar' }
+    );
+  }
+
+  private handleMeetingOperation<T>(
+    operation: Observable<T>,
+    successMsg: string,
+    errorMsg: string,
+    operationName: string
+  ): void {
+    operation.subscribe({
+      next: (response) => {
+        this.showSnackBar(this.translate.instant(successMsg) || successMsg);
+        this.loadMeetings();
+      },
+      error: (err) => {
+        console.error(`Error in ${operationName}:`, err);
+        this.showSnackBar(this.translate.instant(errorMsg) || errorMsg, true);
+      },
+    });
+  }
+
   openCreateMeetingDialog(center?: Center): void {
-    console.log('Create meeting', center);
+    const dialogRef = this.dialog.open(MeetingDialogComponent, {
+      width: '500px',
+      data: null, // null para crear nueva reunión
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        const currentUser = this.authService.getUser();
+        const meetingData = {
+          ...result,
+          profesor_id: currentUser?.tipo_id === 3 ? currentUser?.id : undefined,
+          alumno_id: currentUser?.tipo_id === 4 ? currentUser?.id : undefined,
+        };
+
+        this.handleMeetingOperation(
+          this.meetingsService.createMeeting(meetingData),
+          'SUCCESS.MEETING_CREATED',
+          'ERROR.CREATING_MEETING',
+          'createMeeting'
+        );
+      }
+    });
+  }
+
+  openEditMeetingDialog(meeting: Meeting): void {
+    const dialogRef = this.dialog.open(MeetingDialogComponent, {
+      width: '500px',
+      data: meeting,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.handleMeetingOperation(
+          this.meetingsService.updateMeeting(parseInt(meeting.id), result),
+          'SUCCESS.MEETING_UPDATED',
+          'ERROR.UPDATING_MEETING',
+          'updateMeeting'
+        );
+      }
+    });
+  }
+
+  deleteMeeting(meeting: Meeting): void {
+    if (confirm(this.translate.instant('CONFIRM.DELETE_MEETING') || '¿Está seguro de que desea eliminar esta reunión?')) {
+      this.handleMeetingOperation(
+        this.meetingsService.deleteMeeting(parseInt(meeting.id)),
+        'SUCCESS.MEETING_DELETED',
+        'ERROR.DELETING_MEETING',
+        'deleteMeeting'
+      );
+    }
+  }
+
+  updateMeetingStatus(meeting: Meeting, newStatus: string): void {
+    this.handleMeetingOperation(
+      this.meetingsService.updateMeetingStatus(parseInt(meeting.id), newStatus),
+      'SUCCESS.STATUS_UPDATED',
+      'ERROR.UPDATING_STATUS',
+      'updateMeetingStatus'
+    );
   }
 
   openCenterDetail(center: Center): void {

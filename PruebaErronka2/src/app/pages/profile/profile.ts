@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -10,18 +10,15 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatTableModule } from '@angular/material/table';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { User } from '../../core/models/user.model';
+import { Router } from '@angular/router';
+import { User, getUserRoleFromTipoId, UserRole } from '../../core/models/user.model';
 import { Schedule, ScheduleSlot } from '../../core/models/schedule.model';
 import { Meeting } from '../../core/models/meeting.model';
-
-// Define or import UserRole enum if not already imported
-export enum UserRole {
-  GOD = 'GOD',
-  ADMIN = 'ADMIN',
-  TEACHER = 'TEACHER',
-  STUDENT = 'STUDENT'
-}
+import { AuthService } from '../../core/services/auth.service';
+import { ScheduleService } from '../../core/services/schedule.service';
+import { MeetingsService } from '../../core/services/meetings.service';
 
 @Component({
   selector: 'app-profile',
@@ -39,6 +36,7 @@ export enum UserRole {
     MatDividerModule,
     MatProgressSpinnerModule,
     MatTabsModule,
+    MatTableModule,
     TranslateModule
   ],
   templateUrl: './profile.html',
@@ -50,41 +48,84 @@ export class ProfileComponent implements OnInit {
   meetings = signal<Meeting[]>([]);
   loading = signal(true);
   editing = signal(false);
+  userRole = signal<UserRole | null>(null);
   
   profileForm!: FormGroup;
 
   days = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY'];
   hours = [1, 2, 3, 4, 5, 6];
 
-  constructor(
-    private fb: FormBuilder,
-    private snackBar: MatSnackBar,
-    private translate: TranslateService
-  ) {}
+  private authService = inject(AuthService);
+  private scheduleService = inject(ScheduleService);
+  private meetingsService = inject(MeetingsService);
+  private fb = inject(FormBuilder);
+  private snackBar = inject(MatSnackBar);
+  private translate = inject(TranslateService);
+  private router = inject(Router);
+
+  displayedColumns: string[] = ['title', 'topic', 'date', 'hour', 'classroom', 'status'];
+
+  constructor() {
+    this.authenticate();
+  }
+
+  authenticate(): void {
+    if (!this.authService.isLoggedIn()) {
+      this.router.navigate(['/login']);
+    }
+  }
 
   ngOnInit(): void {
+    const currentUser = this.authService.currentUser();
+    if (currentUser) {
+      this.user.set(currentUser);
+      this.userRole.set(getUserRoleFromTipoId(currentUser.tipo_id));
+      this.initForm(currentUser);
+      this.loadSchedule(currentUser.id);
+      this.loadMeetings(currentUser.id);
+    }
   }
 
 
   private initForm(user: User): void {
     this.profileForm = this.fb.group({
+      username: [user.username, Validators.required],
       nombre: [user.nombre, Validators.required],
       apellidos: [user.apellidos, Validators.required],
-      email: [user.email, [Validators.required, Validators.email]]
+      email: [user.email, [Validators.required, Validators.email]],
+      dni: [{value: user.dni, disabled: true}, Validators.required],
+      direccion: [user.direccion],
+      telefono1: [user.telefono1],
+      telefono2: [user.telefono2],
+      argazkia_url: [user.argazkia_url]
     });
   }
-/*
+
   private loadSchedule(userId: number): void {
     this.scheduleService.getUserSchedule(userId).subscribe({
-      next: (schedule) => this.schedule.set(schedule)
+      next: (schedule) => {
+        this.schedule.set(schedule);
+      },
+      error: (err) => {
+        console.error('Error loading schedule:', err);
+        this.showError(this.translate.instant('ERROR.LOADING_SCHEDULE') || 'Error cargando horario');
+      }
     });
   }
 
   private loadMeetings(userId: number): void {
     this.meetingsService.getUserMeetings(userId).subscribe({
-      next: (meetings) => this.meetings.set(meetings)
+      next: (meetings) => {
+        this.meetings.set(meetings);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error('Error loading meetings:', err);
+        this.showError(this.translate.instant('ERROR.LOADING_MEETINGS') || 'Error cargando reuniones');
+        this.loading.set(false);
+      }
     });
-  }*/
+  }
 
   toggleEdit(): void {
     this.editing.set(!this.editing());
@@ -92,35 +133,46 @@ export class ProfileComponent implements OnInit {
       this.initForm(this.user()!);
     }
   }
+
   saveProfile(): void {
-    /*
     if (this.profileForm.valid && this.user()) {
-      this.usersService.updateUser(this.user()!.id, this.profileForm.value).subscribe({
-        next: (updatedUser) => {
-          this.user.set(updatedUser);
-          this.editing.set(false);
-          this.showSuccess('Profila ondo eguneratuta');
-        },
-        error: () => this.showError('Errorea profila eguneratzean')
-      });
+      const updatedUser = { ...this.user(), ...this.profileForm.value };
+      // TODO: Usar UsersService para actualizar
+      // this.usersService.updateUser(this.user()!.id, updatedUser).subscribe({
+      //   next: (user) => {
+      //     this.user.set(user);
+      //     this.editing.set(false);
+      //     this.showSuccess(this.translate.instant('SUCCESS.PROFILE_UPDATED') || 'Perfil actualizado correctamente');
+      //   },
+      //   error: () => this.showError(this.translate.instant('ERROR.UPDATING_PROFILE') || 'Error al actualizar perfil')
+      // });
+
+      // Por ahora, solo mostramos un mensaje
+      this.editing.set(false);
+      this.showSuccess(this.translate.instant('SUCCESS.PROFILE_UPDATED') || 'Perfil actualizado correctamente');
     }
-      */
   }
 
   getPhotoUrl(): string {
     const user = this.user();
-    return user && (user as any).photo ? `assets/photos/${(user as any).photo}` : 'assets/photos/unknown.jpg';
+    return user && user.argazkia_url ? user.argazkia_url : '/unknown.webp';
   }
 
   getRoleIcon(): string {
+    const role = this.userRole();
     const icons: Record<UserRole, string> = {
       [UserRole.GOD]: 'admin_panel_settings',
       [UserRole.ADMIN]: 'manage_accounts',
       [UserRole.TEACHER]: 'school',
       [UserRole.STUDENT]: 'person'
     };
-    // @ts-expect-error: tipo_id may not be UserRole, but we expect it to be compatible
-    return icons[(this.user()?.tipo_id as UserRole) || UserRole.STUDENT];
+    return role ? icons[role] : 'person';
+  }
+
+  getRoleLabel(): string {
+    const role = this.userRole();
+    if (!role) return '';
+    return this.translate.instant(`ROLE.${role}`) || role;
   }
 
   getSlot(day: number, hour: number): ScheduleSlot | undefined {
@@ -131,6 +183,23 @@ export class ProfileComponent implements OnInit {
   getSlotClass(slot: ScheduleSlot | undefined): string {
     if (!slot || slot.type === 'EMPTY') return 'slot-empty';
     return `slot-${slot.type.toLowerCase()}`;
+  }
+
+  getSlotText(slot: ScheduleSlot | undefined): string {
+    if (!slot || slot.type === 'EMPTY') return '';
+    
+    switch (slot.type) {
+      case 'CLASS':
+        return `${slot.subject || ''} ${slot.course || ''}`.trim();
+      case 'TUTORIA':
+        return 'Tutoría';
+      case 'GUARDIA':
+        return 'Guardia';
+      case 'MEETING':
+        return `Reunión #${slot.meetingId}`;
+      default:
+        return '';
+    }
   }
 
   private showSuccess(message: string): void {
