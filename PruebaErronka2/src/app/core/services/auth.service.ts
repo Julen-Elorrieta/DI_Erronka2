@@ -13,30 +13,20 @@ export class AuthService {
   
   private currentUserSignal = signal<User | null>(null);
   public currentUser = this.currentUserSignal.asReadonly();
+  public isLogged = false;
 
   constructor(private http: HttpClient) {
 
   }
 
-  /**
-   * Login egiten du kredentzialekin zifratuta
-   * @param username Erabiltzaile izena
-   * @param password Pasahitza testu arruntean (bidali aurretik zifratuko da)
-   */
-
-  /**
-   * Llama al backend para hacer login y guarda el usuario si es correcto
-   */
-  /**
-   * Realiza login y maneja la navegación y el error desde el componente
-   */
   login(username: string, password: string, router: Router, setLoginError: (loginError: boolean) => void): void {
     const apiUrl = Array.isArray(environment.apiUrl) ? environment.apiUrl.join('') : environment.apiUrl;
     this.http.post<any>(`${apiUrl}/login`, { username, password }).subscribe({
       next: (response: any) => {
         if (response.success) {
           setLoginError(false);
-          localStorage.setItem('user', JSON.stringify(response.user));
+          localStorage.setItem('user', JSON.stringify({ username }));
+          this.isLogged = true;
           this.currentUserSignal.set(response.user);
           router.navigate(['/dashboard']);
         } else {
@@ -50,10 +40,7 @@ export class AuthService {
     });
   }
 
-  /**
-   * Comprueba si hay usuario logueado en localStorage
-   */
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('user');
+    return !!localStorage.getItem('user') && this.isLogged === true;
   }
 }

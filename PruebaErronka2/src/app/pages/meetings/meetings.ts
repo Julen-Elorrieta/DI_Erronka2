@@ -42,6 +42,8 @@ import {
   take,
   shareReplay,
 } from 'rxjs/operators';
+import { AuthService } from '../../core/services/auth.service';
+import { Router } from '@angular/router';
 
 // ============================================================================
 // INTERFACES
@@ -154,6 +156,20 @@ function setCachedCenters(data: Center[]): void {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Meetings implements OnInit, AfterViewInit, OnDestroy {
+
+  authService: AuthService = inject(AuthService);
+  router: Router = inject(Router);
+
+    constructor() {
+    this.authenticate();
+  }
+
+    authenticate(): void {
+    if (!this.authService.isLoggedIn()) {
+      this.router.navigate(['/login']);
+    }
+  }
+
   // ============================================================================
   // INYECCIÓN DE DEPENDENCIAS
   // ============================================================================

@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -18,6 +18,8 @@ import { environment } from '../../../environments/environment';
 import { EditUserDialogComponent as EditUser } from './editUser';
 import { User, getUserRoleFromTipoId, UserRole } from '../../core/models/user.model';
 import Swal from 'sweetalert2';
+import { AuthService } from '../../core/services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-users',
@@ -52,12 +54,22 @@ export class Users implements OnInit {
   pageSize = 10;
   pageIndex = 0;
   displayedColumns = ['photo', 'username', 'name', 'surname', 'email', 'dni', 'number', 'actions'];
+  authService: AuthService = inject(AuthService);
+  router: Router = inject(Router);
 
   constructor(
     private http: HttpClient,
     private translate: TranslateService,
     private dialog: MatDialog,
-  ) {}
+  ) {
+    this.authenticate();
+  }
+
+  authenticate(): void {
+    if (!this.authService.isLoggedIn()) {
+      this.router.navigate(['/login']);
+    }
+  }
 
   ngOnInit() {
     this.selectedRole = ''; // Asegurar valor inicial
@@ -80,11 +92,12 @@ export class Users implements OnInit {
 
   onSearch() {
     const searchLower = this.searchTerm.toLowerCase().trim();
-    
+
     this.filteredUsers.set(
       this.users.filter((user) => {
         // Filtro de búsqueda por texto
-        const matchesSearch = !searchLower || 
+        const matchesSearch =
+          !searchLower ||
           user.nombre?.toLowerCase().includes(searchLower) ||
           user.apellidos?.toLowerCase().includes(searchLower) ||
           user.username?.toLowerCase().includes(searchLower) ||
@@ -92,14 +105,14 @@ export class Users implements OnInit {
           (user.dni && user.dni.toLowerCase().includes(searchLower)) ||
           (user.telefono1 && user.telefono1.toString().includes(searchLower)) ||
           (user.telefono2 && user.telefono2.toString().includes(searchLower));
-        
+
         // Filtro de rol - ahora comparamos con string vacío
         const matchesRole = this.selectedRole === '' || user.tipo_id === this.selectedRole;
-        
+
         return matchesSearch && matchesRole;
       }),
     );
-    
+
     // Resetear paginación al buscar
     this.pageIndex = 0;
   }
@@ -149,12 +162,12 @@ export class Users implements OnInit {
       ? environment.apiUrl.join('')
       : environment.apiUrl;
     let url = `${apiUrl}/filterUserByRole`;
-    
+
     // Solo añade el parámetro si no es string vacío
     if (role !== '' && role !== null && role !== undefined) {
       url += `?tipo_id=${role}`;
     }
-    
+
     this.http.get<User[]>(url).subscribe({
       next: (users: User[]) => {
         this.users = users;
