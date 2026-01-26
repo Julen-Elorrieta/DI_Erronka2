@@ -4,10 +4,10 @@ import { Dashboard } from './pages/dashboard/dashboard';
 import { Users } from './pages/users/users';
 import { Meetings } from './pages/meetings/meetings';
 import { ProfileComponent } from './pages/profile/profile';
-import { CiclosComponent } from './pages/ciclos/ciclos';
-import { ModulosComponent } from './pages/modulos/modulos';
-import { HorariosComponent } from './pages/horarios/horarios';
-import { MatriculacionesComponent } from './pages/matriculaciones/matriculaciones';
+import { CiclosComponent } from './pages/klaseak/klaseak';
+import { ModulosComponent } from './pages/moduloak/moduloak';
+import { HorariosComponent } from './pages/ordutegia/ordutegia';
+import { MatriculacionesComponent } from './pages/matrikulazioak/matrikulazioak';
 import { authGuard } from './core/guards/auth.guard';
 import { loginGuard } from './core/guards/login.guard';
 
