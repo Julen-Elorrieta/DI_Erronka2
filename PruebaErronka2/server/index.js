@@ -141,7 +141,7 @@ app.get('/centers', verifyToken, (req, res) => {
   const type = req.query.type;
   
   if (type === 'filters') {
-    axios.get('http://10.5.104.100/ikastetxeak.json').then(response => {
+    axios.get('http://10.5.104.100:8080/elorserv/api/ikastetxeak').then(response => {
       const data = response.data.CENTROS;
       const titularidades = [...new Set(data.map(r => r.DTITUC))];
       const territorios = [...new Set(data.map(r => r.DTERRC))];
@@ -151,7 +151,7 @@ app.get('/centers', verifyToken, (req, res) => {
     });
   } else if (type === 'municipios') {
     const territorio = req.query.territorio;
-    axios.get('http://10.5.104.100/ikastetxeak.json').then(response => {
+    axios.get('http://10.5.104.100:8080/elorserv/api/ikastetxeak').then(response => {
       const data = response.data.CENTROS;
       let municipios = data.map(r => r.DMUNIC);
       if (territorio) {
@@ -174,7 +174,7 @@ app.get('/centers', verifyToken, (req, res) => {
       res.json(mappedResults);
     });
   } else {
-    axios.get('http://10.5.104.100/ikastetxeak.json').then(response => {
+    axios.get('http://10.5.104.100:8080/elorserv/api/ikastetxeak').then(response => {
       let data = response.data.CENTROS;
       if (req.query.titularidad) data = data.filter(r => r.DTITUC === req.query.titularidad);
       if (req.query.territorio) data = data.filter(r => r.DTERRC === req.query.territorio);
