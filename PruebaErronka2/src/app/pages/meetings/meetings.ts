@@ -29,8 +29,15 @@ import { HttpClient } from '@angular/common/http';
 import mapboxgl from 'mapbox-gl';
 import { BehaviorSubject, Observable, combineLatest, Subject, of } from 'rxjs';
 import {
-  map, distinctUntilChanged, debounceTime, tap, takeUntil,
-  catchError, filter, take, shareReplay,
+  map,
+  distinctUntilChanged,
+  debounceTime,
+  tap,
+  takeUntil,
+  catchError,
+  filter,
+  take,
+  shareReplay,
 } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
 import { MeetingsService } from '../../core/services/meetings.service';
@@ -113,18 +120,32 @@ function setCachedCenters(data: Center[]): void {
   selector: 'app-meetings',
   standalone: true,
   imports: [
-    CommonModule, FormsModule, MatCardModule, MatButtonModule, MatIconModule,
-    MatFormFieldModule, MatInputModule, MatSelectModule, MatTableModule,
-    MatPaginatorModule, MatDialogModule, MatSnackBarModule, MatTooltipModule,
-    MatProgressSpinnerModule, MatTabsModule, MatMenuModule, TranslateModule,
+    CommonModule,
+    FormsModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatDialogModule,
+    MatSnackBarModule,
+    MatTooltipModule,
+    MatProgressSpinnerModule,
+    MatTabsModule,
+    MatMenuModule,
+    TranslateModule,
   ],
   templateUrl: './meetings.html',
   styleUrls: ['./meetings.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Meetings implements OnInit, AfterViewInit, OnDestroy {
-  private readonly MAPBOX_TOKEN = 'pk.eyJ1IjoianVsZW5uMDYiLCJhIjoiY21rejZycDJqMGRhdzNoc2txaHlyNXF1NiJ9.a593UB3NIwgSFiMVXRahcA';
-  
+  private readonly MAPBOX_TOKEN =
+    'pk.eyJ1IjoianVsZW5uMDYiLCJhIjoiY21rejZycDJqMGRhdzNoc2txaHlyNXF1NiJ9.a593UB3NIwgSFiMVXRahcA';
+
   authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly http = inject(HttpClient);
@@ -144,7 +165,10 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
   private readonly titularidadSource$ = new BehaviorSubject<string>('');
   private readonly territorioSource$ = new BehaviorSubject<string>('');
   private readonly municipioSource$ = new BehaviorSubject<string>('');
-  private readonly paginationSource$ = new BehaviorSubject<PaginationState>({ pageIndex: 0, pageSize: 10 });
+  private readonly paginationSource$ = new BehaviorSubject<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
   private readonly activeTabSource$ = new BehaviorSubject<number>(0);
   private readonly mapInitialized$ = new BehaviorSubject<boolean>(false);
 
@@ -156,14 +180,18 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
   ]).pipe(
     map(([searchText, titularidad, territorio, municipio]) => ({
       searchText: searchText.trim().toLowerCase(),
-      titularidad, territorio, municipio,
+      titularidad,
+      territorio,
+      municipio,
     })),
     distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
     shareReplay(1),
   );
 
   readonly processedData$ = combineLatest([
-    this.centersSource$, this.filters$, this.paginationSource$,
+    this.centersSource$,
+    this.filters$,
+    this.paginationSource$,
   ]).pipe(
     map(([centers, filters, pagination]) => {
       const filtered = this.filterCenters(centers, filters);
@@ -173,7 +201,12 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
         filtered,
         paginated: filtered.slice(start, start + pagination.pageSize),
         total: filtered.length,
-        hasActiveFilters: !!(filters.searchText || filters.titularidad || filters.territorio || filters.municipio),
+        hasActiveFilters: !!(
+          filters.searchText ||
+          filters.titularidad ||
+          filters.territorio ||
+          filters.municipio
+        ),
         filterOptions,
       };
     }),
@@ -181,7 +214,8 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
   );
 
   private readonly mapMarkersUpdate$ = combineLatest([
-    this.processedData$, this.mapInitialized$,
+    this.processedData$,
+    this.mapInitialized$,
   ]).pipe(
     filter(([_, initialized]) => initialized),
     map(([data, _]) => data.filtered),
@@ -210,20 +244,24 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.loadInitialData();
     this.setupFilterCascade();
-    this.processedData$.pipe(
-      takeUntil(this.destroy$),
-      filter(() => !!this.mapContainer),
-      take(1),
-    ).subscribe(() => setTimeout(() => this.initializeMap(), 200));
-    this.mapMarkersUpdate$.subscribe(centers => this.updateMapMarkers(centers));
+    this.processedData$
+      .pipe(
+        takeUntil(this.destroy$),
+        filter(() => !!this.mapContainer),
+        take(1),
+      )
+      .subscribe(() => setTimeout(() => this.initializeMap(), 200));
+    this.mapMarkersUpdate$.subscribe((centers) => this.updateMapMarkers(centers));
   }
 
   ngAfterViewInit(): void {
-    this.activeTab$.pipe(
-      filter(tab => tab === 0),
-      debounceTime(300),
-      takeUntil(this.destroy$),
-    ).subscribe(() => this.map?.resize());
+    this.activeTab$
+      .pipe(
+        filter((tab) => tab === 0),
+        debounceTime(300),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => this.map?.resize());
   }
 
   ngOnDestroy(): void {
@@ -249,62 +287,72 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
 
   private fetchCentersFromAPI(silent: boolean): void {
     if (!silent) this.loadingSource$.next(true);
-    this.http.get<Center[]>(ApiUtil.buildUrl('/centers')).pipe(
-      map(centers => this.preprocessCenters(centers)),
-      tap(centers => setCachedCenters(centers)),
-      catchError(err => {
-        console.error('Errorea zentroak kargatzean:', err);
-        this.snackBar.open(
-          this.translate.instant('ERROR.LOADING_CENTERS'),
-          this.translate.instant('COMMON.CLOSE'),
-          { duration: 3000 }
-        );
-        return of([]);
-      }),
-      takeUntil(this.destroy$),
-    ).subscribe(centers => {
-      this.centersSource$.next(centers);
-      this.loadingSource$.next(false);
-    });
+    this.http
+      .get<Center[]>(ApiUtil.buildUrl('/centers'))
+      .pipe(
+        map((centers) => this.preprocessCenters(centers)),
+        tap((centers) => setCachedCenters(centers)),
+        catchError((err) => {
+          console.error('Errorea zentroak kargatzean:', err);
+          this.snackBar.open(
+            this.translate.instant('ERROR.LOADING_CENTERS'),
+            this.translate.instant('COMMON.CLOSE'),
+            { duration: 3000 },
+          );
+          return of([]);
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((centers) => {
+        this.centersSource$.next(centers);
+        this.loadingSource$.next(false);
+      });
   }
 
   private loadMeetings(): void {
     this.loadingMeetingsSource$.next(true);
-    this.http.get<any[]>(ApiUtil.buildUrl('/centers', { type: 'meetings' })).pipe(
-      map(reuniones => reuniones.map(r => ({
-        id: r.id_reunion?.toString() || '',
-        title: r.titulo || r.asunto || `Bilera ${r.id_reunion || 'ID gabe'}`,
-        date: new Date(r.fecha),
-        hour: this.extractTime(r.fecha),
-        classroom: r.aula || 'Gela esleitu gabe',
-        center: r.id_centro?.toString() || '',
-        centerName: this.getCenterName(r.id_centro),
-        status: r.estado || 'pendiente',
-        subject: r.asunto || '',
-        teacherId: r.profesor_id || undefined,
-        studentId: r.alumno_id || undefined,
-      }))),
-      catchError(err => {
-        console.error('Errorea bilerak kargatzean:', err);
-        this.snackBar.open(
-          this.translate.instant('ERROR.LOADING_MEETINGS') || 'Errorea bilerak kargatzean',
-          this.translate.instant('COMMON.CLOSE') || 'Itxi',
-          { duration: 3000 }
-        );
-        return of([]);
-      }),
-      takeUntil(this.destroy$),
-    ).subscribe(meetings => {
-      this.meetingsSource$.next(meetings);
-      this.loadingMeetingsSource$.next(false);
-    });
+    this.http
+      .get<any[]>(ApiUtil.buildUrl('/centers', { type: 'meetings' }))
+      .pipe(
+        map((reuniones) =>
+          reuniones.map((r) => ({
+            id: r.id_reunion?.toString() || '',
+            title: r.titulo || r.asunto || `Bilera ${r.id_reunion || 'ID gabe'}`,
+            date: new Date(r.fecha),
+            hour: this.extractTime(r.fecha),
+            classroom: r.aula || 'Gela esleitu gabe',
+            center: r.id_centro?.toString() || '',
+            centerName: this.getCenterName(r.id_centro),
+            status: r.estado || 'pendiente',
+            subject: r.asunto || '',
+            teacherId: r.profesor_id || undefined,
+            studentId: r.alumno_id || undefined,
+          })),
+        ),
+        catchError((err) => {
+          console.error('Errorea bilerak kargatzean:', err);
+          this.snackBar.open(
+            this.translate.instant('ERROR.LOADING_MEETINGS') || 'Errorea bilerak kargatzean',
+            this.translate.instant('COMMON.CLOSE') || 'Itxi',
+            { duration: 3000 },
+          );
+          return of([]);
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((meetings) => {
+        this.meetingsSource$.next(meetings);
+        this.loadingMeetingsSource$.next(false);
+      });
   }
 
   private extractTime(fecha: string | Date | null | undefined): string {
     if (!fecha) return '00:00';
     try {
       const date = new Date(fecha);
-      return isNaN(date.getTime()) ? '00:00' : date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+      return isNaN(date.getTime())
+        ? '00:00'
+        : date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
     } catch {
       return '00:00';
     }
@@ -312,19 +360,23 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
 
   private getCenterName(centroId: number | null | undefined): string {
     if (!centroId) return 'Zentro zehaztu gabe';
-    const center = this.centersSource$.value.find(c => c.CCEN === centroId.toString());
+    const center = this.centersSource$.value.find((c) => c.CCEN === centroId.toString());
     return center?.NOM || `Zentroa ${centroId}`;
   }
 
   getStatusLabel(status: string): string {
     const labels: Record<string, string> = {
-      pendiente: 'Zain', aceptada: 'Onartuta',
-      denegada: 'Ukatua', conflicto: 'Gatazka',
+      pendiente: 'Zain',
+      aceptada: 'Onartuta',
+      denegada: 'Ukatua',
+      conflicto: 'Gatazka',
     };
     return labels[status] || status;
   }
 
-  canChangeStatus(_: Meeting): boolean { return true; }
+  canChangeStatus(_: Meeting): boolean {
+    return true;
+  }
 
   getAvailableStatusActions(meeting: Meeting) {
     const current = meeting.status.toLowerCase();
@@ -333,19 +385,22 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
       { status: 'denegada', label: 'Ukatu', icon: 'cancel', color: 'warn' },
       { status: 'conflicto', label: 'Gatazka markatu', icon: 'warning', color: 'warn' },
       { status: 'pendiente', label: 'Zain markatu', icon: 'schedule', color: 'basic' },
-    ].filter(a => a.status !== current);
+    ].filter((a) => a.status !== current);
   }
 
   private preprocessCenters(centers: Center[]): Center[] {
-    return centers.map(c => ({
+    return centers.map((c) => ({
       ...c,
       _searchableText: [c.NOM || '', c.CCEN || '', c.DMUNIC || '', c.DTERRC || '', c.DTITUC || '']
-        .join(' ').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''),
+        .join(' ')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, ''),
     }));
   }
 
   private filterCenters(centers: Center[], filters: FilterState): Center[] {
-    return centers.filter(c => {
+    return centers.filter((c) => {
       if (filters.searchText && !c._searchableText?.includes(filters.searchText)) return false;
       if (filters.titularidad && c.DTITUC !== filters.titularidad) return false;
       if (filters.territorio && c.DTERRC !== filters.territorio) return false;
@@ -356,31 +411,43 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
 
   private calculateFilterOptions(centers: Center[], currentFilters: FilterState) {
     let available = centers;
-    if (currentFilters.territorio) available = available.filter(c => c.DTERRC === currentFilters.territorio);
-    if (currentFilters.titularidad) available = available.filter(c => c.DTITUC === currentFilters.titularidad);
+    if (currentFilters.territorio)
+      available = available.filter((c) => c.DTERRC === currentFilters.territorio);
+    if (currentFilters.titularidad)
+      available = available.filter((c) => c.DTITUC === currentFilters.titularidad);
 
     return {
-      titularidades: [...new Set(centers
-        .filter(c => !currentFilters.territorio || c.DTERRC === currentFilters.territorio)
-        .map(c => c.DTITUC))].sort(),
-      territorios: [...new Set(centers
-        .filter(c => !currentFilters.titularidad || c.DTITUC === currentFilters.titularidad)
-        .map(c => c.DTERRC))].sort(),
-      municipios: [...new Set(available.map(c => c.DMUNIC))].sort(),
+      titularidades: [
+        ...new Set(
+          centers
+            .filter((c) => !currentFilters.territorio || c.DTERRC === currentFilters.territorio)
+            .map((c) => c.DTITUC),
+        ),
+      ].sort(),
+      territorios: [
+        ...new Set(
+          centers
+            .filter((c) => !currentFilters.titularidad || c.DTITUC === currentFilters.titularidad)
+            .map((c) => c.DTERRC),
+        ),
+      ].sort(),
+      municipios: [...new Set(available.map((c) => c.DMUNIC))].sort(),
     };
   }
 
   private setupFilterCascade(): void {
-    combineLatest([this.territorioSource$, this.processedData$]).pipe(
-      map(([, data]) => {
-        const current = this.municipioSource$.value;
-        return current && !data.filterOptions.municipios.includes(current) ? '' : current;
-      }),
-      distinctUntilChanged(),
-      takeUntil(this.destroy$),
-    ).subscribe(municipio => {
-      if (municipio !== this.municipioSource$.value) this.municipioSource$.next(municipio);
-    });
+    combineLatest([this.territorioSource$, this.processedData$])
+      .pipe(
+        map(([, data]) => {
+          const current = this.municipioSource$.value;
+          return current && !data.filterOptions.municipios.includes(current) ? '' : current;
+        }),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((municipio) => {
+        if (municipio !== this.municipioSource$.value) this.municipioSource$.next(municipio);
+      });
   }
 
   private initializeMap(): void {
@@ -398,7 +465,7 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
         console.log('Mapbox mapa kargatuta');
         this.mapInitialized$.next(true);
       });
-      this.map.on('error', e => console.error('Mapbox errorea:', e));
+      this.map.on('error', (e) => console.error('Mapbox errorea:', e));
     } catch (error) {
       console.error('Errorea mapa hasieratzen:', error);
       this.mapInitialized$.next(false);
@@ -407,17 +474,23 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
 
   private updateMapMarkers(centers: Center[]): void {
     if (!this.map) return;
-    const valid = centers.filter(c => 
-      c.LONGITUD && c.LATITUD && !isNaN(c.LONGITUD) && !isNaN(c.LATITUD) && c.LONGITUD !== 0 && c.LATITUD !== 0
+    const valid = centers.filter(
+      (c) =>
+        c.LONGITUD &&
+        c.LATITUD &&
+        !isNaN(c.LONGITUD) &&
+        !isNaN(c.LATITUD) &&
+        c.LONGITUD !== 0 &&
+        c.LATITUD !== 0,
     );
-    const newIds = new Set(valid.map(c => c.CCEN));
+    const newIds = new Set(valid.map((c) => c.CCEN));
     this.markers.forEach((marker, id) => {
       if (!newIds.has(id)) {
         marker.remove();
         this.markers.delete(id);
       }
     });
-    valid.forEach(c => {
+    valid.forEach((c) => {
       if (!this.markers.has(c.CCEN)) {
         const [lng, lat] = [c.LATITUD, c.LONGITUD]; // Mapbox [lng, lat] formatuan
         const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
@@ -444,7 +517,7 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
   private fitMapBounds(centers: Center[]): void {
     if (!this.map || !centers.length) return;
     const bounds = new mapboxgl.LngLatBounds();
-    centers.forEach(c => {
+    centers.forEach((c) => {
       if (c.LATITUD && c.LONGITUD) {
         try {
           bounds.extend([c.LATITUD, c.LONGITUD]);
@@ -504,23 +577,29 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
     this.paginationSource$.next({ ...current, pageIndex: 0 });
   }
 
-  canCreateMeeting(): boolean { return true; }
-
-  private showSnackBar(message: string, error = false): void {
-    this.snackBar.open(
-      message,
-      this.translate.instant('COMMON.CLOSE') || 'Itxi',
-      { duration: 3000, panelClass: error ? 'error-snackbar' : 'success-snackbar' }
-    );
+  canCreateMeeting(): boolean {
+    return true;
   }
 
-  private handleMeetingOperation<T>(op: Observable<T>, successMsg: string, errorMsg: string, opName: string): void {
+  private showSnackBar(message: string, error = false): void {
+    this.snackBar.open(message, this.translate.instant('COMMON.CLOSE') || 'Itxi', {
+      duration: 3000,
+      panelClass: error ? 'error-snackbar' : 'success-snackbar',
+    });
+  }
+
+  private handleMeetingOperation<T>(
+    op: Observable<T>,
+    successMsg: string,
+    errorMsg: string,
+    opName: string,
+  ): void {
     op.subscribe({
       next: () => {
         this.showSnackBar(this.translate.instant(successMsg) || successMsg);
         this.loadMeetings();
       },
-      error: err => {
+      error: (err) => {
         console.error(`Errorea ${opName}:`, err);
         this.showSnackBar(this.translate.instant(errorMsg) || errorMsg, true);
       },
@@ -529,7 +608,7 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
 
   openCreateMeetingDialog(_?: Center): void {
     const dialogRef = this.dialog.open(MeetingDialogComponent, { width: '500px', data: null });
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         const user = this.authService.getUser();
         const data = {
@@ -541,7 +620,7 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
           this.meetingsService.createMeeting(data),
           'SUCCESS.MEETING_CREATED',
           'ERROR.CREATING_MEETING',
-          'createMeeting'
+          'createMeeting',
         );
       }
     });
@@ -549,25 +628,30 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
 
   openEditMeetingDialog(meeting: Meeting): void {
     const dialogRef = this.dialog.open(MeetingDialogComponent, { width: '500px', data: meeting });
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.handleMeetingOperation(
           this.meetingsService.updateMeeting(parseInt(meeting.id), result),
           'SUCCESS.MEETING_UPDATED',
           'ERROR.UPDATING_MEETING',
-          'updateMeeting'
+          'updateMeeting',
         );
       }
     });
   }
 
   deleteMeeting(meeting: Meeting): void {
-    if (confirm(this.translate.instant('CONFIRM.DELETE_MEETING') || 'Ziur zaude bilera ezabatu nahi duzula?')) {
+    if (
+      confirm(
+        this.translate.instant('CONFIRM.DELETE_MEETING') ||
+          'Ziur zaude bilera ezabatu nahi duzula?',
+      )
+    ) {
       this.handleMeetingOperation(
         this.meetingsService.deleteMeeting(parseInt(meeting.id)),
         'SUCCESS.MEETING_DELETED',
         'ERROR.DELETING_MEETING',
-        'deleteMeeting'
+        'deleteMeeting',
       );
     }
   }
@@ -577,7 +661,7 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
       this.meetingsService.updateMeetingStatus(parseInt(meeting.id), newStatus),
       'SUCCESS.STATUS_UPDATED',
       'ERROR.UPDATING_STATUS',
-      'updateMeetingStatus'
+      'updateMeetingStatus',
     );
   }
 
