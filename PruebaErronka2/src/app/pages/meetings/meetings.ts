@@ -84,17 +84,6 @@ interface PaginationState {
   pageSize: number;
 }
 
-interface ProcessedData {
-  filtered: Center[];
-  paginated: Center[];
-  total: number;
-  hasActiveFilters: boolean;
-  filterOptions: {
-    titularidades: string[];
-    territorios: string[];
-    municipios: string[];
-  };
-}
 
 // Cache utilitatea
 function getCachedCenters(): Center[] | null {
