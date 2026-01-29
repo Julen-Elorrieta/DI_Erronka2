@@ -78,7 +78,9 @@
 
 .stat-card {
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .stat-card:hover {
@@ -171,7 +173,9 @@
 }
 
 .info-card {
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .info-card:hover {
@@ -268,10 +272,10 @@
 
 .module-button {
   background-color: white !important;
-  color: #005CBB !important;
+  color: #005cbb !important;
 }
 
 .enrollments-button {
   background-color: white !important;
-  color: #005CBB !important;
+  color: #005cbb !important;
 }

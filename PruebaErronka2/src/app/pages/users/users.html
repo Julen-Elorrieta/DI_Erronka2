@@ -2,10 +2,10 @@
   <div class="page-header">
     <h1>{{ 'USER.LIST' | translate }}</h1>
     @if (isAdmin()) {
-    <button mat-raised-button color="primary" class="create-button" (click)="openCreateDialog()">
-      <mat-icon>add</mat-icon>
-      {{ 'USER.CREATE' | translate }}
-    </button>
+      <button mat-raised-button color="primary" class="create-button" (click)="openCreateDialog()">
+        <mat-icon>add</mat-icon>
+        {{ 'USER.CREATE' | translate }}
+      </button>
     }
   </div>
 
@@ -15,7 +15,12 @@
       <div class="filters-row">
         <mat-form-field appearance="outline" class="search-field">
           <mat-label>{{ 'COMMON.SEARCH' | translate }}</mat-label>
-          <input matInput [(ngModel)]="searchTerm" (input)="onSearch()" placeholder="Izena, abizena, email...">
+          <input
+            matInput
+            [(ngModel)]="searchTerm"
+            (input)="onSearch()"
+            placeholder="Izena, abizena, email..."
+          />
           <mat-icon matPrefix>search</mat-icon>
         </mat-form-field>
 
@@ -24,7 +29,9 @@
           <mat-select [value]="selectedRole || ''" (selectionChange)="onRoleChange($event.value)">
             <mat-option value="">{{ 'COMMON.ALL' | translate }}</mat-option>
             @for (role of roles; track role) {
-            <mat-option [value]="role">{{ 'ROLE.' + (getUserRoleFromTipoId(role)) | translate }}</mat-option>
+              <mat-option [value]="role">{{
+                'ROLE.' + getUserRoleFromTipoId(role) | translate
+              }}</mat-option>
             }
           </mat-select>
         </mat-form-field>
@@ -33,111 +40,128 @@
   </mat-card>
 
   <!-- Emaitzen kontadorea -->
-  <div class="results-count">
-    {{ filteredUsers().length }} {{ 'COMMON.RESULTS' | translate }}
-  </div>
+  <div class="results-count">{{ filteredUsers().length }} {{ 'COMMON.RESULTS' | translate }}</div>
 
   <!-- Erabiltzaileen taula -->
   <mat-card class="table-card">
     @if (loading()) {
-    <div class="loading-container">
-      <mat-spinner diameter="50"></mat-spinner>
-    </div>
+      <div class="loading-container">
+        <mat-spinner diameter="50"></mat-spinner>
+      </div>
     } @else {
-    <table mat-table [dataSource]="getPaginatedUsers()" class="users-table">
-      <!-- Argazki zutabea -->
-      <ng-container matColumnDef="photo">
-        <th mat-header-cell *matHeaderCellDef>Argazkia</th>
-        <td mat-cell *matCellDef="let user">
-          <img [src]="getPhotoUrl(user)" [alt]="user.nombre" class="user-photo"
-            (error)="$any($event.target).src='/unknown.webp'">
-        </td>
-      </ng-container>
+      <table mat-table [dataSource]="getPaginatedUsers()" class="users-table">
+        <!-- Argazki zutabea -->
+        <ng-container matColumnDef="photo">
+          <th mat-header-cell *matHeaderCellDef>Argazkia</th>
+          <td mat-cell *matCellDef="let user">
+            <img
+              [src]="getPhotoUrl(user)"
+              [alt]="user.nombre"
+              class="user-photo"
+              (error)="$any($event.target).src = '/unknown.webp'"
+            />
+          </td>
+        </ng-container>
 
-      <!--Username zutabea-->
-      <ng-container matColumnDef="username">
-        <th mat-header-cell *matHeaderCellDef>{{ 'USER.USERNAME' | translate }}</th>
-        <td mat-cell *matCellDef="let user">
-          <div class="user-name">
-            <span class="username">@{{ user.username }}</span>
-          </div>
-        </td>
-      </ng-container>
+        <!--Username zutabea-->
+        <ng-container matColumnDef="username">
+          <th mat-header-cell *matHeaderCellDef>{{ 'USER.USERNAME' | translate }}</th>
+          <td mat-cell *matCellDef="let user">
+            <div class="user-name">
+              <span class="username">@{{ user.username }}</span>
+            </div>
+          </td>
+        </ng-container>
 
-      <!-- Izen zutabea -->
-      <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef>{{ 'USER.NAME' | translate }}</th>
-        <td mat-cell *matCellDef="let user">{{ user.nombre }}</td>
-      </ng-container>
+        <!-- Izen zutabea -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>{{ 'USER.NAME' | translate }}</th>
+          <td mat-cell *matCellDef="let user">{{ user.nombre }}</td>
+        </ng-container>
 
-      <!--Abizen zutabea -->
-      <ng-container matColumnDef="surname">
-        <th mat-header-cell *matHeaderCellDef>{{ 'USER.SURNAME' | translate }}</th>
-        <td mat-cell *matCellDef="let user">{{ user.apellidos }}</td>
-      </ng-container>
+        <!--Abizen zutabea -->
+        <ng-container matColumnDef="surname">
+          <th mat-header-cell *matHeaderCellDef>{{ 'USER.SURNAME' | translate }}</th>
+          <td mat-cell *matCellDef="let user">{{ user.apellidos }}</td>
+        </ng-container>
 
-      <!-- Email zutabea -->
-      <ng-container matColumnDef="email">
-        <th mat-header-cell *matHeaderCellDef>{{ 'USER.EMAIL' | translate }}</th>
-        <td mat-cell *matCellDef="let user">{{ user.email }}</td>
-      </ng-container>
+        <!-- Email zutabea -->
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef>{{ 'USER.EMAIL' | translate }}</th>
+          <td mat-cell *matCellDef="let user">{{ user.email }}</td>
+        </ng-container>
 
-      <!-- DNI zutabea -->
-      <ng-container matColumnDef="dni">
-        <th mat-header-cell *matHeaderCellDef>{{ 'USER.DNI' | translate }}</th>
-        <td mat-cell *matCellDef="let user">{{ user.dni }}</td>
-      </ng-container>
+        <!-- DNI zutabea -->
+        <ng-container matColumnDef="dni">
+          <th mat-header-cell *matHeaderCellDef>{{ 'USER.DNI' | translate }}</th>
+          <td mat-cell *matCellDef="let user">{{ user.dni }}</td>
+        </ng-container>
 
-      <!-- Number zutabea -->
-      <ng-container matColumnDef="number">
-        <th mat-header-cell *matHeaderCellDef>{{ 'USER.NUMBER' | translate }}</th>
-        <td mat-cell *matCellDef="let user">
-          @if (user.telefono1 && user.telefono2) {
-          {{ user.telefono1 }}, {{ user.telefono2 }}
-          } @else if (user.telefono1) {
-          {{ user.telefono1 }}
-          } @else if (user.telefono2) {
-          {{ user.telefono2 }}
-          } @else {
-          -
-          }
-        </td>
-      </ng-container>
-
-      <!-- Ekintza zutabea -->
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef>{{ 'USER.ACTIONS' | translate }}</th>
-        <td mat-cell *matCellDef="let user">
-          <div class="actions-cell">
-            @if (canEdit(user)) {
-            <button mat-icon-button color="primary" (click)="openEditDialog(user)"
-              [matTooltip]="'USER.EDIT' | translate">
-              <mat-icon>edit</mat-icon>
-            </button>
+        <!-- Number zutabea -->
+        <ng-container matColumnDef="number">
+          <th mat-header-cell *matHeaderCellDef>{{ 'USER.NUMBER' | translate }}</th>
+          <td mat-cell *matCellDef="let user">
+            @if (user.telefono1 && user.telefono2) {
+              {{ user.telefono1 }}, {{ user.telefono2 }}
+            } @else if (user.telefono1) {
+              {{ user.telefono1 }}
+            } @else if (user.telefono2) {
+              {{ user.telefono2 }}
+            } @else {
+              -
             }
-            @if (canDelete(user)) {
-            <button mat-icon-button color="warn" (click)="deleteUser(user)" [matTooltip]="'USER.DELETE' | translate">
-              <mat-icon>delete</mat-icon>
-            </button>
-            }
-          </div>
-        </td>
-      </ng-container>
+          </td>
+        </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
+        <!-- Ekintza zutabea -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>{{ 'USER.ACTIONS' | translate }}</th>
+          <td mat-cell *matCellDef="let user">
+            <div class="actions-cell">
+              @if (canEdit(user)) {
+                <button
+                  mat-icon-button
+                  color="primary"
+                  (click)="openEditDialog(user)"
+                  [matTooltip]="'USER.EDIT' | translate"
+                >
+                  <mat-icon>edit</mat-icon>
+                </button>
+              }
+              @if (canDelete(user)) {
+                <button
+                  mat-icon-button
+                  color="warn"
+                  (click)="deleteUser(user)"
+                  [matTooltip]="'USER.DELETE' | translate"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              }
+            </div>
+          </td>
+        </ng-container>
 
-    @if (filteredUsers().length === 0) {
-    <div class="no-data">
-      <mat-icon>search_off</mat-icon>
-      <p>{{ 'COMMON.NO_RESULTS' | translate }}</p>
-    </div>
-    }
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
 
-    <mat-paginator [length]="filteredUsers().length" [pageSize]="pageSize" [pageIndex]="pageIndex"
-      [pageSizeOptions]="[5, 10, 25, 50]" (page)="onPageChange($event)" showFirstLastButtons>
-    </mat-paginator>
+      @if (filteredUsers().length === 0) {
+        <div class="no-data">
+          <mat-icon>search_off</mat-icon>
+          <p>{{ 'COMMON.NO_RESULTS' | translate }}</p>
+        </div>
+      }
+
+      <mat-paginator
+        [length]="filteredUsers().length"
+        [pageSize]="pageSize"
+        [pageIndex]="pageIndex"
+        [pageSizeOptions]="[5, 10, 25, 50]"
+        (page)="onPageChange($event)"
+        showFirstLastButtons
+      >
+      </mat-paginator>
     }
   </mat-card>
 </div>

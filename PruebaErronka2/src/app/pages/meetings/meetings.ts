@@ -84,7 +84,6 @@ interface PaginationState {
   pageSize: number;
 }
 
-
 // Cache utilitatea
 function getCachedCenters(): Center[] | null {
   try {

@@ -1,4 +1,9 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChangeDetection, importProvidersFrom } from '@angular/core';
+import {
+  ApplicationConfig,
+  provideBrowserGlobalErrorListeners,
+  provideZoneChangeDetection,
+  importProvidersFrom,
+} from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, HttpClient, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
@@ -17,17 +22,17 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(
-      withInterceptors([authInterceptor]) // Añadido el interceptor JWT aquí
+      withInterceptors([authInterceptor]), // Añadido el interceptor JWT aquí
     ),
     importProvidersFrom(
       TranslateModule.forRoot({
         loader: {
           provide: TranslateLoader,
           useFactory: HttpLoaderFactory,
-          deps: [HttpClient]
+          deps: [HttpClient],
         },
-        fallbackLang: 'en'
-      })
-    )
-  ]
+        fallbackLang: 'en',
+      }),
+    ),
+  ],
 };

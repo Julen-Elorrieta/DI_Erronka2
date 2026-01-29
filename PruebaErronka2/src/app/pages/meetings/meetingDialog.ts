@@ -31,24 +31,26 @@ import { Meeting } from '../../core/models/meeting.model';
     TranslateModule,
   ],
   template: `
-    <h2 mat-dialog-title>{{ data?.id_reunion ? ('MEETING.EDIT' | translate) : ('MEETING.CREATE' | translate) }}</h2>
+    <h2 mat-dialog-title>
+      {{ data?.id_reunion ? ('MEETING.EDIT' | translate) : ('MEETING.CREATE' | translate) }}
+    </h2>
     <mat-dialog-content>
       <form [formGroup]="meetingForm" class="meeting-form">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>{{ 'MEETING.TITLE' | translate }}</mat-label>
-          <input matInput formControlName="title" required>
+          <input matInput formControlName="title" required />
           <mat-error>{{ 'VALIDATION.REQUIRED' | translate }}</mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>{{ 'MEETING.TOPIC' | translate }}</mat-label>
-          <input matInput formControlName="topic" required>
+          <input matInput formControlName="topic" required />
           <mat-error>{{ 'VALIDATION.REQUIRED' | translate }}</mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>{{ 'MEETING.DATE' | translate }}</mat-label>
-          <input matInput [matDatepicker]="picker" formControlName="date" required>
+          <input matInput [matDatepicker]="picker" formControlName="date" required />
           <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
           <mat-datepicker #picker></mat-datepicker>
           <mat-error>{{ 'VALIDATION.REQUIRED' | translate }}</mat-error>
@@ -66,18 +68,18 @@ import { Meeting } from '../../core/models/meeting.model';
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>{{ 'MEETING.CLASSROOM' | translate }}</mat-label>
-          <input matInput formControlName="classroom" required>
+          <input matInput formControlName="classroom" required />
           <mat-error>{{ 'VALIDATION.REQUIRED' | translate }}</mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>{{ 'MEETING.CENTER' | translate }}</mat-label>
-          <input matInput formControlName="center">
+          <input matInput formControlName="center" />
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>{{ 'MEETING.ADDRESS' | translate }}</mat-label>
-          <input matInput formControlName="address">
+          <input matInput formControlName="address" />
         </mat-form-field>
       </form>
     </mat-dialog-content>
@@ -88,17 +90,19 @@ import { Meeting } from '../../core/models/meeting.model';
       </button>
     </mat-dialog-actions>
   `,
-  styles: [`
-    .meeting-form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      min-width: 400px;
-    }
-    .full-width {
-      width: 100%;
-    }
-  `],
+  styles: [
+    `
+      .meeting-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        min-width: 400px;
+      }
+      .full-width {
+        width: 100%;
+      }
+    `,
+  ],
 })
 export class MeetingDialogComponent implements OnInit {
   meetingForm: FormGroup;
@@ -108,7 +112,7 @@ export class MeetingDialogComponent implements OnInit {
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<MeetingDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: Meeting | null,
-    private http: HttpClient
+    private http: HttpClient,
   ) {
     this.meetingForm = this.fb.group({
       title: ['', Validators.required],
@@ -142,7 +146,7 @@ export class MeetingDialogComponent implements OnInit {
         hora: formValue.hour,
         classroom: formValue.classroom,
         center: formValue.center,
-        address: formValue.address
+        address: formValue.address,
       };
       this.dialogRef.close(meetingData);
     }

@@ -1,6 +1,12 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  FormsModule,
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -37,10 +43,10 @@ import { MeetingsService } from '../../core/services/meetings.service';
     MatProgressSpinnerModule,
     MatTabsModule,
     MatTableModule,
-    TranslateModule
+    TranslateModule,
   ],
   templateUrl: './profile.html',
-  styleUrls: ['./profile.css']
+  styleUrls: ['./profile.css'],
 })
 export class ProfileComponent implements OnInit {
   user = signal<User | null>(null);
@@ -49,7 +55,7 @@ export class ProfileComponent implements OnInit {
   loading = signal(true);
   editing = signal(false);
   userRole = signal<UserRole | null>(null);
-  
+
   profileForm!: FormGroup;
 
   days = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY'];
@@ -86,18 +92,17 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-
   private initForm(user: User): void {
     this.profileForm = this.fb.group({
       username: [user.username, Validators.required],
       nombre: [user.nombre, Validators.required],
       apellidos: [user.apellidos, Validators.required],
       email: [user.email, [Validators.required, Validators.email]],
-      dni: [{value: user.dni, disabled: true}, Validators.required],
+      dni: [{ value: user.dni, disabled: true }, Validators.required],
       direccion: [user.direccion],
       telefono1: [user.telefono1],
       telefono2: [user.telefono2],
-      argazkia_url: [user.argazkia_url]
+      argazkia_url: [user.argazkia_url],
     });
   }
 
@@ -108,8 +113,10 @@ export class ProfileComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error loading schedule:', err);
-        this.showError(this.translate.instant('ERROR.LOADING_SCHEDULE') || 'Error cargando horario');
-      }
+        this.showError(
+          this.translate.instant('ERROR.LOADING_SCHEDULE') || 'Error cargando horario',
+        );
+      },
     });
   }
 
@@ -121,9 +128,11 @@ export class ProfileComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error loading meetings:', err);
-        this.showError(this.translate.instant('ERROR.LOADING_MEETINGS') || 'Error cargando reuniones');
+        this.showError(
+          this.translate.instant('ERROR.LOADING_MEETINGS') || 'Error cargando reuniones',
+        );
         this.loading.set(false);
-      }
+      },
     });
   }
 
@@ -148,7 +157,9 @@ export class ProfileComponent implements OnInit {
 
       // Por ahora, solo mostramos un mensaje
       this.editing.set(false);
-      this.showSuccess(this.translate.instant('SUCCESS.PROFILE_UPDATED') || 'Perfil actualizado correctamente');
+      this.showSuccess(
+        this.translate.instant('SUCCESS.PROFILE_UPDATED') || 'Perfil actualizado correctamente',
+      );
     }
   }
 
@@ -163,7 +174,7 @@ export class ProfileComponent implements OnInit {
       [UserRole.GOD]: 'admin_panel_settings',
       [UserRole.ADMIN]: 'manage_accounts',
       [UserRole.TEACHER]: 'school',
-      [UserRole.STUDENT]: 'person'
+      [UserRole.STUDENT]: 'person',
     };
     return role ? icons[role] : 'person';
   }
@@ -176,7 +187,7 @@ export class ProfileComponent implements OnInit {
 
   getSlot(day: number, hour: number): ScheduleSlot | undefined {
     const sch = this.schedule();
-    return sch?.slots.find(s => s.day === day && s.hour === hour);
+    return sch?.slots.find((s) => s.day === day && s.hour === hour);
   }
 
   getSlotClass(slot: ScheduleSlot | undefined): string {
@@ -186,7 +197,7 @@ export class ProfileComponent implements OnInit {
 
   getSlotText(slot: ScheduleSlot | undefined): string {
     if (!slot || slot.type === 'EMPTY') return '';
-    
+
     switch (slot.type) {
       case 'CLASS':
         return `${slot.subject || ''} ${slot.course || ''}`.trim();
@@ -204,14 +215,14 @@ export class ProfileComponent implements OnInit {
   private showSuccess(message: string): void {
     this.snackBar.open(message, 'OK', {
       duration: 3000,
-      panelClass: ['snackbar-success']
+      panelClass: ['snackbar-success'],
     });
   }
 
   private showError(message: string): void {
     this.snackBar.open(message, 'OK', {
       duration: 5000,
-      panelClass: ['snackbar-error']
+      panelClass: ['snackbar-error'],
     });
   }
 }

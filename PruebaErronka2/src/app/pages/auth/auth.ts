@@ -21,10 +21,10 @@ import { AuthService } from '../../core/services/auth.service';
     MatInputModule,
     MatIconModule,
     MatButtonModule,
-    TranslateModule
+    TranslateModule,
   ],
   templateUrl: './auth.html',
-  styleUrls: ['./auth.css']
+  styleUrls: ['./auth.css'],
 })
 export class Auth {
   loginForm: FormGroup;
@@ -32,10 +32,13 @@ export class Auth {
   loginError = false;
   private authService = inject(AuthService);
 
-  constructor(private fb: FormBuilder, private router: Router) {
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+  ) {
     this.loginForm = this.fb.group({
       username: ['', Validators.required],
-      password: ['', Validators.required]
+      password: ['', Validators.required],
     });
   }
 

@@ -39,7 +39,7 @@ interface Usuario {
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatSelectModule,
-    TranslateModule
+    TranslateModule,
   ],
   template: `
     <div class="container">
@@ -55,7 +55,12 @@ interface Usuario {
         <mat-spinner></mat-spinner>
       </div>
 
-      <table mat-table [dataSource]="matriculaciones()" class="matriculaciones-table" *ngIf="!loading()">
+      <table
+        mat-table
+        [dataSource]="matriculaciones()"
+        class="matriculaciones-table"
+        *ngIf="!loading()"
+      >
         <ng-container matColumnDef="alumno">
           <th mat-header-cell *matHeaderCellDef>{{ 'USUARIOS.ALUMNO' | translate }}</th>
           <td mat-cell *matCellDef="let element">{{ element.alumno_nombre }}</td>
@@ -89,31 +94,33 @@ interface Usuario {
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
       </table>
     </div>
   `,
-  styles: [`
-    .container {
-      padding: 20px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    .matriculaciones-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    .loading {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 300px;
-    }
-  `]
+  styles: [
+    `
+      .container {
+        padding: 20px;
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .matriculaciones-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 300px;
+      }
+    `,
+  ],
 })
 export class MatriculacionesComponent implements OnInit {
   matriculaciones = signal<Matriculacion[]>([]);
@@ -135,7 +142,7 @@ export class MatriculacionesComponent implements OnInit {
   loadData(): void {
     this.loading.set(true);
     Promise.all([
-      new Promise<void>(resolve => {
+      new Promise<void>((resolve) => {
         this.matriculacionesService.getAllMatriculaciones().subscribe({
           next: (matriculaciones) => {
             this.matriculaciones.set(matriculaciones);
@@ -144,10 +151,10 @@ export class MatriculacionesComponent implements OnInit {
           error: (err) => {
             console.error('Error loading matriculaciones:', err);
             resolve();
-          }
+          },
         });
       }),
-      new Promise<void>(resolve => {
+      new Promise<void>((resolve) => {
         this.usersService.filterUserByRole(4).subscribe({
           next: (users) => {
             this.alumnos.set(users);
@@ -156,10 +163,10 @@ export class MatriculacionesComponent implements OnInit {
           error: (err) => {
             console.error('Error loading alumnos:', err);
             resolve();
-          }
+          },
         });
       }),
-      new Promise<void>(resolve => {
+      new Promise<void>((resolve) => {
         this.ciclosService.getAllCiclos().subscribe({
           next: (ciclos) => {
             this.ciclos.set(ciclos);
@@ -168,9 +175,9 @@ export class MatriculacionesComponent implements OnInit {
           error: (err) => {
             console.error('Error loading ciclos:', err);
             resolve();
-          }
+          },
         });
-      })
+      }),
     ]).then(() => {
       this.loading.set(false);
     });
@@ -182,11 +189,15 @@ export class MatriculacionesComponent implements OnInit {
       html: `
         <select id="alum_id" class="swal2-input">
           <option value="">Seleccionar Alumno</option>
-          ${this.alumnos().map(a => `<option value="${a.id}">${a.nombre}</option>`).join('')}
+          ${this.alumnos()
+            .map((a) => `<option value="${a.id}">${a.nombre}</option>`)
+            .join('')}
         </select>
         <select id="ciclo_id" class="swal2-input">
           <option value="">Seleccionar Ciclo</option>
-          ${this.ciclos().map(c => `<option value="${c.id}">${c.nombre}</option>`).join('')}
+          ${this.ciclos()
+            .map((c) => `<option value="${c.id}">${c.nombre}</option>`)
+            .join('')}
         </select>
         <select id="curso" class="swal2-input">
           <option value="">Seleccionar Curso</option>
@@ -196,14 +207,14 @@ export class MatriculacionesComponent implements OnInit {
         <input type="date" id="fecha" class="swal2-input">
       `,
       showCancelButton: true,
-      confirmButtonText: 'Crear'
+      confirmButtonText: 'Crear',
     }).then((result) => {
       if (result.isConfirmed) {
         const matriculacion = {
           alum_id: parseInt((document.getElementById('alum_id') as HTMLSelectElement)?.value),
           ciclo_id: parseInt((document.getElementById('ciclo_id') as HTMLSelectElement)?.value),
           curso: parseInt((document.getElementById('curso') as HTMLSelectElement)?.value),
-          fecha: (document.getElementById('fecha') as HTMLInputElement)?.value
+          fecha: (document.getElementById('fecha') as HTMLInputElement)?.value,
         };
         this.createMatriculacion(matriculacion);
       }
@@ -219,7 +230,7 @@ export class MatriculacionesComponent implements OnInit {
       error: (err) => {
         console.error('Error creating matriculacion:', err);
         this.snackBar.open('Error al crear matriculación', 'Close', { duration: 3000 });
-      }
+      },
     });
   }
 
@@ -228,10 +239,20 @@ export class MatriculacionesComponent implements OnInit {
       title: 'Editar Matriculación',
       html: `
         <select id="alum_id" class="swal2-input">
-          ${this.alumnos().map(a => `<option value="${a.id}" ${a.id === matriculacion.alum_id ? 'selected' : ''}>${a.nombre}</option>`).join('')}
+          ${this.alumnos()
+            .map(
+              (a) =>
+                `<option value="${a.id}" ${a.id === matriculacion.alum_id ? 'selected' : ''}>${a.nombre}</option>`,
+            )
+            .join('')}
         </select>
         <select id="ciclo_id" class="swal2-input">
-          ${this.ciclos().map(c => `<option value="${c.id}" ${c.id === matriculacion.ciclo_id ? 'selected' : ''}>${c.nombre}</option>`).join('')}
+          ${this.ciclos()
+            .map(
+              (c) =>
+                `<option value="${c.id}" ${c.id === matriculacion.ciclo_id ? 'selected' : ''}>${c.nombre}</option>`,
+            )
+            .join('')}
         </select>
         <select id="curso" class="swal2-input">
           <option value="1" ${matriculacion.curso === 1 ? 'selected' : ''}>1º Curso</option>
@@ -240,25 +261,29 @@ export class MatriculacionesComponent implements OnInit {
         <input type="date" id="fecha" class="swal2-input" value="${matriculacion.fecha}">
       `,
       showCancelButton: true,
-      confirmButtonText: 'Actualizar'
+      confirmButtonText: 'Actualizar',
     }).then((result) => {
       if (result.isConfirmed) {
         const updated = {
           alum_id: parseInt((document.getElementById('alum_id') as HTMLSelectElement)?.value),
           ciclo_id: parseInt((document.getElementById('ciclo_id') as HTMLSelectElement)?.value),
           curso: parseInt((document.getElementById('curso') as HTMLSelectElement)?.value),
-          fecha: (document.getElementById('fecha') as HTMLInputElement)?.value
+          fecha: (document.getElementById('fecha') as HTMLInputElement)?.value,
         };
-        this.matriculacionesService.updateMatriculacion(matriculacion.id, updated as any).subscribe({
-          next: () => {
-            this.snackBar.open('Matriculación actualizada correctamente', 'Close', { duration: 3000 });
-            this.loadData();
-          },
-          error: (err) => {
-            console.error('Error updating matriculacion:', err);
-            this.snackBar.open('Error al actualizar matriculación', 'Close', { duration: 3000 });
-          }
-        });
+        this.matriculacionesService
+          .updateMatriculacion(matriculacion.id, updated as any)
+          .subscribe({
+            next: () => {
+              this.snackBar.open('Matriculación actualizada correctamente', 'Close', {
+                duration: 3000,
+              });
+              this.loadData();
+            },
+            error: (err) => {
+              console.error('Error updating matriculacion:', err);
+              this.snackBar.open('Error al actualizar matriculación', 'Close', { duration: 3000 });
+            },
+          });
       }
     });
   }
@@ -270,18 +295,20 @@ export class MatriculacionesComponent implements OnInit {
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar'
+      cancelButtonText: 'Cancelar',
     }).then((result) => {
       if (result.isConfirmed) {
         this.matriculacionesService.deleteMatriculacion(matriculacion.id).subscribe({
           next: () => {
-            this.snackBar.open('Matriculación eliminada correctamente', 'Close', { duration: 3000 });
+            this.snackBar.open('Matriculación eliminada correctamente', 'Close', {
+              duration: 3000,
+            });
             this.loadData();
           },
           error: (err) => {
             console.error('Error deleting matriculacion:', err);
             this.snackBar.open('Error al eliminar matriculación', 'Close', { duration: 3000 });
-          }
+          },
         });
       }
     });

@@ -31,7 +31,7 @@ import Swal from 'sweetalert2';
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatDialogModule,
-    TranslateModule
+    TranslateModule,
   ],
   template: `
     <div class="container">
@@ -71,31 +71,33 @@ import Swal from 'sweetalert2';
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
       </table>
     </div>
   `,
-  styles: [`
-    .container {
-      padding: 20px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    .ciclos-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    .loading {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 300px;
-    }
-  `]
+  styles: [
+    `
+      .container {
+        padding: 20px;
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .ciclos-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 300px;
+      }
+    `,
+  ],
 })
 export class CiclosComponent implements OnInit {
   ciclos = signal<Ciclo[]>([]);
@@ -122,13 +124,14 @@ export class CiclosComponent implements OnInit {
       error: (err) => {
         console.error('Error loading ciclos:', err);
         this.loading.set(false);
-        this.snackBar.open(this.translate.instant('ERROR.LOADING_CICLOS'), 'Close', { duration: 3000 });
-      }
+        this.snackBar.open(this.translate.instant('ERROR.LOADING_CICLOS'), 'Close', {
+          duration: 3000,
+        });
+      },
     });
   }
 
   openNewDialog(): void {
-
     Swal.fire({
       title: 'Nuevo Ciclo',
       html: `<input type="text" id="nombre" class="swal2-input" placeholder="Nombre del ciclo">`,
@@ -136,7 +139,7 @@ export class CiclosComponent implements OnInit {
       confirmButtonText: 'Crear',
       didOpen: () => {
         document.getElementById('nombre')?.focus();
-      }
+      },
     }).then((result) => {
       if (result.isConfirmed) {
         const nombre = (document.getElementById('nombre') as HTMLInputElement)?.value;
@@ -156,7 +159,7 @@ export class CiclosComponent implements OnInit {
       error: (err) => {
         console.error('Error creating ciclo:', err);
         this.snackBar.open('Error al crear ciclo', 'Close', { duration: 3000 });
-      }
+      },
     });
   }
 
@@ -168,7 +171,7 @@ export class CiclosComponent implements OnInit {
       confirmButtonText: 'Actualizar',
       didOpen: () => {
         document.getElementById('nombre')?.focus();
-      }
+      },
     }).then((result) => {
       if (result.isConfirmed) {
         const nombre = (document.getElementById('nombre') as HTMLInputElement)?.value;
@@ -181,7 +184,7 @@ export class CiclosComponent implements OnInit {
             error: (err) => {
               console.error('Error updating ciclo:', err);
               this.snackBar.open('Error al actualizar ciclo', 'Close', { duration: 3000 });
-            }
+            },
           });
         }
       }
@@ -195,7 +198,7 @@ export class CiclosComponent implements OnInit {
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar'
+      cancelButtonText: 'Cancelar',
     }).then((result) => {
       if (result.isConfirmed) {
         this.ciclosService.deleteCiclo(ciclo.id).subscribe({
@@ -206,7 +209,7 @@ export class CiclosComponent implements OnInit {
           error: (err) => {
             console.error('Error deleting ciclo:', err);
             this.snackBar.open('Error al eliminar ciclo', 'Close', { duration: 3000 });
-          }
+          },
         });
       }
     });

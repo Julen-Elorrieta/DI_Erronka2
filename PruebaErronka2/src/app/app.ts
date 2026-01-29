@@ -7,7 +7,7 @@ import { filter } from 'rxjs';
   selector: 'app-root',
   imports: [RouterOutlet, HeaderComponent],
   templateUrl: './app.html',
-  styleUrls: ['./app.css']
+  styleUrls: ['./app.css'],
 })
 export class App {
   protected readonly title = signal('PruebaErronka2');
@@ -19,7 +19,7 @@ export class App {
 
   constructor() {
     this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
+      .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event: any) => {
         this.currentRoute.set(event.urlAfterRedirects);
       });

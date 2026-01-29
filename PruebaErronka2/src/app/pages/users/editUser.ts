@@ -31,65 +31,73 @@ import { ApiUtil } from '../../core/utils/api.util';
       <form [formGroup]="editForm" class="edit-form">
         <mat-form-field appearance="outline">
           <mat-label>{{ 'USER.NAME' | translate }}</mat-label>
-          <input matInput formControlName="nombre" required>
+          <input matInput formControlName="nombre" required />
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>{{ 'USER.SURNAME' | translate }}</mat-label>
-          <input matInput formControlName="apellidos" required>
+          <input matInput formControlName="apellidos" required />
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>{{ 'USER.USERNAME' | translate }}</mat-label>
-          <input matInput formControlName="username" required>
+          <input matInput formControlName="username" required />
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>{{ 'USER.PASSWORD' | translate }}</mat-label>
-          <input matInput formControlName="password" type="password">
+          <input matInput formControlName="password" type="password" />
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>{{ 'USER.EMAIL' | translate }}</mat-label>
-          <input matInput formControlName="email" type="email" required>
+          <input matInput formControlName="email" type="email" required />
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>{{ 'USER.ADDRESS' | translate }}</mat-label>
-          <input matInput formControlName="direccion">
+          <input matInput formControlName="direccion" />
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>{{ 'USER.PHONE1' | translate }}</mat-label>
-          <input matInput formControlName="telefono1">
+          <input matInput formControlName="telefono1" />
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>{{ 'USER.PHONE2' | translate }}</mat-label>
-          <input matInput formControlName="telefono2">
+          <input matInput formControlName="telefono2" />
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>{{ 'USER.PHOTO_URL' | translate }}</mat-label>
-          <input matInput formControlName="argazkia_url">
+          <input matInput formControlName="argazkia_url" />
         </mat-form-field>
       </form>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</button>
-      <button mat-raised-button color="primary" (click)="onSave()" [disabled]="editForm.invalid" style="color: white;">
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="onSave()"
+        [disabled]="editForm.invalid"
+        style="color: white;"
+      >
         {{ 'COMMON.SAVE' | translate }}
       </button>
     </mat-dialog-actions>
   `,
-  styles: [`
-    .edit-form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      min-width: 400px;
-    }
-  `],
+  styles: [
+    `
+      .edit-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        min-width: 400px;
+      }
+    `,
+  ],
 })
 export class EditUserDialogComponent {
   editForm: FormGroup;
@@ -98,7 +106,7 @@ export class EditUserDialogComponent {
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<EditUserDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: User,
-    private http: HttpClient
+    private http: HttpClient,
   ) {
     this.editForm = this.fb.group({
       nombre: [data.nombre, Validators.required],
@@ -119,14 +127,16 @@ export class EditUserDialogComponent {
 
   onSave(): void {
     if (this.editForm.valid) {
-      this.http.put(ApiUtil.buildUrl(`/updateUser/${this.data.id}`), this.editForm.value).subscribe({
-        next: () => {
-          this.dialogRef.close(this.editForm.value);
-        },
-        error: (err) => {
-          console.error('Error updating user:', err);
-        }
-      });
+      this.http
+        .put(ApiUtil.buildUrl(`/updateUser/${this.data.id}`), this.editForm.value)
+        .subscribe({
+          next: () => {
+            this.dialogRef.close(this.editForm.value);
+          },
+          error: (err) => {
+            console.error('Error updating user:', err);
+          },
+        });
     }
   }
 }

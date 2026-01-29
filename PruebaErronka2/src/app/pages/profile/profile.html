@@ -1,228 +1,246 @@
 <div class="profile-container">
   @if (loading()) {
-  <div class="loading-container">
-    <mat-spinner diameter="50"></mat-spinner>
-  </div>
+    <div class="loading-container">
+      <mat-spinner diameter="50"></mat-spinner>
+    </div>
   } @else if (user()) {
-  <mat-tab-group>
-    <!-- Tab 1: Datu Pertsonalak (Datos Personales) -->
-    <mat-tab>
-      <ng-template mat-tab-label>
-        <mat-icon class="tab-icon">person</mat-icon>
-        {{ 'PROFILE.PERSONAL_DATA' | translate }}
-      </ng-template>
+    <mat-tab-group>
+      <!-- Tab 1: Datu Pertsonalak (Datos Personales) -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">person</mat-icon>
+          {{ 'PROFILE.PERSONAL_DATA' | translate }}
+        </ng-template>
 
-      <div class="tab-content">
-        <mat-card class="profile-card">
-          <mat-card-header>
-            <div class="header-top">
-              <h1>{{ 'PROFILE.TITLE' | translate }}</h1>
-              <button mat-raised-button [color]="editing() ? 'accent' : 'primary'" (click)="toggleEdit()" class="edit-button">
-                <mat-icon>{{ editing() ? 'close' : 'edit' }}</mat-icon>
-                {{ editing() ? ('COMMON.CANCEL' | translate) : ('COMMON.EDIT' | translate) }}
-              </button>
-            </div>
-          </mat-card-header>
-          <mat-divider></mat-divider>
-          <mat-card-content>
-            <div class="profile-header">
-              <!-- Avatar section -->
-              <div class="avatar-section">
-                <img [src]="getPhotoUrl()" [alt]="user()?.nombre" class="profile-avatar"
-                  (error)="$any($event.target).src='/unknown.webp'">
-                <div class="role-badge" [ngClass]="'role-' + userRole()?.toLowerCase()">
-                  <mat-icon>{{ getRoleIcon() }}</mat-icon>
-                  <span>{{ getRoleLabel() }}</span>
+        <div class="tab-content">
+          <mat-card class="profile-card">
+            <mat-card-header>
+              <div class="header-top">
+                <h1>{{ 'PROFILE.TITLE' | translate }}</h1>
+                <button
+                  mat-raised-button
+                  [color]="editing() ? 'accent' : 'primary'"
+                  (click)="toggleEdit()"
+                  class="edit-button"
+                >
+                  <mat-icon>{{ editing() ? 'close' : 'edit' }}</mat-icon>
+                  {{ editing() ? ('COMMON.CANCEL' | translate) : ('COMMON.EDIT' | translate) }}
+                </button>
+              </div>
+            </mat-card-header>
+            <mat-divider></mat-divider>
+            <mat-card-content>
+              <div class="profile-header">
+                <!-- Avatar section -->
+                <div class="avatar-section">
+                  <img
+                    [src]="getPhotoUrl()"
+                    [alt]="user()?.nombre"
+                    class="profile-avatar"
+                    (error)="$any($event.target).src = '/unknown.webp'"
+                  />
+                  <div class="role-badge" [ngClass]="'role-' + userRole()?.toLowerCase()">
+                    <mat-icon>{{ getRoleIcon() }}</mat-icon>
+                    <span>{{ getRoleLabel() }}</span>
+                  </div>
+                </div>
+
+                <!-- Profile info -->
+                <div class="profile-info">
+                  @if (!editing()) {
+                    <h2>{{ user()?.nombre }} {{ user()?.apellidos }}</h2>
+                    <p class="username">{{ user()?.username }}</p>
+                    <div class="info-grid">
+                      <div class="info-item">
+                        <mat-icon>email</mat-icon>
+                        <span>{{ user()?.email }}</span>
+                      </div>
+                      <div class="info-item">
+                        <mat-icon>badge</mat-icon>
+                        <span>{{ user()?.dni }}</span>
+                      </div>
+                      <div class="info-item">
+                        <mat-icon>phone</mat-icon>
+                        <span>{{ user()?.telefono1 || '-' }}</span>
+                      </div>
+                      <div class="info-item">
+                        <mat-icon>location_on</mat-icon>
+                        <span>{{ user()?.direccion || '-' }}</span>
+                      </div>
+                    </div>
+                  } @else {
+                    <form [formGroup]="profileForm" class="edit-form">
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>{{ 'USER.USERNAME' | translate }}</mat-label>
+                        <input matInput formControlName="username" />
+                        <mat-error>{{ 'VALIDATION.REQUIRED' | translate }}</mat-error>
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>{{ 'USER.NAME' | translate }}</mat-label>
+                        <input matInput formControlName="nombre" />
+                        <mat-error>{{ 'VALIDATION.REQUIRED' | translate }}</mat-error>
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>{{ 'USER.SURNAME' | translate }}</mat-label>
+                        <input matInput formControlName="apellidos" />
+                        <mat-error>{{ 'VALIDATION.REQUIRED' | translate }}</mat-error>
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>{{ 'USER.EMAIL' | translate }}</mat-label>
+                        <input matInput formControlName="email" type="email" />
+                        <mat-error>{{ 'VALIDATION.EMAIL' | translate }}</mat-error>
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>{{ 'USER.DNI' | translate }}</mat-label>
+                        <input matInput formControlName="dni" [disabled]="true" />
+                        <mat-hint>No se puede cambiar</mat-hint>
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>{{ 'USER.ADDRESS' | translate }}</mat-label>
+                        <input matInput formControlName="direccion" />
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>{{ 'USER.PHONE1' | translate }}</mat-label>
+                        <input matInput formControlName="telefono1" />
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>{{ 'USER.PHONE2' | translate }}</mat-label>
+                        <input matInput formControlName="telefono2" />
+                      </mat-form-field>
+
+                      <div class="form-actions">
+                        <button mat-button type="button" (click)="toggleEdit()">
+                          {{ 'COMMON.CANCEL' | translate }}
+                        </button>
+                        <button
+                          mat-raised-button
+                          color="primary"
+                          type="button"
+                          [disabled]="!profileForm.valid"
+                          (click)="saveProfile()"
+                        >
+                          <mat-icon>save</mat-icon>
+                          {{ 'COMMON.SAVE' | translate }}
+                        </button>
+                      </div>
+                    </form>
+                  }
                 </div>
               </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
 
-              <!-- Profile info -->
-              <div class="profile-info">
-                @if (!editing()) {
-                <h2>{{ user()?.nombre }} {{ user()?.apellidos }}</h2>
-                <p class="username">{{ user()?.username }}</p>
-                <div class="info-grid">
-                  <div class="info-item">
-                    <mat-icon>email</mat-icon>
-                    <span>{{ user()?.email }}</span>
+      <!-- Tab 2: Ordutegia (Horario) - Solo para Teachers y Students -->
+      @if (userRole() === 'TEACHER' || userRole() === 'STUDENT') {
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="tab-icon">schedule</mat-icon>
+            {{ 'PROFILE.SCHEDULE' | translate }}
+          </ng-template>
+
+          <div class="tab-content">
+            <mat-card class="schedule-card">
+              <mat-card-content>
+                @if (schedule()) {
+                  <div class="schedule-wrapper">
+                    <table class="schedule-table">
+                      <thead>
+                        <tr>
+                          <th class="hour-header">{{ 'SCHEDULE.HOUR' | translate }}</th>
+                          @for (day of days; track day) {
+                            <th>{{ 'SCHEDULE.' + day | translate }}</th>
+                          }
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (hour of hours; track hour) {
+                          <tr>
+                            <td class="hour-cell">{{ hour }}ª {{ 'SCHEDULE.HOUR' | translate }}</td>
+                            @for (day of [0, 1, 2, 3, 4]; track day) {
+                              <td [ngClass]="getSlotClass(getSlot(day, hour))" class="slot">
+                                <span>{{ getSlotText(getSlot(day, hour)) }}</span>
+                              </td>
+                            }
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
                   </div>
-                  <div class="info-item">
-                    <mat-icon>badge</mat-icon>
-                    <span>{{ user()?.dni }}</span>
-                  </div>
-                  <div class="info-item">
-                    <mat-icon>phone</mat-icon>
-                    <span>{{ user()?.telefono1 || '-' }}</span>
-                  </div>
-                  <div class="info-item">
-                    <mat-icon>location_on</mat-icon>
-                    <span>{{ user()?.direccion || '-' }}</span>
-                  </div>
-                </div>
                 } @else {
-                <form [formGroup]="profileForm" class="edit-form">
-                  <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>{{ 'USER.USERNAME' | translate }}</mat-label>
-                    <input matInput formControlName="username">
-                    <mat-error>{{ 'VALIDATION.REQUIRED' | translate }}</mat-error>
-                  </mat-form-field>
-
-                  <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>{{ 'USER.NAME' | translate }}</mat-label>
-                    <input matInput formControlName="nombre">
-                    <mat-error>{{ 'VALIDATION.REQUIRED' | translate }}</mat-error>
-                  </mat-form-field>
-
-                  <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>{{ 'USER.SURNAME' | translate }}</mat-label>
-                    <input matInput formControlName="apellidos">
-                    <mat-error>{{ 'VALIDATION.REQUIRED' | translate }}</mat-error>
-                  </mat-form-field>
-
-                  <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>{{ 'USER.EMAIL' | translate }}</mat-label>
-                    <input matInput formControlName="email" type="email">
-                    <mat-error>{{ 'VALIDATION.EMAIL' | translate }}</mat-error>
-                  </mat-form-field>
-
-                  <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>{{ 'USER.DNI' | translate }}</mat-label>
-                    <input matInput formControlName="dni" [disabled]="true">
-                    <mat-hint>No se puede cambiar</mat-hint>
-                  </mat-form-field>
-
-                  <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>{{ 'USER.ADDRESS' | translate }}</mat-label>
-                    <input matInput formControlName="direccion">
-                  </mat-form-field>
-
-                  <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>{{ 'USER.PHONE1' | translate }}</mat-label>
-                    <input matInput formControlName="telefono1">
-                  </mat-form-field>
-
-                  <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>{{ 'USER.PHONE2' | translate }}</mat-label>
-                    <input matInput formControlName="telefono2">
-                  </mat-form-field>
-
-                  <div class="form-actions">
-                    <button mat-button type="button" (click)="toggleEdit()">
-                      {{ 'COMMON.CANCEL' | translate }}
-                    </button>
-                    <button mat-raised-button color="primary" type="button" [disabled]="!profileForm.valid" (click)="saveProfile()">
-                      <mat-icon>save</mat-icon>
-                      {{ 'COMMON.SAVE' | translate }}
-                    </button>
+                  <div class="empty-state">
+                    <mat-icon>schedule</mat-icon>
+                    <p>{{ 'SCHEDULE.NO_SCHEDULE' | translate }}</p>
                   </div>
-                </form>
                 }
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
-      </div>
-    </mat-tab>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </mat-tab>
+      }
 
-    <!-- Tab 2: Ordutegia (Horario) - Solo para Teachers y Students -->
-    @if (userRole() === 'TEACHER' || userRole() === 'STUDENT') {
-    <mat-tab>
-      <ng-template mat-tab-label>
-        <mat-icon class="tab-icon">schedule</mat-icon>
-        {{ 'PROFILE.SCHEDULE' | translate }}
-      </ng-template>
+      <!-- Tab 3: Bilera (Reuniones) - Solo para Teachers y Students -->
+      @if (userRole() === 'TEACHER' || userRole() === 'STUDENT') {
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="tab-icon">event</mat-icon>
+            {{ 'PROFILE.MEETINGS' | translate }}
+          </ng-template>
 
-      <div class="tab-content">
-        <mat-card class="schedule-card">
-          <mat-card-content>
-            @if (schedule()) {
-            <div class="schedule-wrapper">
-              <table class="schedule-table">
-                <thead>
-                  <tr>
-                    <th class="hour-header">{{ 'SCHEDULE.HOUR' | translate }}</th>
-                    @for (day of days; track day) {
-                    <th>{{ 'SCHEDULE.' + day | translate }}</th>
-                    }
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (hour of hours; track hour) {
-                  <tr>
-                    <td class="hour-cell">{{ hour }}ª {{ 'SCHEDULE.HOUR' | translate }}</td>
-                    @for (day of [0, 1, 2, 3, 4]; track day) {
-                    <td [ngClass]="getSlotClass(getSlot(day, hour))" class="slot">
-                      <span>{{ getSlotText(getSlot(day, hour)) }}</span>
-                    </td>
-                    }
-                  </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-            } @else {
-            <div class="empty-state">
-              <mat-icon>schedule</mat-icon>
-              <p>{{ 'SCHEDULE.NO_SCHEDULE' | translate }}</p>
-            </div>
-            }
-          </mat-card-content>
-        </mat-card>
-      </div>
-    </mat-tab>
-    }
-
-    <!-- Tab 3: Bilera (Reuniones) - Solo para Teachers y Students -->
-    @if (userRole() === 'TEACHER' || userRole() === 'STUDENT') {
-    <mat-tab>
-      <ng-template mat-tab-label>
-        <mat-icon class="tab-icon">event</mat-icon>
-        {{ 'PROFILE.MEETINGS' | translate }}
-      </ng-template>
-
-      <div class="tab-content">
-        <mat-card class="meetings-card">
-          <mat-card-content>
-            @if (meetings().length > 0) {
-            <div class="meetings-wrapper">
-              <table class="meetings-table">
-                <thead>
-                  <tr>
-                    <th>{{ 'MEETING.TITLE' | translate }}</th>
-                    <th>{{ 'MEETING.TOPIC' | translate }}</th>
-                    <th>{{ 'MEETING.DATE' | translate }}</th>
-                    <th>{{ 'MEETING.CLASSROOM' | translate }}</th>
-                    <th>{{ 'MEETING.STATUS' | translate }}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (meeting of meetings(); track meeting.id_reunion) {
-                  <tr>
-                    <td>{{ meeting.titulo }}</td>
-                    <td>{{ meeting.asunto }}</td>
-                    <td>{{ meeting.fecha | date:'dd/MM/yyyy' }}</td>
-                    <td>{{ meeting.aula }}</td>
-                    <td>
-                      <span class="status-badge" [ngClass]="'status-' + (meeting.estado || '').toLowerCase()">
-                        {{ 'MEETING.STATUS.' + meeting.estado | translate }}
-                      </span>
-                    </td>
-                  </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-            } @else {
-            <div class="empty-state">
-              <mat-icon>event</mat-icon>
-              <p>{{ 'MEETING.NO_MEETINGS' | translate }}</p>
-            </div>
-            }
-          </mat-card-content>
-        </mat-card>
-      </div>
-    </mat-tab>
-    }
-  </mat-tab-group>
+          <div class="tab-content">
+            <mat-card class="meetings-card">
+              <mat-card-content>
+                @if (meetings().length > 0) {
+                  <div class="meetings-wrapper">
+                    <table class="meetings-table">
+                      <thead>
+                        <tr>
+                          <th>{{ 'MEETING.TITLE' | translate }}</th>
+                          <th>{{ 'MEETING.TOPIC' | translate }}</th>
+                          <th>{{ 'MEETING.DATE' | translate }}</th>
+                          <th>{{ 'MEETING.CLASSROOM' | translate }}</th>
+                          <th>{{ 'MEETING.STATUS' | translate }}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (meeting of meetings(); track meeting.id_reunion) {
+                          <tr>
+                            <td>{{ meeting.titulo }}</td>
+                            <td>{{ meeting.asunto }}</td>
+                            <td>{{ meeting.fecha | date: 'dd/MM/yyyy' }}</td>
+                            <td>{{ meeting.aula }}</td>
+                            <td>
+                              <span
+                                class="status-badge"
+                                [ngClass]="'status-' + (meeting.estado || '').toLowerCase()"
+                              >
+                                {{ 'MEETING.STATUS.' + meeting.estado | translate }}
+                              </span>
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                } @else {
+                  <div class="empty-state">
+                    <mat-icon>event</mat-icon>
+                    <p>{{ 'MEETING.NO_MEETINGS' | translate }}</p>
+                  </div>
+                }
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </mat-tab>
+      }
+    </mat-tab-group>
   }
 </div>

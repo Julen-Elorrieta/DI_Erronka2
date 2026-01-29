@@ -39,7 +39,7 @@ interface Usuario {
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatSelectModule,
-    TranslateModule
+    TranslateModule,
   ],
   template: `
     <div class="container">
@@ -99,31 +99,33 @@ interface Usuario {
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
       </table>
     </div>
   `,
-  styles: [`
-    .container {
-      padding: 20px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    .horarios-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    .loading {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 300px;
-    }
-  `]
+  styles: [
+    `
+      .container {
+        padding: 20px;
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .horarios-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 300px;
+      }
+    `,
+  ],
 })
 export class HorariosComponent implements OnInit {
   horarios = signal<Horario[]>([]);
@@ -148,7 +150,7 @@ export class HorariosComponent implements OnInit {
   loadData(): void {
     this.loading.set(true);
     Promise.all([
-      new Promise<void>(resolve => {
+      new Promise<void>((resolve) => {
         this.horariosService.getAllHorarios().subscribe({
           next: (horarios) => {
             this.horarios.set(horarios);
@@ -157,10 +159,10 @@ export class HorariosComponent implements OnInit {
           error: (err) => {
             console.error('Error loading horarios:', err);
             resolve();
-          }
+          },
         });
       }),
-      new Promise<void>(resolve => {
+      new Promise<void>((resolve) => {
         this.usersService.filterUserByRole(3).subscribe({
           next: (users) => {
             this.profesores.set(users);
@@ -169,10 +171,10 @@ export class HorariosComponent implements OnInit {
           error: (err) => {
             console.error('Error loading profesores:', err);
             resolve();
-          }
+          },
         });
       }),
-      new Promise<void>(resolve => {
+      new Promise<void>((resolve) => {
         this.modulosService.getAllModulos().subscribe({
           next: (modulos) => {
             this.modulos.set(modulos);
@@ -181,9 +183,9 @@ export class HorariosComponent implements OnInit {
           error: (err) => {
             console.error('Error loading modulos:', err);
             resolve();
-          }
+          },
         });
-      })
+      }),
     ]).then(() => {
       this.loading.set(false);
     });
@@ -195,25 +197,29 @@ export class HorariosComponent implements OnInit {
       html: `
         <select id="dia" class="swal2-input">
           <option value="">Seleccionar Día</option>
-          ${this.dias.map(d => `<option value="${d}">${d}</option>`).join('')}
+          ${this.dias.map((d) => `<option value="${d}">${d}</option>`).join('')}
         </select>
         <select id="hora" class="swal2-input">
           <option value="">Seleccionar Hora</option>
-          ${this.horas.map(h => `<option value="${h}">Hora ${h}</option>`).join('')}
+          ${this.horas.map((h) => `<option value="${h}">Hora ${h}</option>`).join('')}
         </select>
         <select id="profe_id" class="swal2-input">
           <option value="">Seleccionar Profesor</option>
-          ${this.profesores().map(p => `<option value="${p.id}">${p.nombre}</option>`).join('')}
+          ${this.profesores()
+            .map((p) => `<option value="${p.id}">${p.nombre}</option>`)
+            .join('')}
         </select>
         <select id="modulo_id" class="swal2-input">
           <option value="">Seleccionar Módulo</option>
-          ${this.modulos().map(m => `<option value="${m.id}">${m.nombre}</option>`).join('')}
+          ${this.modulos()
+            .map((m) => `<option value="${m.id}">${m.nombre}</option>`)
+            .join('')}
         </select>
         <input type="text" id="aula" class="swal2-input" placeholder="Aula">
         <textarea id="observaciones" class="swal2-textarea" placeholder="Observaciones"></textarea>
       `,
       showCancelButton: true,
-      confirmButtonText: 'Crear'
+      confirmButtonText: 'Crear',
     }).then((result) => {
       if (result.isConfirmed) {
         const horario = {
@@ -222,7 +228,7 @@ export class HorariosComponent implements OnInit {
           profe_id: parseInt((document.getElementById('profe_id') as HTMLSelectElement)?.value),
           modulo_id: parseInt((document.getElementById('modulo_id') as HTMLSelectElement)?.value),
           aula: (document.getElementById('aula') as HTMLInputElement)?.value,
-          observaciones: (document.getElementById('observaciones') as HTMLTextAreaElement)?.value
+          observaciones: (document.getElementById('observaciones') as HTMLTextAreaElement)?.value,
         };
         this.createHorario(horario);
       }
@@ -238,7 +244,7 @@ export class HorariosComponent implements OnInit {
       error: (err) => {
         console.error('Error creating horario:', err);
         this.snackBar.open('Error al crear horario', 'Close', { duration: 3000 });
-      }
+      },
     });
   }
 
@@ -247,22 +253,32 @@ export class HorariosComponent implements OnInit {
       title: 'Editar Horario',
       html: `
         <select id="dia" class="swal2-input">
-          ${this.dias.map(d => `<option value="${d}" ${d === horario.dia ? 'selected' : ''}>${d}</option>`).join('')}
+          ${this.dias.map((d) => `<option value="${d}" ${d === horario.dia ? 'selected' : ''}>${d}</option>`).join('')}
         </select>
         <select id="hora" class="swal2-input">
-          ${this.horas.map(h => `<option value="${h}" ${h === horario.hora ? 'selected' : ''}>Hora ${h}</option>`).join('')}
+          ${this.horas.map((h) => `<option value="${h}" ${h === horario.hora ? 'selected' : ''}>Hora ${h}</option>`).join('')}
         </select>
         <select id="profe_id" class="swal2-input">
-          ${this.profesores().map(p => `<option value="${p.id}" ${p.id === horario.profe_id ? 'selected' : ''}>${p.nombre}</option>`).join('')}
+          ${this.profesores()
+            .map(
+              (p) =>
+                `<option value="${p.id}" ${p.id === horario.profe_id ? 'selected' : ''}>${p.nombre}</option>`,
+            )
+            .join('')}
         </select>
         <select id="modulo_id" class="swal2-input">
-          ${this.modulos().map(m => `<option value="${m.id}" ${m.id === horario.modulo_id ? 'selected' : ''}>${m.nombre}</option>`).join('')}
+          ${this.modulos()
+            .map(
+              (m) =>
+                `<option value="${m.id}" ${m.id === horario.modulo_id ? 'selected' : ''}>${m.nombre}</option>`,
+            )
+            .join('')}
         </select>
         <input type="text" id="aula" class="swal2-input" placeholder="Aula" value="${horario.aula}">
         <textarea id="observaciones" class="swal2-textarea" placeholder="Observaciones">${horario.observaciones || ''}</textarea>
       `,
       showCancelButton: true,
-      confirmButtonText: 'Actualizar'
+      confirmButtonText: 'Actualizar',
     }).then((result) => {
       if (result.isConfirmed) {
         const updated = {
@@ -271,7 +287,7 @@ export class HorariosComponent implements OnInit {
           profe_id: parseInt((document.getElementById('profe_id') as HTMLSelectElement)?.value),
           modulo_id: parseInt((document.getElementById('modulo_id') as HTMLSelectElement)?.value),
           aula: (document.getElementById('aula') as HTMLInputElement)?.value,
-          observaciones: (document.getElementById('observaciones') as HTMLTextAreaElement)?.value
+          observaciones: (document.getElementById('observaciones') as HTMLTextAreaElement)?.value,
         };
         this.horariosService.updateHorario(horario.id, updated as any).subscribe({
           next: () => {
@@ -281,7 +297,7 @@ export class HorariosComponent implements OnInit {
           error: (err) => {
             console.error('Error updating horario:', err);
             this.snackBar.open('Error al actualizar horario', 'Close', { duration: 3000 });
-          }
+          },
         });
       }
     });
@@ -294,7 +310,7 @@ export class HorariosComponent implements OnInit {
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar'
+      cancelButtonText: 'Cancelar',
     }).then((result) => {
       if (result.isConfirmed) {
         this.horariosService.deleteHorario(horario.id).subscribe({
@@ -305,7 +321,7 @@ export class HorariosComponent implements OnInit {
           error: (err) => {
             console.error('Error deleting horario:', err);
             this.snackBar.open('Error al eliminar horario', 'Close', { duration: 3000 });
-          }
+          },
         });
       }
     });

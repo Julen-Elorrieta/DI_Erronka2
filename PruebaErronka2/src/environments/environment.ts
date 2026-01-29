@@ -7,6 +7,6 @@ export const environment = {
   apiUrl: 'http://localhost:3000',
   database: {
     host: '10.5.104.100',
-    name: 'elordb'
+    name: 'elordb',
   },
 };

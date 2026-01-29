@@ -32,7 +32,7 @@ import Swal from 'sweetalert2';
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatSelectModule,
-    TranslateModule
+    TranslateModule,
   ],
   template: `
     <div class="container">
@@ -87,31 +87,33 @@ import Swal from 'sweetalert2';
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
       </table>
     </div>
   `,
-  styles: [`
-    .container {
-      padding: 20px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    .modulos-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    .loading {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 300px;
-    }
-  `]
+  styles: [
+    `
+      .container {
+        padding: 20px;
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .modulos-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 300px;
+      }
+    `,
+  ],
 })
 export class ModulosComponent implements OnInit {
   modulos = signal<Modulo[]>([]);
@@ -140,14 +142,14 @@ export class ModulosComponent implements OnInit {
         console.error('Error loading modulos:', err);
         this.loading.set(false);
         this.snackBar.open('Error al cargar módulos', 'Close', { duration: 3000 });
-      }
+      },
     });
   }
 
   loadCiclos(): void {
     this.ciclosService.getAllCiclos().subscribe({
       next: (ciclos) => this.ciclos.set(ciclos),
-      error: (err) => console.error('Error loading ciclos:', err)
+      error: (err) => console.error('Error loading ciclos:', err),
     });
   }
 
@@ -160,12 +162,14 @@ export class ModulosComponent implements OnInit {
         <input type="number" id="horas" class="swal2-input" placeholder="Horas">
         <select id="ciclo_id" class="swal2-input">
           <option value="">Seleccionar Ciclo</option>
-          ${this.ciclos().map(c => `<option value="${c.id}">${c.nombre}</option>`).join('')}
+          ${this.ciclos()
+            .map((c) => `<option value="${c.id}">${c.nombre}</option>`)
+            .join('')}
         </select>
         <input type="number" id="curso" class="swal2-input" placeholder="Curso (1 o 2)">
       `,
       showCancelButton: true,
-      confirmButtonText: 'Crear'
+      confirmButtonText: 'Crear',
     }).then((result) => {
       if (result.isConfirmed) {
         const modulo = {
@@ -173,7 +177,7 @@ export class ModulosComponent implements OnInit {
           nombre_eus: (document.getElementById('nombre_eus') as HTMLInputElement)?.value,
           horas: parseInt((document.getElementById('horas') as HTMLInputElement)?.value),
           ciclo_id: parseInt((document.getElementById('ciclo_id') as HTMLSelectElement)?.value),
-          curso: parseInt((document.getElementById('curso') as HTMLInputElement)?.value)
+          curso: parseInt((document.getElementById('curso') as HTMLInputElement)?.value),
         };
         this.createModulo(modulo);
       }
@@ -189,7 +193,7 @@ export class ModulosComponent implements OnInit {
       error: (err) => {
         console.error('Error creating modulo:', err);
         this.snackBar.open('Error al crear módulo', 'Close', { duration: 3000 });
-      }
+      },
     });
   }
 
@@ -201,12 +205,17 @@ export class ModulosComponent implements OnInit {
         <input type="text" id="nombre_eus" class="swal2-input" placeholder="Nombre Euskera" value="${modulo.nombre_eus || ''}">
         <input type="number" id="horas" class="swal2-input" placeholder="Horas" value="${modulo.horas}">
         <select id="ciclo_id" class="swal2-input">
-          ${this.ciclos().map(c => `<option value="${c.id}" ${c.id === modulo.ciclo_id ? 'selected' : ''}>${c.nombre}</option>`).join('')}
+          ${this.ciclos()
+            .map(
+              (c) =>
+                `<option value="${c.id}" ${c.id === modulo.ciclo_id ? 'selected' : ''}>${c.nombre}</option>`,
+            )
+            .join('')}
         </select>
         <input type="number" id="curso" class="swal2-input" placeholder="Curso" value="${modulo.curso}">
       `,
       showCancelButton: true,
-      confirmButtonText: 'Actualizar'
+      confirmButtonText: 'Actualizar',
     }).then((result) => {
       if (result.isConfirmed) {
         const updated = {
@@ -214,7 +223,7 @@ export class ModulosComponent implements OnInit {
           nombre_eus: (document.getElementById('nombre_eus') as HTMLInputElement)?.value,
           horas: parseInt((document.getElementById('horas') as HTMLInputElement)?.value),
           ciclo_id: parseInt((document.getElementById('ciclo_id') as HTMLSelectElement)?.value),
-          curso: parseInt((document.getElementById('curso') as HTMLInputElement)?.value)
+          curso: parseInt((document.getElementById('curso') as HTMLInputElement)?.value),
         };
         this.modulosService.updateModulo(modulo.id, updated as any).subscribe({
           next: () => {
@@ -224,7 +233,7 @@ export class ModulosComponent implements OnInit {
           error: (err) => {
             console.error('Error updating modulo:', err);
             this.snackBar.open('Error al actualizar módulo', 'Close', { duration: 3000 });
-          }
+          },
         });
       }
     });
@@ -237,7 +246,7 @@ export class ModulosComponent implements OnInit {
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar'
+      cancelButtonText: 'Cancelar',
     }).then((result) => {
       if (result.isConfirmed) {
         this.modulosService.deleteModulo(modulo.id).subscribe({
@@ -248,7 +257,7 @@ export class ModulosComponent implements OnInit {
           error: (err) => {
             console.error('Error deleting modulo:', err);
             this.snackBar.open('Error al eliminar módulo', 'Close', { duration: 3000 });
-          }
+          },
         });
       }
     });
