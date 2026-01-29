@@ -162,15 +162,34 @@ app.get('/centers', verifyToken, (req, res) => {
       res.status(500).json({ error: 'Error fetching data' });
     });
   } else if (type === 'meetings') {
+    // ⚠️ CORREGIDO: Mejor manejo de datos nulos
     connection.query('SELECT * FROM reuniones ORDER BY fecha DESC', (err, results) => {
       if (err) {
         console.error('Error fetching meetings:', err);
         return res.status(500).json({ success: false, error: 'DB error' });
       }
+      
+      // Mapear y validar resultados - asegurar que todos los campos existen
       const mappedResults = results.map(reunion => ({
-        ...reunion,
+        id_reunion: reunion.id_reunion || null,
+        titulo: reunion.titulo || null,
+        asunto: reunion.asunto || null,
+        fecha: reunion.fecha || null,
+        aula: reunion.aula || null,
+        id_centro: reunion.id_centro || null,
+        profesor_id: reunion.profesor_id || null,
+        alumno_id: reunion.alumno_id || null,
         estado: reunion.estado_eus || reunion.estado || 'pendiente'
       }));
+      
+      console.log(`📅 Devolviendo ${mappedResults.length} reuniones`);
+      
+      // Log de reuniones sin centro para debugging
+      const sinCentro = mappedResults.filter(r => !r.id_centro);
+      if (sinCentro.length > 0) {
+        console.warn(`⚠️ ${sinCentro.length} reuniones sin id_centro asignado`);
+      }
+      
       res.json(mappedResults);
     });
   } else {

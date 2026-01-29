@@ -1,4 +1,9 @@
 /* ============================================================================
+   IMPORTAR ESTILOS DE MAPBOX GL JS (CRÍTICO)
+   ============================================================================ */
+@import 'mapbox-gl/dist/mapbox-gl.css';
+
+/* ============================================================================
    OPTIMIZACIONES CSS PARA RENDIMIENTO
    ============================================================================ */
 
@@ -180,7 +185,7 @@
 }
 
 /* ============================================================================
-   MAPA
+   MAPA MAPBOX - ESTILOS CRÍTICOS
    ============================================================================ */
 
 .map-card {
@@ -196,6 +201,38 @@
   overflow: hidden;
   will-change: transform;
   contain: strict;
+  position: relative;
+}
+
+/* ⚠️ IMPORTANTE: Asegurar que el canvas de Mapbox ocupe todo el espacio */
+.map-container canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Personalizar controles de Mapbox */
+.mapboxgl-ctrl-bottom-left,
+.mapboxgl-ctrl-bottom-right {
+  margin-bottom: 10px;
+}
+
+.mapboxgl-ctrl-top-right {
+  margin-top: 10px;
+  margin-right: 10px;
+}
+
+/* Personalizar popups de Mapbox */
+.mapboxgl-popup-content {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.mapboxgl-popup-close-button {
+  font-size: 20px;
+  padding: 4px 8px;
 }
 
 /* ============================================================================

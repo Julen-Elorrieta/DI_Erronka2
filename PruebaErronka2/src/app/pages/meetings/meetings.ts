@@ -26,21 +26,11 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatMenuModule } from '@angular/material/menu';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
-
-// ⚠️ REEMPLAZAR: Importar Mapbox en lugar de Leaflet
 import mapboxgl from 'mapbox-gl';
-
 import { BehaviorSubject, Observable, combineLatest, Subject, of } from 'rxjs';
 import {
-  map,
-  distinctUntilChanged,
-  debounceTime,
-  tap,
-  takeUntil,
-  catchError,
-  filter,
-  take,
-  shareReplay,
+  map, distinctUntilChanged, debounceTime, tap, takeUntil,
+  catchError, filter, take, shareReplay,
 } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
 import { MeetingsService } from '../../core/services/meetings.service';
@@ -48,10 +38,7 @@ import { MeetingDialogComponent } from './meetingDialog';
 import { Router } from '@angular/router';
 import { ApiUtil } from '../../core/utils/api.util';
 
-// ============================================================================
-// INTERFACES
-// ============================================================================
-
+// Interfazeak
 interface Center {
   id?: string;
   CCEN: string;
@@ -102,85 +89,44 @@ interface ProcessedData {
   };
 }
 
-// ============================================================================
-// UTILIDADES DE CACHÉ
-// ============================================================================
-
+// Cache utilitatea
 function getCachedCenters(): Center[] | null {
   try {
     const cache = localStorage.getItem('centersCache');
     if (!cache) return null;
     const { data, timestamp } = JSON.parse(cache);
-    if (Date.now() - timestamp < 10 * 60 * 1000) {
-      return data;
-    }
+    return Date.now() - timestamp < 10 * 60 * 1000 ? data : null;
   } catch {
     return null;
   }
-  return null;
 }
 
 function setCachedCenters(data: Center[]): void {
   try {
     localStorage.setItem('centersCache', JSON.stringify({ data, timestamp: Date.now() }));
   } catch (e) {
-    console.warn('Could not cache centers', e);
+    console.warn('Ezin izan da cache-an gorde', e);
   }
 }
-
-// ============================================================================
-// COMPONENTE OPTIMIZADO
-// ============================================================================
 
 @Component({
   selector: 'app-meetings',
   standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatDialogModule,
-    MatSnackBarModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
-    MatTabsModule,
-    MatMenuModule,
-    TranslateModule,
+    CommonModule, FormsModule, MatCardModule, MatButtonModule, MatIconModule,
+    MatFormFieldModule, MatInputModule, MatSelectModule, MatTableModule,
+    MatPaginatorModule, MatDialogModule, MatSnackBarModule, MatTooltipModule,
+    MatProgressSpinnerModule, MatTabsModule, MatMenuModule, TranslateModule,
   ],
   templateUrl: './meetings.html',
   styleUrls: ['./meetings.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Meetings implements OnInit, AfterViewInit, OnDestroy {
-  authService: AuthService = inject(AuthService);
-  router: Router = inject(Router);
-
-  // ⚠️ AÑADIR: Token de Mapbox (reemplazar con tu token real)
-  private readonly MAPBOX_TOKEN =
-    'pk.eyJ1IjoianVsZW5uMDYiLCJhIjoiY21rejZycDJqMGRhdzNoc2txaHlyNXF1NiJ9.a593UB3NIwgSFiMVXRahcA';
-
-  constructor() {
-    this.authenticate();
-    // ⚠️ AÑADIR: Configurar token de Mapbox
-    mapboxgl.accessToken = this.MAPBOX_TOKEN;
-  }
-
-  authenticate(): void {
-    if (!this.authService.isLoggedIn()) {
-      this.router.navigate(['/login']);
-    }
-  }
-
-  // ============================================================================
-  // INYECCIÓN DE DEPENDENCIAS
-  // ============================================================================
+  private readonly MAPBOX_TOKEN = 'pk.eyJ1IjoianVsZW5uMDYiLCJhIjoiY21rejZycDJqMGRhdzNoc2txaHlyNXF1NiJ9.a593UB3NIwgSFiMVXRahcA';
+  
+  authService = inject(AuthService);
+  private readonly router = inject(Router);
   private readonly http = inject(HttpClient);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
@@ -189,34 +135,20 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('mapContainer', { static: false }) mapContainer!: ElementRef;
 
-  // ============================================================================
-  // SUBJECTS PARA STREAMS REACTIVOS
-  // ============================================================================
   private readonly destroy$ = new Subject<void>();
-
   private readonly centersSource$ = new BehaviorSubject<Center[]>([]);
   private readonly meetingsSource$ = new BehaviorSubject<Meeting[]>([]);
   private readonly loadingSource$ = new BehaviorSubject<boolean>(false);
   private readonly loadingMeetingsSource$ = new BehaviorSubject<boolean>(false);
-
   private readonly searchTextSource$ = new BehaviorSubject<string>('');
   private readonly titularidadSource$ = new BehaviorSubject<string>('');
   private readonly territorioSource$ = new BehaviorSubject<string>('');
   private readonly municipioSource$ = new BehaviorSubject<string>('');
-
-  private readonly paginationSource$ = new BehaviorSubject<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  });
-
+  private readonly paginationSource$ = new BehaviorSubject<PaginationState>({ pageIndex: 0, pageSize: 10 });
   private readonly activeTabSource$ = new BehaviorSubject<number>(0);
   private readonly mapInitialized$ = new BehaviorSubject<boolean>(false);
 
-  // ============================================================================
-  // OBSERVABLES PÚBLICOS
-  // ============================================================================
-
-  readonly filters$: Observable<FilterState> = combineLatest([
+  readonly filters$ = combineLatest([
     this.searchTextSource$.pipe(debounceTime(300), distinctUntilChanged()),
     this.titularidadSource$.pipe(distinctUntilChanged()),
     this.territorioSource$.pipe(distinctUntilChanged()),
@@ -224,30 +156,24 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
   ]).pipe(
     map(([searchText, titularidad, territorio, municipio]) => ({
       searchText: searchText.trim().toLowerCase(),
-      titularidad,
-      territorio,
-      municipio,
+      titularidad, territorio, municipio,
     })),
     distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
     shareReplay(1),
   );
 
-  readonly processedData$: Observable<ProcessedData> = combineLatest([
-    this.centersSource$,
-    this.filters$,
-    this.paginationSource$,
+  readonly processedData$ = combineLatest([
+    this.centersSource$, this.filters$, this.paginationSource$,
   ]).pipe(
     map(([centers, filters, pagination]) => {
       const filtered = this.filterCenters(centers, filters);
       const filterOptions = this.calculateFilterOptions(centers, filters);
       const start = pagination.pageIndex * pagination.pageSize;
-      const paginated = filtered.slice(start, start + pagination.pageSize);
-
       return {
         filtered,
-        paginated,
+        paginated: filtered.slice(start, start + pagination.pageSize),
         total: filtered.length,
-        hasActiveFilters: this.checkActiveFilters(filters),
+        hasActiveFilters: !!(filters.searchText || filters.titularidad || filters.territorio || filters.municipio),
         filterOptions,
       };
     }),
@@ -255,8 +181,7 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
   );
 
   private readonly mapMarkersUpdate$ = combineLatest([
-    this.processedData$,
-    this.mapInitialized$,
+    this.processedData$, this.mapInitialized$,
   ]).pipe(
     filter(([_, initialized]) => initialized),
     map(([data, _]) => data.filtered),
@@ -269,71 +194,41 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
   readonly meetings$ = this.meetingsSource$.asObservable();
   readonly activeTab$ = this.activeTabSource$.asObservable();
   readonly pagination$ = this.paginationSource$.asObservable();
-
-  // ============================================================================
-  // CONSTANTES PARA EL TEMPLATE
-  // ============================================================================
   readonly displayedColumns = ['name', 'DTITUC', 'DTERRC', 'DMUNIC', 'actions'];
   readonly pageSizeOptions = [5, 10, 25, 50];
+  readonly trackByCenter = (_: number, center: Center) => center.CCEN || center.id || _;
+  readonly trackByMeeting = (_: number, meeting: Meeting) => meeting.id || _;
 
-  readonly trackByCenter = (index: number, center: Center): string => {
-    return center.CCEN || center.id || `${index}`;
-  };
-
-  readonly trackByMeeting = (index: number, meeting: Meeting): string => {
-    return meeting.id || `${index}`;
-  };
-
-  // ============================================================================
-  // ⚠️ REEMPLAZAR: Mapa Mapbox en lugar de Leaflet
-  // ============================================================================
   private map: mapboxgl.Map | null = null;
-  private markers: Map<string, mapboxgl.Marker> = new Map();
+  private markers = new Map<string, mapboxgl.Marker>();
 
-  // ============================================================================
-  // LIFECYCLE HOOKS
-  // ============================================================================
+  constructor() {
+    if (!this.authService.isLoggedIn()) this.router.navigate(['/login']);
+    mapboxgl.accessToken = this.MAPBOX_TOKEN;
+  }
 
   ngOnInit(): void {
     this.loadInitialData();
     this.setupFilterCascade();
-
-    this.processedData$
-      .pipe(
-        takeUntil(this.destroy$),
-        filter(() => !!this.mapContainer),
-        take(1),
-      )
-      .subscribe(() => {
-        setTimeout(() => {
-          this.initializeMap();
-        }, 200);
-      });
-
-    this.mapMarkersUpdate$.subscribe((centers) => {
-      this.updateMapMarkers(centers);
-    });
+    this.processedData$.pipe(
+      takeUntil(this.destroy$),
+      filter(() => !!this.mapContainer),
+      take(1),
+    ).subscribe(() => setTimeout(() => this.initializeMap(), 200));
+    this.mapMarkersUpdate$.subscribe(centers => this.updateMapMarkers(centers));
   }
 
   ngAfterViewInit(): void {
-    this.activeTab$
-      .pipe(
-        filter((tab) => tab === 0),
-        debounceTime(300),
-        takeUntil(this.destroy$),
-      )
-      .subscribe(() => {
-        if (this.map) {
-          this.map.resize();
-        }
-      });
+    this.activeTab$.pipe(
+      filter(tab => tab === 0),
+      debounceTime(300),
+      takeUntil(this.destroy$),
+    ).subscribe(() => this.map?.resize());
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-
-    // ⚠️ ACTUALIZAR: Limpiar mapa Mapbox
     if (this.map) {
       this.map.remove();
       this.map = null;
@@ -341,335 +236,232 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
     this.markers.clear();
   }
 
-  // ============================================================================
-  // CARGA DE DATOS
-  // ============================================================================
-
   private loadInitialData(): void {
     const cached = getCachedCenters();
-    if (cached && cached.length > 0) {
+    if (cached?.length) {
       this.centersSource$.next(this.preprocessCenters(cached));
       setTimeout(() => this.fetchCentersFromAPI(true), 1000);
     } else {
       this.fetchCentersFromAPI(false);
     }
-
     this.loadMeetings();
   }
 
   private fetchCentersFromAPI(silent: boolean): void {
-    if (!silent) {
-      this.loadingSource$.next(true);
-    }
-
-    this.http
-      .get<Center[]>(ApiUtil.buildUrl('/centers'))
-      .pipe(
-        map((centers) => this.preprocessCenters(centers)),
-        tap((centers) => setCachedCenters(centers)),
-        catchError((err) => {
-          console.error('Error loading centers:', err);
-          this.snackBar.open(
-            this.translate.instant('ERROR.LOADING_CENTERS'),
-            this.translate.instant('COMMON.CLOSE'),
-            { duration: 3000 },
-          );
-          return of([]);
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe((centers) => {
-        this.centersSource$.next(centers);
-        this.loadingSource$.next(false);
-      });
+    if (!silent) this.loadingSource$.next(true);
+    this.http.get<Center[]>(ApiUtil.buildUrl('/centers')).pipe(
+      map(centers => this.preprocessCenters(centers)),
+      tap(centers => setCachedCenters(centers)),
+      catchError(err => {
+        console.error('Errorea zentroak kargatzean:', err);
+        this.snackBar.open(
+          this.translate.instant('ERROR.LOADING_CENTERS'),
+          this.translate.instant('COMMON.CLOSE'),
+          { duration: 3000 }
+        );
+        return of([]);
+      }),
+      takeUntil(this.destroy$),
+    ).subscribe(centers => {
+      this.centersSource$.next(centers);
+      this.loadingSource$.next(false);
+    });
   }
-
-  // ============================================================================
-  // CARGA DE REUNIONES DESDE LA BD
-  // ============================================================================
 
   private loadMeetings(): void {
     this.loadingMeetingsSource$.next(true);
-
-    this.http
-      .get<any[]>(ApiUtil.buildUrl('/centers', { type: 'meetings' }))
-      .pipe(
-        map((reuniones) => this.transformMeetingsData(reuniones)),
-        catchError((err) => {
-          console.error('Error loading meetings:', err);
-          this.snackBar.open(
-            this.translate.instant('ERROR.LOADING_MEETINGS') || 'Error al cargar reuniones',
-            this.translate.instant('COMMON.CLOSE') || 'Cerrar',
-            { duration: 3000 },
-          );
-          return of([]);
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe((meetings) => {
-        this.meetingsSource$.next(meetings);
-        this.loadingMeetingsSource$.next(false);
-      });
+    this.http.get<any[]>(ApiUtil.buildUrl('/centers', { type: 'meetings' })).pipe(
+      map(reuniones => reuniones.map(r => ({
+        id: r.id_reunion?.toString() || '',
+        title: r.titulo || r.asunto || `Bilera ${r.id_reunion || 'ID gabe'}`,
+        date: new Date(r.fecha),
+        hour: this.extractTime(r.fecha),
+        classroom: r.aula || 'Gela esleitu gabe',
+        center: r.id_centro?.toString() || '',
+        centerName: this.getCenterName(r.id_centro),
+        status: r.estado || 'pendiente',
+        subject: r.asunto || '',
+        teacherId: r.profesor_id || undefined,
+        studentId: r.alumno_id || undefined,
+      }))),
+      catchError(err => {
+        console.error('Errorea bilerak kargatzean:', err);
+        this.snackBar.open(
+          this.translate.instant('ERROR.LOADING_MEETINGS') || 'Errorea bilerak kargatzean',
+          this.translate.instant('COMMON.CLOSE') || 'Itxi',
+          { duration: 3000 }
+        );
+        return of([]);
+      }),
+      takeUntil(this.destroy$),
+    ).subscribe(meetings => {
+      this.meetingsSource$.next(meetings);
+      this.loadingMeetingsSource$.next(false);
+    });
   }
 
-  private transformMeetingsData(reuniones: any[]): Meeting[] {
-    return reuniones.map((reunion) => ({
-      id: reunion.id_reunion?.toString() || '',
-      title: reunion.titulo || reunion.asunto || `Reunión ${reunion.id_reunion}`,
-      date: new Date(reunion.fecha),
-      hour: this.extractTime(reunion.fecha),
-      classroom: reunion.aula || 'Sin aula asignada',
-      center: reunion.id_centro?.toString() || '',
-      centerName: this.getCenterName(reunion.id_centro),
-      status: reunion.estado || 'pendiente',
-      subject: reunion.asunto || '',
-      teacherId: reunion.profesor_id,
-      studentId: reunion.alumno_id,
-    }));
-  }
-
-  private extractTime(fecha: string): string {
+  private extractTime(fecha: string | Date | null | undefined): string {
+    if (!fecha) return '00:00';
     try {
       const date = new Date(fecha);
-      return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+      return isNaN(date.getTime()) ? '00:00' : date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
     } catch {
       return '00:00';
     }
   }
 
-  private getCenterName(centroId: number): string {
-    const centers = this.centersSource$.value;
-    const center = centers.find((c) => c.CCEN === centroId.toString());
-    return center?.NOM || `Centro ${centroId}`;
+  private getCenterName(centroId: number | null | undefined): string {
+    if (!centroId) return 'Zentro zehaztu gabe';
+    const center = this.centersSource$.value.find(c => c.CCEN === centroId.toString());
+    return center?.NOM || `Zentroa ${centroId}`;
   }
 
   getStatusLabel(status: string): string {
-    const labels: { [key: string]: string } = {
-      pendiente: 'Pendiente',
-      aceptada: 'Aceptada',
-      denegada: 'Denegada',
-      conflicto: 'Conflicto',
+    const labels: Record<string, string> = {
+      pendiente: 'Zain', aceptada: 'Onartuta',
+      denegada: 'Ukatua', conflicto: 'Gatazka',
     };
     return labels[status] || status;
   }
 
-  canChangeStatus(_meeting: Meeting): boolean {
-    return true;
+  canChangeStatus(_: Meeting): boolean { return true; }
+
+  getAvailableStatusActions(meeting: Meeting) {
+    const current = meeting.status.toLowerCase();
+    return [
+      { status: 'aceptada', label: 'Onartu', icon: 'check_circle', color: 'accent' },
+      { status: 'denegada', label: 'Ukatu', icon: 'cancel', color: 'warn' },
+      { status: 'conflicto', label: 'Gatazka markatu', icon: 'warning', color: 'warn' },
+      { status: 'pendiente', label: 'Zain markatu', icon: 'schedule', color: 'basic' },
+    ].filter(a => a.status !== current);
   }
-
-  getAvailableStatusActions(
-    meeting: Meeting,
-  ): Array<{ status: string; label: string; icon: string; color: string }> {
-    const currentStatus = meeting.status.toLowerCase();
-
-    const allActions = [
-      { status: 'aceptada', label: 'Aceptar', icon: 'check_circle', color: 'accent' },
-      { status: 'denegada', label: 'Denegar', icon: 'cancel', color: 'warn' },
-      { status: 'conflicto', label: 'Marcar conflicto', icon: 'warning', color: 'warn' },
-      { status: 'pendiente', label: 'Marcar pendiente', icon: 'schedule', color: 'basic' },
-    ];
-
-    return allActions.filter((action) => action.status !== currentStatus);
-  }
-
-  // ============================================================================
-  // PREPROCESAMIENTO DE DATOS
-  // ============================================================================
 
   private preprocessCenters(centers: Center[]): Center[] {
-    return centers.map((center) => ({
-      ...center,
-      _searchableText: [
-        center.NOM || '',
-        center.CCEN || '',
-        center.DMUNIC || '',
-        center.DTERRC || '',
-        center.DTITUC || '',
-      ]
-        .join(' ')
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, ''),
+    return centers.map(c => ({
+      ...c,
+      _searchableText: [c.NOM || '', c.CCEN || '', c.DMUNIC || '', c.DTERRC || '', c.DTITUC || '']
+        .join(' ').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''),
     }));
   }
 
-  // ============================================================================
-  // FILTRADO
-  // ============================================================================
-
   private filterCenters(centers: Center[], filters: FilterState): Center[] {
-    return centers.filter((center) => {
-      if (filters.searchText && !center._searchableText?.includes(filters.searchText)) {
-        return false;
-      }
-
-      if (filters.titularidad && center.DTITUC !== filters.titularidad) {
-        return false;
-      }
-
-      if (filters.territorio && center.DTERRC !== filters.territorio) {
-        return false;
-      }
-
-      if (filters.municipio && center.DMUNIC !== filters.municipio) {
-        return false;
-      }
-
+    return centers.filter(c => {
+      if (filters.searchText && !c._searchableText?.includes(filters.searchText)) return false;
+      if (filters.titularidad && c.DTITUC !== filters.titularidad) return false;
+      if (filters.territorio && c.DTERRC !== filters.territorio) return false;
+      if (filters.municipio && c.DMUNIC !== filters.municipio) return false;
       return true;
     });
   }
 
-  private checkActiveFilters(filters: FilterState): boolean {
-    return !!(filters.searchText || filters.titularidad || filters.territorio || filters.municipio);
-  }
+  private calculateFilterOptions(centers: Center[], currentFilters: FilterState) {
+    let available = centers;
+    if (currentFilters.territorio) available = available.filter(c => c.DTERRC === currentFilters.territorio);
+    if (currentFilters.titularidad) available = available.filter(c => c.DTITUC === currentFilters.titularidad);
 
-  private calculateFilterOptions(
-    centers: Center[],
-    currentFilters: FilterState,
-  ): { titularidades: string[]; territorios: string[]; municipios: string[] } {
-    let availableCenters = centers;
-
-    if (currentFilters.territorio) {
-      availableCenters = availableCenters.filter((c) => c.DTERRC === currentFilters.territorio);
-    }
-
-    if (currentFilters.titularidad) {
-      availableCenters = availableCenters.filter((c) => c.DTITUC === currentFilters.titularidad);
-    }
-
-    const titularidades = [
-      ...new Set(
-        centers
-          .filter((c) => !currentFilters.territorio || c.DTERRC === currentFilters.territorio)
-          .map((c) => c.DTITUC),
-      ),
-    ].sort();
-
-    const territorios = [
-      ...new Set(
-        centers
-          .filter((c) => !currentFilters.titularidad || c.DTITUC === currentFilters.titularidad)
-          .map((c) => c.DTERRC),
-      ),
-    ].sort();
-
-    const municipios = [...new Set(availableCenters.map((c) => c.DMUNIC))].sort();
-
-    return { titularidades, territorios, municipios };
+    return {
+      titularidades: [...new Set(centers
+        .filter(c => !currentFilters.territorio || c.DTERRC === currentFilters.territorio)
+        .map(c => c.DTITUC))].sort(),
+      territorios: [...new Set(centers
+        .filter(c => !currentFilters.titularidad || c.DTITUC === currentFilters.titularidad)
+        .map(c => c.DTERRC))].sort(),
+      municipios: [...new Set(available.map(c => c.DMUNIC))].sort(),
+    };
   }
 
   private setupFilterCascade(): void {
-    combineLatest([this.territorioSource$, this.processedData$])
-      .pipe(
-        map(([, data]) => {
-          const currentMunicipio = this.municipioSource$.value;
-          if (currentMunicipio && !data.filterOptions.municipios.includes(currentMunicipio)) {
-            return '';
-          }
-          return currentMunicipio;
-        }),
-        distinctUntilChanged(),
-        takeUntil(this.destroy$),
-      )
-      .subscribe((municipio) => {
-        if (municipio !== this.municipioSource$.value) {
-          this.municipioSource$.next(municipio);
-        }
-      });
+    combineLatest([this.territorioSource$, this.processedData$]).pipe(
+      map(([, data]) => {
+        const current = this.municipioSource$.value;
+        return current && !data.filterOptions.municipios.includes(current) ? '' : current;
+      }),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$),
+    ).subscribe(municipio => {
+      if (municipio !== this.municipioSource$.value) this.municipioSource$.next(municipio);
+    });
   }
-
-  // ============================================================================
-  // ⚠️ REEMPLAZAR COMPLETAMENTE: Mapa Mapbox
-  // ============================================================================
 
   private initializeMap(): void {
     if (!this.mapContainer || this.map) return;
-
     try {
-      const container = this.mapContainer.nativeElement;
-
       this.map = new mapboxgl.Map({
-        container: container,
-        style: 'mapbox://styles/mapbox/streets-v12', // Estilo del mapa
-        center: [-2.5, 42.85], // [lng, lat] - Centro en País Vasco
+        container: this.mapContainer.nativeElement,
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: [-2.5, 42.85],
         zoom: 8,
       });
-
-      // Añadir controles de navegación
       this.map.addControl(new mapboxgl.NavigationControl());
-
-      // Añadir control de pantalla completa
       this.map.addControl(new mapboxgl.FullscreenControl());
-
       this.map.on('load', () => {
+        console.log('Mapbox mapa kargatuta');
         this.mapInitialized$.next(true);
       });
+      this.map.on('error', e => console.error('Mapbox errorea:', e));
     } catch (error) {
-      console.error('Error inicializando mapa Mapbox:', error);
+      console.error('Errorea mapa hasieratzen:', error);
       this.mapInitialized$.next(false);
     }
   }
 
   private updateMapMarkers(centers: Center[]): void {
     if (!this.map) return;
-
-    const validCenters = centers.filter((c) => c.LONGITUD && c.LATITUD);
-    const newMarkerIds = new Set(validCenters.map((c) => c.CCEN));
-
-    // Eliminar marcadores que ya no están en la lista filtrada
+    const valid = centers.filter(c => 
+      c.LONGITUD && c.LATITUD && !isNaN(c.LONGITUD) && !isNaN(c.LATITUD) && c.LONGITUD !== 0 && c.LATITUD !== 0
+    );
+    const newIds = new Set(valid.map(c => c.CCEN));
     this.markers.forEach((marker, id) => {
-      if (!newMarkerIds.has(id)) {
+      if (!newIds.has(id)) {
         marker.remove();
         this.markers.delete(id);
       }
     });
-
-    // Añadir nuevos marcadores
-    validCenters.forEach((center) => {
-      if (!this.markers.has(center.CCEN)) {
+    valid.forEach(c => {
+      if (!this.markers.has(c.CCEN)) {
+        const [lng, lat] = [c.LATITUD, c.LONGITUD]; // Mapbox [lng, lat] formatuan
         const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
           <div style="min-width: 200px; padding: 8px;">
-            <strong style="font-size: 14px;">${center.NOM}</strong><br>
-            <small style="color: #666;">${center.CCEN}</small><br>
-            <span style="font-size: 13px;">${center.DMUNIC} - ${center.DTERRC}</span>
+            <strong style="font-size: 14px;">${c.NOM}</strong><br>
+            <small style="color: #666;">${c.CCEN}</small><br>
+            <span style="font-size: 13px;">${c.DMUNIC} - ${c.DTERRC}</span>
           </div>
         `);
-
-        const marker = new mapboxgl.Marker({ color: '#3F51B5' })
-          .setLngLat([center.LATITUD, center.LONGITUD]) // Mapbox usa [lng, lat]
-          .setPopup(popup)
-          .addTo(this.map!);
-
-        this.markers.set(center.CCEN, marker);
+        try {
+          const marker = new mapboxgl.Marker({ color: '#3F51B5' })
+            .setLngLat([lng, lat])
+            .setPopup(popup)
+            .addTo(this.map!);
+          this.markers.set(c.CCEN, marker);
+        } catch (error) {
+          console.error(`Errorea markatzailea gehitzen ${c.NOM}:`, error);
+        }
       }
     });
-
-    // Ajustar vista del mapa a los marcadores
-    if (validCenters.length > 0) {
-      this.fitMapBounds(validCenters);
-    }
+    if (valid.length) this.fitMapBounds(valid);
   }
 
   private fitMapBounds(centers: Center[]): void {
-    if (!this.map || centers.length === 0) return;
-
+    if (!this.map || !centers.length) return;
     const bounds = new mapboxgl.LngLatBounds();
-
-    centers.forEach((center) => {
-      if (center.LATITUD && center.LONGITUD) {
-        bounds.extend([center.LATITUD, center.LONGITUD]);
+    centers.forEach(c => {
+      if (c.LATITUD && c.LONGITUD) {
+        try {
+          bounds.extend([c.LATITUD, c.LONGITUD]);
+        } catch (error) {
+          console.error(`Errorea bounds hedatzen ${c.NOM}:`, error);
+        }
       }
     });
-
-    this.map.fitBounds(bounds, {
-      padding: { top: 50, bottom: 50, left: 50, right: 50 },
-      maxZoom: 15,
-    });
+    try {
+      this.map.fitBounds(bounds, {
+        padding: { top: 50, bottom: 50, left: 50, right: 50 },
+        maxZoom: 15,
+      });
+    } catch (error) {
+      console.error('Errorea mapa bounds doitzen:', error);
+    }
   }
-
-  // ============================================================================
-  // MÉTODOS PÚBLICOS PARA EL TEMPLATE
-  // ============================================================================
 
   onSearchChange(value: string): void {
     this.searchTextSource$.next(value);
@@ -700,10 +492,7 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onPageChange(event: PageEvent): void {
-    this.paginationSource$.next({
-      pageIndex: event.pageIndex,
-      pageSize: event.pageSize,
-    });
+    this.paginationSource$.next({ pageIndex: event.pageIndex, pageSize: event.pageSize });
   }
 
   onTabChange(index: number): void {
@@ -715,94 +504,70 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
     this.paginationSource$.next({ ...current, pageIndex: 0 });
   }
 
-  canCreateMeeting(): boolean {
-    return true;
+  canCreateMeeting(): boolean { return true; }
+
+  private showSnackBar(message: string, error = false): void {
+    this.snackBar.open(
+      message,
+      this.translate.instant('COMMON.CLOSE') || 'Itxi',
+      { duration: 3000, panelClass: error ? 'error-snackbar' : 'success-snackbar' }
+    );
   }
 
-  // ============================================================================
-  // MÉTODOS HELPER - ERROR HANDLING Y DIALOG GENÉRICOS
-  // ============================================================================
-
-  private showSnackBar(message: string, error: boolean = false): void {
-    this.snackBar.open(message, this.translate.instant('COMMON.CLOSE') || 'Cerrar', {
-      duration: 3000,
-      panelClass: error ? 'error-snackbar' : 'success-snackbar',
-    });
-  }
-
-  private handleMeetingOperation<T>(
-    operation: Observable<T>,
-    successMsg: string,
-    errorMsg: string,
-    operationName: string,
-  ): void {
-    operation.subscribe({
-      next: (_response) => {
+  private handleMeetingOperation<T>(op: Observable<T>, successMsg: string, errorMsg: string, opName: string): void {
+    op.subscribe({
+      next: () => {
         this.showSnackBar(this.translate.instant(successMsg) || successMsg);
         this.loadMeetings();
       },
-      error: (err) => {
-        console.error(`Error in ${operationName}:`, err);
+      error: err => {
+        console.error(`Errorea ${opName}:`, err);
         this.showSnackBar(this.translate.instant(errorMsg) || errorMsg, true);
       },
     });
   }
 
-  openCreateMeetingDialog(_center?: Center): void {
-    const dialogRef = this.dialog.open(MeetingDialogComponent, {
-      width: '500px',
-      data: null,
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
+  openCreateMeetingDialog(_?: Center): void {
+    const dialogRef = this.dialog.open(MeetingDialogComponent, { width: '500px', data: null });
+    dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        const currentUser = this.authService.getUser();
-        const meetingData = {
+        const user = this.authService.getUser();
+        const data = {
           ...result,
-          profesor_id: currentUser?.tipo_id === 3 ? currentUser?.id : undefined,
-          alumno_id: currentUser?.tipo_id === 4 ? currentUser?.id : undefined,
+          profesor_id: user?.tipo_id === 3 ? user?.id : undefined,
+          alumno_id: user?.tipo_id === 4 ? user?.id : undefined,
         };
-
         this.handleMeetingOperation(
-          this.meetingsService.createMeeting(meetingData),
+          this.meetingsService.createMeeting(data),
           'SUCCESS.MEETING_CREATED',
           'ERROR.CREATING_MEETING',
-          'createMeeting',
+          'createMeeting'
         );
       }
     });
   }
 
   openEditMeetingDialog(meeting: Meeting): void {
-    const dialogRef = this.dialog.open(MeetingDialogComponent, {
-      width: '500px',
-      data: meeting,
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
+    const dialogRef = this.dialog.open(MeetingDialogComponent, { width: '500px', data: meeting });
+    dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.handleMeetingOperation(
           this.meetingsService.updateMeeting(parseInt(meeting.id), result),
           'SUCCESS.MEETING_UPDATED',
           'ERROR.UPDATING_MEETING',
-          'updateMeeting',
+          'updateMeeting'
         );
       }
     });
   }
 
   deleteMeeting(meeting: Meeting): void {
-    if (
-      confirm(
-        this.translate.instant('CONFIRM.DELETE_MEETING') ||
-          '¿Está seguro de que desea eliminar esta reunión?',
-      )
-    ) {
+    if (confirm(this.translate.instant('CONFIRM.DELETE_MEETING') || 'Ziur zaude bilera ezabatu nahi duzula?')) {
       this.handleMeetingOperation(
         this.meetingsService.deleteMeeting(parseInt(meeting.id)),
         'SUCCESS.MEETING_DELETED',
         'ERROR.DELETING_MEETING',
-        'deleteMeeting',
+        'deleteMeeting'
       );
     }
   }
@@ -812,27 +577,18 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
       this.meetingsService.updateMeetingStatus(parseInt(meeting.id), newStatus),
       'SUCCESS.STATUS_UPDATED',
       'ERROR.UPDATING_STATUS',
-      'updateMeetingStatus',
+      'updateMeetingStatus'
     );
   }
 
   openCenterDetail(center: Center): void {
-    console.log('Center detail', center);
+    console.log('Zentroaren xehetasunak', center);
   }
 
   focusOnCenter(center: Center): void {
     if (this.map && center.LONGITUD && center.LATITUD) {
-      this.map.flyTo({
-        center: [center.LATITUD, center.LONGITUD],
-        zoom: 15,
-        essential: true,
-      });
-
-      // Abrir el popup del marcador correspondiente
-      const marker = this.markers.get(center.CCEN);
-      if (marker) {
-        marker.togglePopup();
-      }
+      this.map.flyTo({ center: [center.LATITUD, center.LONGITUD], zoom: 15, essential: true });
+      this.markers.get(center.CCEN)?.togglePopup();
     }
   }
 
