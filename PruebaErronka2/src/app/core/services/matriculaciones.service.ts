@@ -15,10 +15,10 @@ export interface Matriculacion {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MatriculacionesService {
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   getAllMatriculaciones(): Observable<Matriculacion[]> {
     return this.http.get<Matriculacion[]>(ApiUtil.buildUrl('/matriculaciones'));

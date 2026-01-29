@@ -17,10 +17,10 @@ export interface Horario {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class HorariosService {
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   getAllHorarios(): Observable<Horario[]> {
     return this.http.get<Horario[]>(ApiUtil.buildUrl('/horarios'));

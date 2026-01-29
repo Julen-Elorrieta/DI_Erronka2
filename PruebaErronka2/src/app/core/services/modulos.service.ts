@@ -14,10 +14,10 @@ export interface Modulo {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ModulosService {
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   getAllModulos(): Observable<Modulo[]> {
     return this.http.get<Modulo[]>(ApiUtil.buildUrl('/modulos'));

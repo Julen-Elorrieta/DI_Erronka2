@@ -7,10 +7,9 @@ import { Observable, catchError, map, of } from 'rxjs';
 import { ApiUtil } from '../utils/api.util';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
-  
   private currentUserSignal = signal<User | null>(null);
   public currentUser = this.currentUserSignal.asReadonly();
 
@@ -21,7 +20,7 @@ export class AuthService {
   private loadUserFromStorage(): void {
     const userStr = localStorage.getItem('user');
     const token = localStorage.getItem('token');
-    
+
     if (userStr && token) {
       try {
         const user = JSON.parse(userStr);
@@ -33,16 +32,21 @@ export class AuthService {
     }
   }
 
-  login(username: string, password: string, router: Router, setLoginError: (loginError: boolean) => void): void {
+  login(
+    username: string,
+    password: string,
+    router: Router,
+    setLoginError: (loginError: boolean) => void,
+  ): void {
     this.http.post<any>(ApiUtil.buildUrl('/login'), { username, password }).subscribe({
       next: (response: any) => {
         if (response.success && response.token) {
           setLoginError(false);
-          
+
           // Guardar token y usuario en localStorage
           localStorage.setItem('token', response.token);
           localStorage.setItem('user', JSON.stringify(response.user));
-          
+
           this.currentUserSignal.set(response.user);
           router.navigate(['/dashboard']);
         } else {
@@ -52,20 +56,20 @@ export class AuthService {
       error: (err) => {
         console.error('Error during authentication:', err);
         setLoginError(true);
-      }
+      },
     });
   }
 
   // Verificar el token con el backend
   verifyToken(): Observable<boolean> {
     const token = localStorage.getItem('token');
-    
+
     if (!token) {
       return of(false);
     }
 
     return this.http.get<any>(ApiUtil.buildUrl('/verify-token')).pipe(
-      map(response => {
+      map((response) => {
         if (response.success) {
           this.currentUserSignal.set(response.user);
           return true;
@@ -76,7 +80,7 @@ export class AuthService {
       catchError(() => {
         this.clearAuth();
         return of(false);
-      })
+      }),
     );
   }
 

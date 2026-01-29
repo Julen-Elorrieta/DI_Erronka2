@@ -8,15 +8,15 @@ export interface Language {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LanguageService {
   currentLanguage = signal<string>('es');
-  
+
   languages: Language[] = [
     { code: 'en', name: 'English' },
     { code: 'es', name: 'Español' },
-    { code: 'eu', name: 'Euskera' }
+    { code: 'eu', name: 'Euskera' },
   ];
 
   constructor(private translate: TranslateService) {
@@ -32,6 +32,6 @@ export class LanguageService {
   }
 
   getCurrentLanguage(): Language | undefined {
-    return this.languages.find(l => l.code === this.currentLanguage());
+    return this.languages.find((l) => l.code === this.currentLanguage());
   }
 }

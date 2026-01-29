@@ -34,5 +34,5 @@ export enum UserRole {
   GOD = 'GOD',
   ADMIN = 'ADMIN',
   TEACHER = 'TEACHER',
-  STUDENT = 'STUDENT'
+  STUDENT = 'STUDENT',
 }

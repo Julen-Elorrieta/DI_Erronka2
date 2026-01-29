@@ -13,8 +13,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   if (token && !req.url.includes('/login')) {
     req = req.clone({
       setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
   }
 
@@ -26,6 +26,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         authService.logout(router);
       }
       return throwError(() => error);
-    })
+    }),
   );
 };

@@ -14,7 +14,7 @@ export const loginGuard = () => {
 
   // Si hay token, verificar que sea válido
   return authService.verifyToken().pipe(
-    map(isValid => {
+    map((isValid) => {
       if (isValid) {
         // Token válido, redirigir al dashboard
         router.navigate(['/dashboard']);
@@ -22,6 +22,6 @@ export const loginGuard = () => {
       }
       // Token inválido, permitir acceso al login
       return true;
-    })
+    }),
   );
 };

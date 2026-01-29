@@ -15,12 +15,12 @@ export const authGuard = () => {
 
   // Luego verificar que el token sea válido en el backend
   return authService.verifyToken().pipe(
-    map(isValid => {
+    map((isValid) => {
       if (!isValid) {
         router.navigate(['/login']);
         return false;
       }
       return true;
-    })
+    }),
   );
 };

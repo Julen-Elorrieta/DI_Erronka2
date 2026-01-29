@@ -10,9 +10,7 @@ export class ApiUtil {
    * @returns URL de la API
    */
   static getApiUrl(): string {
-    return Array.isArray(environment.apiUrl)
-      ? environment.apiUrl.join('')
-      : environment.apiUrl;
+    return Array.isArray(environment.apiUrl) ? environment.apiUrl.join('') : environment.apiUrl;
   }
 
   /**

@@ -5,11 +5,10 @@ import { Meeting } from '../models/meeting.model';
 import { ApiUtil } from '../utils/api.util';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MeetingsService {
-
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   /**
    * Obtiene todas las reuniones

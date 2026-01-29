@@ -9,10 +9,10 @@ export interface Ciclo {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CiclosService {
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   getAllCiclos(): Observable<Ciclo[]> {
     return this.http.get<Ciclo[]>(ApiUtil.buildUrl('/ciclos'));

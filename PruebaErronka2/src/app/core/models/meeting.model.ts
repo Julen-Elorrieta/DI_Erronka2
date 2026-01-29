@@ -2,7 +2,7 @@ export enum MeetingStatus {
   PENDING = 'pendiente',
   ACCEPTED = 'aceptada',
   REJECTED = 'denegada',
-  CONFLICT = 'conflicto'
+  CONFLICT = 'conflicto',
 }
 
 export interface Meeting {
@@ -15,7 +15,7 @@ export interface Meeting {
   profesor_id: number;
   alumno_id: number;
   estado: MeetingStatus | string;
-  
+
   // Para compatibilidad con frontend (opcional)
   title?: string;
   topic?: string;

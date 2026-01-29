@@ -5,11 +5,10 @@ import { User } from '../models/user.model';
 import { ApiUtil } from '../utils/api.util';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UsersService {
-
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   /**
    * Obtiene todos los usuarios

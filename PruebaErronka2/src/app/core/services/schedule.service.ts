@@ -5,11 +5,10 @@ import { Schedule } from '../models/schedule.model';
 import { ApiUtil } from '../utils/api.util';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ScheduleService {
-
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   /**
    * Obtiene el horario de un usuario específico
