@@ -13,7 +13,8 @@
     "HOME": "Welcome to the Home Page",
     "WELCOME": "Welcome",
     "PROFILE": "Profile",
-    "LOGOUT": "Logout"
+    "LOGOUT": "Logout",
+    "LANGUAGE": "Language"
   },
   "COMMON": {
     "ALL": "All",
@@ -32,14 +33,17 @@
     "ADD": "Add",
     "VIEW": "View",
     "EDIT": "Edit",
-    "SAVE": "Save"
+    "SAVE": "Save",
+    "NO_RESULTS": "No results found"
   },
   "CENTER": {
     "TITLE": "Centers",
     "NAME": "Name",
     "TYPE": "Type",
     "STATUS": "Status",
-    "MAP": "Map"
+    "MAP": "Map",
+    "VIEW_MAP": "View in Map",
+    "DETAILS": "Details"
   },
   "MEETING": {
     "TITLE": "Meetings",
@@ -48,7 +52,15 @@
     "MY_MEETINGS": "My Meetings",
     "CENTERS_COUNT": "Centers Count",
     "NO_MEETINGS": "You have no meetings scheduled.",
-    "CREATE": "Create Meeting"
+    "CREATE": "Create Meeting",
+    "CREATE_IN_CENTER": "Create Meeting in Center",
+    "TOPIC": "Topic",
+    "DATE": "Date",
+    "TIME": "Time",
+    "HOUR": "Hour",
+    "CLASSROOM": "Classroom",
+    "CENTER": "Center",
+    "ADDRESS": "Address"
   },
   "FILTER": {
     "TYPE": "Type",
@@ -91,6 +103,9 @@
     "TEACHER": "Teacher",
     "STUDENT": "Student"
   },
+  "ERROR.LOADING_CENTERS": "Error loading centers",
+  "USERS": "Users",
+  "MEETINGS": "Meetings",
   "CICLOS": "Degree Programs",
   "CICLOS_SINGULAR": "Degree Program",
   "CICLOS.NOMBRE": "Name",

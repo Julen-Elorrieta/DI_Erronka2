@@ -1,3 +1,2 @@
 /* Leaflet.markercluster styles for proper cluster rendering */
-@import url('https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css');
-@import url('https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css');
+@import url('https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css');

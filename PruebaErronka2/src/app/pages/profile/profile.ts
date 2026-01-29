@@ -136,7 +136,6 @@ export class ProfileComponent implements OnInit {
 
   saveProfile(): void {
     if (this.profileForm.valid && this.user()) {
-      const updatedUser = { ...this.user(), ...this.profileForm.value };
       // TODO: Usar UsersService para actualizar
       // this.usersService.updateUser(this.user()!.id, updatedUser).subscribe({
       //   next: (user) => {

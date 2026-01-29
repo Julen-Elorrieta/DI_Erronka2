@@ -10,7 +10,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
 import { MatriculacionesService, Matriculacion } from '../../core/services/matriculaciones.service';
 import { UsersService } from '../../core/services/users.service';
@@ -127,7 +127,6 @@ export class MatriculacionesComponent implements OnInit {
   private ciclosService = inject(CiclosService);
   private authService = inject(AuthService);
   private snackBar = inject(MatSnackBar);
-  private translate = inject(TranslateService);
 
   ngOnInit(): void {
     this.loadData();

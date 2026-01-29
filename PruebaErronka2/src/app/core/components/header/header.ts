@@ -9,6 +9,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
 import { User } from '../../models/user.model';
+import { LanguageService, Language } from '../../services/language.service';
 
 @Component({
   selector: 'app-header',
@@ -25,7 +26,7 @@ import { User } from '../../models/user.model';
   template: `
     <mat-toolbar color="primary" class="header-toolbar">
       <div class="toolbar-left">
-        <span class="app-title">Elorrieta-Errekamari</span>
+        <span class="app-title" (click)="goToDashboard()">Elorrieta-Errekamari</span>
       </div>
       
       <div class="toolbar-right">
@@ -51,12 +52,33 @@ import { User } from '../../models/user.model';
             <span>{{ 'MENU.PROFILE' | translate }}</span>
           </button>
           
+          <button mat-menu-item [matMenuTriggerFor]="languageMenu">
+            <mat-icon>language</mat-icon>
+            <span>{{ 'MENU.LANGUAGE' | translate }}</span>
+          </button>
+          
           <mat-divider></mat-divider>
           
           <button mat-menu-item (click)="logout()" class="logout-button">
             <mat-icon>logout</mat-icon>
             <span>{{ 'MENU.LOGOUT' | translate }}</span>
           </button>
+        </mat-menu>
+
+        <!-- Submenú de idiomas -->
+        <mat-menu #languageMenu="matMenu" class="language-menu">
+          @for (lang of languages; track lang.code) {
+            <button 
+              mat-menu-item 
+              (click)="changeLanguage(lang.code)"
+              [class.active]="lang.code === languageService.currentLanguage()"
+            >
+              <span>{{ lang.name }}</span>
+              @if (lang.code === languageService.currentLanguage()) {
+                <mat-icon class="check-icon">check</mat-icon>
+              }
+            </button>
+          }
         </mat-menu>
       </div>
     </mat-toolbar>
@@ -79,6 +101,13 @@ import { User } from '../../models/user.model';
       font-size: 20px;
       font-weight: 500;
       color: white;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+      user-select: none;
+    }
+
+    .app-title:hover {
+      opacity: 0.8;
     }
 
     .toolbar-right {
@@ -155,13 +184,46 @@ import { User } from '../../models/user.model';
     mat-divider {
       margin: 8px 0;
     }
+
+    .current-lang {
+      margin-left: auto;
+      font-size: 12px;
+      color: #999;
+    }
+
+    .language-menu button {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 150px;
+    }
+
+    .language-menu button span:first-child {
+      flex: 1;
+    }
+
+    .language-menu button.active {
+      background-color: rgba(63, 81, 181, 0.1);
+    }
+
+    .check-icon {
+      margin-left: auto;
+      color: #3f51b5;
+      font-size: 20px;
+    }
   `]
 })
 export class HeaderComponent implements OnInit {
   currentUser = signal<User | null>(null);
+  languages: Language[];
   
   private authService = inject(AuthService);
   private router = inject(Router);
+  languageService = inject(LanguageService);
+
+  constructor() {
+    this.languages = this.languageService.languages;
+  }
 
   ngOnInit(): void {
     this.currentUser.set(this.authService.currentUser());
@@ -183,6 +245,18 @@ export class HeaderComponent implements OnInit {
   getProfileImageUrl(): string {
     const user = this.currentUser();
     return user?.argazkia_url || '/unknown.webp';
+  }
+
+  getCurrentLanguage(): Language | undefined {
+    return this.languageService.getCurrentLanguage();
+  }
+
+  changeLanguage(lang: string): void {
+    this.languageService.setLanguage(lang);
+  }
+
+  goToDashboard(): void {
+    this.router.navigate(['/dashboard']);
   }
 
   goToProfile(): void {

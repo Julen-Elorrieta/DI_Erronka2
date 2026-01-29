@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -123,7 +123,6 @@ export class ModulosComponent implements OnInit {
   private ciclosService = inject(CiclosService);
   private authService = inject(AuthService);
   private snackBar = inject(MatSnackBar);
-  private translate = inject(TranslateService);
 
   ngOnInit(): void {
     this.loadCiclos();

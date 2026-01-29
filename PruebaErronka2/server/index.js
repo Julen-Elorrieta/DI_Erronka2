@@ -141,7 +141,7 @@ app.get('/centers', verifyToken, (req, res) => {
   const type = req.query.type;
   
   if (type === 'filters') {
-    axios.get('http://10.5.104.100:8080/elorserv/api/ikastetxeak').then(response => {
+    axios.get('http://localhost:8080/elorserv/api/ikastetxeak').then(response => {
       const data = response.data.CENTROS;
       const titularidades = [...new Set(data.map(r => r.DTITUC))];
       const territorios = [...new Set(data.map(r => r.DTERRC))];
@@ -151,7 +151,7 @@ app.get('/centers', verifyToken, (req, res) => {
     });
   } else if (type === 'municipios') {
     const territorio = req.query.territorio;
-    axios.get('http://10.5.104.100:8080/elorserv/api/ikastetxeak').then(response => {
+    axios.get('http://localhost:8080/elorserv/api/ikastetxeak').then(response => {
       const data = response.data.CENTROS;
       let municipios = data.map(r => r.DMUNIC);
       if (territorio) {
@@ -174,7 +174,7 @@ app.get('/centers', verifyToken, (req, res) => {
       res.json(mappedResults);
     });
   } else {
-    axios.get('http://10.5.104.100:8080/elorserv/api/ikastetxeak').then(response => {
+    axios.get('http://localhost:8080/elorserv/api/ikastetxeak').then(response => {
       let data = response.data.CENTROS;
       if (req.query.titularidad) data = data.filter(r => r.DTITUC === req.query.titularidad);
       if (req.query.territorio) data = data.filter(r => r.DTERRC === req.query.territorio);
@@ -288,7 +288,7 @@ app.get('/schedule/:userId', verifyToken, (req, res) => {
 // ENDPOINTS DE MEETINGS
 // ============================================
 
-app.get('/meetings', verifyToken, (req, res) => {
+app.get('/meetings', verifyToken, (_req, res) => {
   connection.query('SELECT * FROM reuniones ORDER BY fecha DESC', (err, results) => {
     if (err) {
       return res.status(500).json({ success: false, error: 'DB error' });
@@ -350,7 +350,7 @@ app.put('/meetings/:meetingId', verifyToken, (req, res) => {
 
   const query = 'UPDATE reuniones SET titulo = ?, asunto = ?, fecha = ?, aula = ? WHERE id_reunion = ?';
 
-  connection.query(query, [title, topic, fecha, classroom, meetingId], (err, result) => {
+  connection.query(query, [title, topic, fecha, classroom, meetingId], (err) => {
     if (err) {
       return res.status(500).json({ success: false, error: 'DB error', details: err.message });
     }
@@ -364,7 +364,7 @@ app.put('/meetings/:meetingId/status', verifyToken, (req, res) => {
 
   const query = 'UPDATE reuniones SET estado = ? WHERE id_reunion = ?';
 
-  connection.query(query, [status, meetingId], (err, result) => {
+  connection.query(query, [status, meetingId], (err) => {
     if (err) {
       return res.status(500).json({ success: false, error: 'DB error', details: err.message });
     }
@@ -375,7 +375,7 @@ app.put('/meetings/:meetingId/status', verifyToken, (req, res) => {
 app.delete('/meetings/:meetingId', verifyToken, (req, res) => {
   const meetingId = req.params.meetingId;
 
-  connection.query('DELETE FROM reuniones WHERE id_reunion = ?', [meetingId], (err, result) => {
+  connection.query('DELETE FROM reuniones WHERE id_reunion = ?', [meetingId], (err) => {
     if (err) {
       return res.status(500).json({ success: false, error: 'DB error', details: err.message });
     }
@@ -393,7 +393,7 @@ app.put('/updateMeeting/:id', verifyToken, (req, res) => {
 
   const query = 'UPDATE reuniones SET estado = ? WHERE id_reunion = ?';
 
-  connection.query(query, [nuevoEstado, meetingId], (err, result) => {
+  connection.query(query, [nuevoEstado, meetingId], (err) => {
     if (err) {
       console.error('ERROR en UPDATE:', err);
       return res.status(500).json({

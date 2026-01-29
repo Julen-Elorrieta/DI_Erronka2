@@ -10,7 +10,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
 import { HorariosService, Horario } from '../../core/services/horarios.service';
 import { UsersService } from '../../core/services/users.service';
@@ -137,7 +137,6 @@ export class HorariosComponent implements OnInit {
   private modulosService = inject(ModulosService);
   private authService = inject(AuthService);
   private snackBar = inject(MatSnackBar);
-  private translate = inject(TranslateService);
 
   dias = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES'];
   horas = [1, 2, 3, 4, 5, 6];

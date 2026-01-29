@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
 import { CiclosService, Ciclo } from '../../core/services/ciclos.service';
@@ -107,7 +107,6 @@ export class CiclosComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private translate = inject(TranslateService);
   private fb = inject(FormBuilder);
-  private dialog = inject(MatDialog);
 
   ngOnInit(): void {
     this.loadCiclos();
@@ -129,9 +128,6 @@ export class CiclosComponent implements OnInit {
   }
 
   openNewDialog(): void {
-    const form = this.fb.group({
-      nombre: ['', Validators.required]
-    });
 
     Swal.fire({
       title: 'Nuevo Ciclo',

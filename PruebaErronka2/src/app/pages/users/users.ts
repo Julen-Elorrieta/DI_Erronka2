@@ -14,7 +14,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
 import { EditUserDialogComponent as EditUser } from './editUser';
 import { User, getUserRoleFromTipoId, UserRole } from '../../core/models/user.model';
 import Swal from 'sweetalert2';

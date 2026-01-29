@@ -26,8 +26,7 @@
             ],
             "styles": [
               "src/styles.css",
-              "node_modules/leaflet.markercluster/dist/MarkerCluster.css",
-              "node_modules/leaflet.markercluster/dist/MarkerCluster.Default.css"
+              "node_modules/mapbox-gl/dist/mapbox-gl.css"
             ]
           },
           "configurations": {

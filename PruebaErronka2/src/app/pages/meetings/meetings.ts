@@ -26,9 +26,9 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatMenuModule } from '@angular/material/menu';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
-import * as L from 'leaflet';
-import 'leaflet.markercluster';
+
+// ⚠️ REEMPLAZAR: Importar Mapbox en lugar de Leaflet
+import mapboxgl from 'mapbox-gl';
 
 import { BehaviorSubject, Observable, combineLatest, Subject, of } from 'rxjs';
 import {
@@ -152,22 +152,27 @@ function setCachedCenters(data: Center[]): void {
     MatProgressSpinnerModule,
     MatTabsModule,
     MatMenuModule,
-    TranslateModule
-],
+    TranslateModule,
+  ],
   templateUrl: './meetings.html',
   styleUrls: ['./meetings.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Meetings implements OnInit, AfterViewInit, OnDestroy {
-
   authService: AuthService = inject(AuthService);
   router: Router = inject(Router);
 
-    constructor() {
+  // ⚠️ AÑADIR: Token de Mapbox (reemplazar con tu token real)
+  private readonly MAPBOX_TOKEN =
+    'pk.eyJ1IjoianVsZW5uMDYiLCJhIjoiY21rejZycDJqMGRhdzNoc2txaHlyNXF1NiJ9.a593UB3NIwgSFiMVXRahcA';
+
+  constructor() {
     this.authenticate();
+    // ⚠️ AÑADIR: Configurar token de Mapbox
+    mapboxgl.accessToken = this.MAPBOX_TOKEN;
   }
 
-    authenticate(): void {
+  authenticate(): void {
     if (!this.authService.isLoggedIn()) {
       this.router.navigate(['/login']);
     }
@@ -280,18 +285,16 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
   };
 
   // ============================================================================
-  // MAPA LEAFLET
+  // ⚠️ REEMPLAZAR: Mapa Mapbox en lugar de Leaflet
   // ============================================================================
-  private map: L.Map | null = null;
-  private markerClusterGroup: any = null;
-  private currentMarkers: Set<string> = new Set();
+  private map: mapboxgl.Map | null = null;
+  private markers: Map<string, mapboxgl.Marker> = new Map();
 
   // ============================================================================
   // LIFECYCLE HOOKS
   // ============================================================================
 
   ngOnInit(): void {
-    this.fixLeafletIcons();
     this.loadInitialData();
     this.setupFilterCascade();
 
@@ -321,7 +324,7 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
       )
       .subscribe(() => {
         if (this.map) {
-          this.map.invalidateSize();
+          this.map.resize();
         }
       });
   }
@@ -330,10 +333,12 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
 
+    // ⚠️ ACTUALIZAR: Limpiar mapa Mapbox
     if (this.map) {
       this.map.remove();
       this.map = null;
     }
+    this.markers.clear();
   }
 
   // ============================================================================
@@ -448,8 +453,7 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
     return labels[status] || status;
   }
 
-  canChangeStatus(meeting: Meeting): boolean {
-    // Se pueden cambiar todos los estados
+  canChangeStatus(_meeting: Meeting): boolean {
     return true;
   }
 
@@ -465,7 +469,6 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
       { status: 'pendiente', label: 'Marcar pendiente', icon: 'schedule', color: 'basic' },
     ];
 
-    // Filtrar las acciones disponibles según el estado actual
     return allActions.filter((action) => action.status !== currentStatus);
   }
 
@@ -576,21 +579,8 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
   }
 
   // ============================================================================
-  // MAPA LEAFLET
+  // ⚠️ REEMPLAZAR COMPLETAMENTE: Mapa Mapbox
   // ============================================================================
-
-  private fixLeafletIcons(): void {
-    try {
-      delete (L.Icon.Default.prototype as any)._getIconUrl;
-      L.Icon.Default.mergeOptions({
-        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-      });
-    } catch (error) {
-      console.error('Error configurando iconos de Leaflet:', error);
-    }
-  }
 
   private initializeMap(): void {
     if (!this.mapContainer || this.map) return;
@@ -598,114 +588,83 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
     try {
       const container = this.mapContainer.nativeElement;
 
-      this.map = L.map(container, {
-        preferCanvas: true,
-        zoomAnimation: true,
-        fadeAnimation: true,
-        markerZoomAnimation: true,
-      }).setView([42.85, -2.5], 8);
-
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 19,
-      }).addTo(this.map);
-
-      this.markerClusterGroup = (L as any).markerClusterGroup({
-        animate: true,
-        spiderfyOnMaxZoom: true,
-        showCoverageOnHover: false,
-        zoomToBoundsOnClick: true,
-        maxClusterRadius: 50,
-        chunkedLoading: true,
+      this.map = new mapboxgl.Map({
+        container: container,
+        style: 'mapbox://styles/mapbox/streets-v12', // Estilo del mapa
+        center: [-2.5, 42.85], // [lng, lat] - Centro en País Vasco
+        zoom: 8,
       });
 
-      this.map.addLayer(this.markerClusterGroup);
+      // Añadir controles de navegación
+      this.map.addControl(new mapboxgl.NavigationControl());
 
-      setTimeout(() => {
-        if (this.map) {
-          this.map.invalidateSize();
-        }
-      }, 250);
+      // Añadir control de pantalla completa
+      this.map.addControl(new mapboxgl.FullscreenControl());
 
-      this.mapInitialized$.next(true);
+      this.map.on('load', () => {
+        this.mapInitialized$.next(true);
+      });
     } catch (error) {
-      console.error('Error inicializando mapa:', error);
+      console.error('Error inicializando mapa Mapbox:', error);
       this.mapInitialized$.next(false);
     }
   }
 
   private updateMapMarkers(centers: Center[]): void {
-    if (!this.map || !this.markerClusterGroup) return;
+    if (!this.map) return;
 
-    const newMarkerIds = new Set(centers.filter((c) => c.LONGITUD && c.LATITUD).map((c) => c.CCEN));
+    const validCenters = centers.filter((c) => c.LONGITUD && c.LATITUD);
+    const newMarkerIds = new Set(validCenters.map((c) => c.CCEN));
 
-    this.markerClusterGroup.eachLayer((layer: any) => {
-      const markerId = layer.options.centerId;
-      if (!newMarkerIds.has(markerId)) {
-        this.markerClusterGroup.removeLayer(layer);
-        this.currentMarkers.delete(markerId);
+    // Eliminar marcadores que ya no están en la lista filtrada
+    this.markers.forEach((marker, id) => {
+      if (!newMarkerIds.has(id)) {
+        marker.remove();
+        this.markers.delete(id);
       }
     });
 
-    const markersToAdd = centers.filter(
-      (c) => c.LONGITUD && c.LATITUD && !this.currentMarkers.has(c.CCEN),
-    );
-
-    if (markersToAdd.length > 0) {
-      this.addMarkersInBatches(markersToAdd);
-    }
-  }
-
-  private addMarkersInBatches(centers: Center[]): void {
-    const batchSize = 50;
-    let index = 0;
-
-    const addBatch = () => {
-      const batch = centers.slice(index, index + batchSize);
-
-      batch.forEach((center) => {
-        const marker = L.marker([center.LONGITUD, center.LATITUD], {
-          riseOnHover: true,
-          centerId: center.CCEN,
-        } as any);
-
-        marker.bindPopup(`
-          <div style="min-width: 200px;">
-            <strong>${center.NOM}</strong><br>
-            <small>${center.CCEN}</small><br>
-            ${center.DMUNIC} - ${center.DTERRC}
+    // Añadir nuevos marcadores
+    validCenters.forEach((center) => {
+      if (!this.markers.has(center.CCEN)) {
+        const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
+          <div style="min-width: 200px; padding: 8px;">
+            <strong style="font-size: 14px;">${center.NOM}</strong><br>
+            <small style="color: #666;">${center.CCEN}</small><br>
+            <span style="font-size: 13px;">${center.DMUNIC} - ${center.DTERRC}</span>
           </div>
         `);
 
-        this.markerClusterGroup.addLayer(marker);
-        this.currentMarkers.add(center.CCEN);
-      });
+        const marker = new mapboxgl.Marker({ color: '#3F51B5' })
+          .setLngLat([center.LATITUD, center.LONGITUD]) // Mapbox usa [lng, lat]
+          .setPopup(popup)
+          .addTo(this.map!);
 
-      index += batchSize;
-
-      if (index < centers.length) {
-        requestAnimationFrame(addBatch);
-      } else {
-        this.fitMapBounds();
+        this.markers.set(center.CCEN, marker);
       }
-    };
+    });
 
-    if (centers.length > 0) {
-      addBatch();
+    // Ajustar vista del mapa a los marcadores
+    if (validCenters.length > 0) {
+      this.fitMapBounds(validCenters);
     }
   }
 
-  private fitMapBounds(): void {
-    if (!this.map || !this.markerClusterGroup) return;
+  private fitMapBounds(centers: Center[]): void {
+    if (!this.map || centers.length === 0) return;
 
-    const bounds = this.markerClusterGroup.getBounds();
-    if (bounds.isValid()) {
-      this.map.fitBounds(bounds, {
-        padding: [30, 30],
-        maxZoom: 15,
-        animate: true,
-      });
-    }
+    const bounds = new mapboxgl.LngLatBounds();
+
+    centers.forEach((center) => {
+      if (center.LATITUD && center.LONGITUD) {
+        bounds.extend([center.LATITUD, center.LONGITUD]);
+      }
+    });
+
+    this.map.fitBounds(bounds, {
+      padding: { top: 50, bottom: 50, left: 50, right: 50 },
+      maxZoom: 15,
+    });
   }
 
   // ============================================================================
@@ -765,21 +724,20 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
   // ============================================================================
 
   private showSnackBar(message: string, error: boolean = false): void {
-    this.snackBar.open(
-      message,
-      this.translate.instant('COMMON.CLOSE') || 'Cerrar',
-      { duration: 3000, panelClass: error ? 'error-snackbar' : 'success-snackbar' }
-    );
+    this.snackBar.open(message, this.translate.instant('COMMON.CLOSE') || 'Cerrar', {
+      duration: 3000,
+      panelClass: error ? 'error-snackbar' : 'success-snackbar',
+    });
   }
 
   private handleMeetingOperation<T>(
     operation: Observable<T>,
     successMsg: string,
     errorMsg: string,
-    operationName: string
+    operationName: string,
   ): void {
     operation.subscribe({
-      next: (response) => {
+      next: (_response) => {
         this.showSnackBar(this.translate.instant(successMsg) || successMsg);
         this.loadMeetings();
       },
@@ -790,10 +748,10 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  openCreateMeetingDialog(center?: Center): void {
+  openCreateMeetingDialog(_center?: Center): void {
     const dialogRef = this.dialog.open(MeetingDialogComponent, {
       width: '500px',
-      data: null, // null para crear nueva reunión
+      data: null,
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -809,7 +767,7 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
           this.meetingsService.createMeeting(meetingData),
           'SUCCESS.MEETING_CREATED',
           'ERROR.CREATING_MEETING',
-          'createMeeting'
+          'createMeeting',
         );
       }
     });
@@ -827,19 +785,24 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
           this.meetingsService.updateMeeting(parseInt(meeting.id), result),
           'SUCCESS.MEETING_UPDATED',
           'ERROR.UPDATING_MEETING',
-          'updateMeeting'
+          'updateMeeting',
         );
       }
     });
   }
 
   deleteMeeting(meeting: Meeting): void {
-    if (confirm(this.translate.instant('CONFIRM.DELETE_MEETING') || '¿Está seguro de que desea eliminar esta reunión?')) {
+    if (
+      confirm(
+        this.translate.instant('CONFIRM.DELETE_MEETING') ||
+          '¿Está seguro de que desea eliminar esta reunión?',
+      )
+    ) {
       this.handleMeetingOperation(
         this.meetingsService.deleteMeeting(parseInt(meeting.id)),
         'SUCCESS.MEETING_DELETED',
         'ERROR.DELETING_MEETING',
-        'deleteMeeting'
+        'deleteMeeting',
       );
     }
   }
@@ -849,7 +812,7 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
       this.meetingsService.updateMeetingStatus(parseInt(meeting.id), newStatus),
       'SUCCESS.STATUS_UPDATED',
       'ERROR.UPDATING_STATUS',
-      'updateMeetingStatus'
+      'updateMeetingStatus',
     );
   }
 
@@ -859,16 +822,17 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
 
   focusOnCenter(center: Center): void {
     if (this.map && center.LONGITUD && center.LATITUD) {
-      this.map.flyTo([center.LONGITUD, center.LATITUD], 15, {
-        animate: true,
-        duration: 0.7,
+      this.map.flyTo({
+        center: [center.LATITUD, center.LONGITUD],
+        zoom: 15,
+        essential: true,
       });
 
-      this.markerClusterGroup.eachLayer((layer: any) => {
-        if (layer.options.centerId === center.CCEN) {
-          layer.openPopup();
-        }
-      });
+      // Abrir el popup del marcador correspondiente
+      const marker = this.markers.get(center.CCEN);
+      if (marker) {
+        marker.togglePopup();
+      }
     }
   }
 
