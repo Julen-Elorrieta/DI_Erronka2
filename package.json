@@ -1,5 +1,5 @@
 {
-  "name": "prueba-erronka2",
+  "name": "di-erronka2",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -52,6 +52,7 @@
   },
   "devDependencies": {
     "@angular/build": "^21.1.2",
+    "@angular/cli": "^21.1.2",
     "@types/mapbox-gl": "^3.4.1",
     "@types/mysql": "^2.15.27",
     "ts-node": "^10.9.2",
