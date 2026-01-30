@@ -4,12 +4,9 @@
  */
 export const environment = {
   production: true,
-  apiUrl: 'http://10.5.104.100:3000/api',
+  apiUrl: 'http://localhost:3000',
   database: {
     host: '10.5.104.100',
-    name: 'elordb'
+    name: 'elordb',
   },
-  mapbox: {
-    accessToken: 'YOUR_MAPBOX_TOKEN_HERE'
-  }
 };

@@ -1,39 +1,37 @@
-import { Injectable } from '@angular/core';
+// src/app/core/services/language.service.ts
+import { Injectable, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
-export type Language = 'es' | 'eu' | 'en';
+export interface Language {
+  code: string;
+  name: string;
+}
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LanguageService {
-  private readonly STORAGE_KEY = 'eloradmin_lang';
-  
+  currentLanguage = signal<string>('es');
+
+  languages: Language[] = [
+    { code: 'en', name: 'English' },
+    { code: 'es', name: 'Español' },
+    { code: 'eu', name: 'Euskera' },
+  ];
+
   constructor(private translate: TranslateService) {
-    this.initLanguage();
+    // Obtener idioma guardado o usar español por defecto
+    const savedLang = localStorage.getItem('language') || 'eu';
+    this.setLanguage(savedLang);
   }
 
-  private initLanguage(): void {
-    const savedLang = localStorage.getItem(this.STORAGE_KEY) as Language;
-    const defaultLang = savedLang || 'eu';
-    this.translate.setDefaultLang('eu');
-    this.translate.use(defaultLang);
-  }
-
-  setLanguage(lang: Language): void {
+  setLanguage(lang: string): void {
     this.translate.use(lang);
-    localStorage.setItem(this.STORAGE_KEY, lang);
+    this.currentLanguage.set(lang);
+    localStorage.setItem('language', lang);
   }
 
-  getCurrentLanguage(): string {
-    return this.translate.currentLang || 'eu';
-  }
-
-  getAvailableLanguages(): { code: Language, name: string, flag: string }[] {
-    return [
-      { code: 'eu', name: 'Euskera', flag: 'EU' },
-      { code: 'es', name: 'Gaztelania', flag: 'ES' },
-      { code: 'en', name: 'Ingelesa', flag: 'EN' }
-    ];
+  getCurrentLanguage(): Language | undefined {
+    return this.languages.find((l) => l.code === this.currentLanguage());
   }
 }

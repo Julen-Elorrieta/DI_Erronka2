@@ -1,26 +1,28 @@
 export enum MeetingStatus {
-  PENDING = 'PENDING',
-  ACCEPTED = 'ACCEPTED',
-  CANCELLED = 'CANCELLED',
-  CONFLICT = 'CONFLICT'
+  PENDING = 'pendiente',
+  ACCEPTED = 'aceptada',
+  REJECTED = 'denegada',
+  CONFLICT = 'conflicto',
 }
 
 export interface Meeting {
-  id: number;
-  title: string;
-  topic: string;
-  date: Date;
-  hour: number; // 1-6
-  classroom: string;
-  status: MeetingStatus;
-  location: {
-    center: string;
-    address: string;
-    latitude?: number;
-    longitude?: number;
-  };
-  participants: {
-    teacherId: number;
-    studentId: number;
-  };
+  id_reunion?: number;
+  titulo: string;
+  asunto: string;
+  fecha: Date | string;
+  aula: string;
+  id_centro?: number;
+  profesor_id: number;
+  alumno_id: number;
+  estado: MeetingStatus | string;
+
+  // Para compatibilidad con frontend (opcional)
+  title?: string;
+  topic?: string;
+  date?: Date | string;
+  hour?: number;
+  classroom?: string;
+  status?: string;
+  center?: string;
+  address?: string;
 }

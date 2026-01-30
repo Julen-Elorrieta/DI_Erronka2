@@ -1,28 +1,27 @@
-import { Component, OnInit, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { AuthService } from './core/services/auth.service';
+import { Component, signal, computed, inject } from '@angular/core';
+import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
+import { HeaderComponent } from './core/components/header/header';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, HeaderComponent],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrls: ['./app.css'],
 })
-export class App implements OnInit {
-  protected readonly title = signal('ElorAdmin');
+export class App {
+  protected readonly title = signal('PruebaErronka2');
+  private router = inject(Router);
+  currentRoute = signal<string>('');
+  showHeader = computed(() => {
+    return !this.currentRoute().includes('/login');
+  });
 
-  constructor(
-    private translate: TranslateService,
-    private authService: AuthService
-  ) {
-    // Eskuragarri dauden hizkuntzak konfiguratu
-    this.translate.addLangs(['eu', 'es', 'en']);
-    this.translate.setDefaultLang('eu');
-  }
-
-  ngOnInit(): void {
-    // Erabiltzailea localStorage-tik kargatu existitzen bada
-    this.authService.loadUserFromStorage();
+  constructor() {
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        this.currentRoute.set(event.urlAfterRedirects);
+      });
   }
 }

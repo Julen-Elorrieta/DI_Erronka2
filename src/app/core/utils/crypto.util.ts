@@ -14,10 +14,10 @@ export class CryptoUtil {
         name: 'RSA-OAEP',
         modulusLength: 2048,
         publicExponent: new Uint8Array([1, 0, 1]),
-        hash: 'SHA-256'
+        hash: 'SHA-256',
       },
       true,
-      ['encrypt', 'decrypt']
+      ['encrypt', 'decrypt'],
     );
   }
 
@@ -37,11 +37,8 @@ export class CryptoUtil {
   static async importPublicKey(pem: string): Promise<CryptoKey> {
     const pemHeader = '-----BEGIN PUBLIC KEY-----';
     const pemFooter = '-----END PUBLIC KEY-----';
-    const pemContents = pem.substring(
-      pemHeader.length,
-      pem.length - pemFooter.length
-    ).trim();
-    
+    const pemContents = pem.substring(pemHeader.length, pem.length - pemFooter.length).trim();
+
     const binaryDerString = window.atob(pemContents);
     const binaryDer = new Uint8Array(binaryDerString.length);
     for (let i = 0; i < binaryDerString.length; i++) {
@@ -53,10 +50,10 @@ export class CryptoUtil {
       binaryDer.buffer,
       {
         name: 'RSA-OAEP',
-        hash: 'SHA-256'
+        hash: 'SHA-256',
       },
       true,
-      ['encrypt']
+      ['encrypt'],
     );
   }
 
@@ -68,12 +65,8 @@ export class CryptoUtil {
    */
   static async encryptWithPublicKey(publicKey: CryptoKey, plaintext: string): Promise<string> {
     const encoded = new TextEncoder().encode(plaintext);
-    const encrypted = await window.crypto.subtle.encrypt(
-      { name: 'RSA-OAEP' },
-      publicKey,
-      encoded
-    );
-    
+    const encrypted = await window.crypto.subtle.encrypt({ name: 'RSA-OAEP' }, publicKey, encoded);
+
     return btoa(String.fromCharCode(...new Uint8Array(encrypted)));
   }
 
@@ -86,6 +79,6 @@ export class CryptoUtil {
     const data = encoder.encode(text);
     const hashBuffer = await crypto.subtle.digest('SHA-256', data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
   }
 }

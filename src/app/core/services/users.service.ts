@@ -1,229 +1,75 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { delay, map } from 'rxjs/operators';
-import { User, UserRole } from '../models/user.model';
-import { environment } from '../../../environments/environment';
-
-interface UsersFilter {
-  role?: UserRole;
-  cycle?: string;
-  course?: string;
-  search?: string;
-}
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { User } from '../models/user.model';
+import { ApiUtil } from '../utils/api.util';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UsersService {
-  private readonly API_URL = `${environment.apiUrl}/users`;
-  private readonly USE_MOCK = environment.production ? false : (environment as any).enableMockData ?? true;
-
   constructor(private http: HttpClient) {}
 
   /**
-   * Erabiltzaile guztiak lortzen ditu iragazkiekin
+   * Obtiene todos los usuarios
+   * @returns Observable con array de usuarios
    */
-  getUsers(filter?: UsersFilter): Observable<User[]> {
-    if (this.USE_MOCK) {
-      console.log('[INFO] Garapen modua: MOCK datuak erabiltzen erabiltzaileentzat');
-      return this.getMockUsers().pipe(
-        map(users => {
-          let filtered = users;
-
-          if (filter?.role) {
-            filtered = filtered.filter(u => u.role === filter.role);
-          }
-
-          if (filter?.cycle) {
-            filtered = filtered.filter(u => u.cycle === filter.cycle);
-          }
-
-          if (filter?.course) {
-            filtered = filtered.filter(u => u.course === filter.course);
-          }
-
-          if (filter?.search) {
-            const searchLower = filter.search.toLowerCase();
-            filtered = filtered.filter(u =>
-              u.name.toLowerCase().includes(searchLower) ||
-              u.surname.toLowerCase().includes(searchLower) ||
-              u.email.toLowerCase().includes(searchLower)
-            );
-          }
-
-          return filtered;
-        }),
-        delay(300)
-      );
-    }
-
-    // API errealerako eskaera
-    console.log('[INFO] Erabiltzaileak lortzen hemendik:', this.API_URL);
-    let params = new HttpParams();
-    if (filter?.role) params = params.set('role', filter.role);
-    if (filter?.cycle) params = params.set('cycle', filter.cycle);
-    if (filter?.course) params = params.set('course', filter.course);
-    if (filter?.search) params = params.set('search', filter.search);
-    
-    return this.http.get<User[]>(this.API_URL, { params });
+  getAllUsers(): Observable<User[]> {
+    return this.http.get<User[]>(ApiUtil.buildUrl('/users'));
   }
 
   /**
-   * Erabiltzailea lortzen du IDaren arabera
+   * Obtiene un usuario por ID
+   * @param userId ID del usuario
+   * @returns Observable con datos del usuario
    */
-  getUserById(id: number): Observable<User | null> {
-    if (this.USE_MOCK) {
-      return this.getMockUsers().pipe(
-        map(users => users.find(u => u.id === id) || null),
-        delay(200)
-      );
-    }
-    
-    return this.http.get<User>(`${this.API_URL}/${id}`);
+  getUserById(userId: number): Observable<User> {
+    return this.http.get<User>(ApiUtil.buildUrl(`/users/${userId}`));
   }
 
   /**
-   * Erabiltzaile berria sortzen du
+   * Obtiene usuarios filtrados por rol
+   * @param tipoId ID del tipo de usuario/rol
+   * @returns Observable con usuarios del rol
    */
-  createUser(user: Omit<User, 'id'>): Observable<User> {
-    if (this.USE_MOCK) {
-      const newUser = { ...user, id: Date.now() } as User;
-      console.log('[ONDO] Erabiltzailea sortuta (mock):', newUser);
-      return of(newUser).pipe(delay(500));
-    }
-    
-    return this.http.post<User>(this.API_URL, user);
+  getUsersByRole(tipoId: number): Observable<User[]> {
+    return this.http.get<User[]>(ApiUtil.buildUrl('/filterUserByRole', { tipo_id: tipoId }));
   }
 
   /**
-   * Dagoen erabiltzailea eguneratzen du
+   * Filtrar usuarios por rol (alias para getUsersByRole)
+   * @param tipoId ID del tipo de usuario/rol
+   * @returns Observable con usuarios del rol
    */
-  updateUser(id: number, user: Partial<User>): Observable<User> {
-    if (this.USE_MOCK) {
-      console.log('[ONDO] Erabiltzailea eguneratuta (mock):', id, user);
-      return this.getUserById(id).pipe(
-        map(existingUser => ({ ...existingUser, ...user } as User)),
-        delay(500)
-      );
-    }
-    
-    return this.http.put<User>(`${this.API_URL}/${id}`, user);
+  filterUserByRole(tipoId: number): Observable<User[]> {
+    return this.http.get<User[]>(ApiUtil.buildUrl('/filterUserByRole', { tipo_id: tipoId }));
   }
 
   /**
-   * Erabiltzailea ezabatzen du
-   * GOD ezin da ezabatu
-   * GODek bakarrik ezaba ditzake erabiltzaileak
+   * Crea un nuevo usuario
+   * @param user Datos del usuario a crear
+   * @returns Observable con el usuario creado
    */
-  deleteUser(id: number): Observable<void> {
-    if (this.USE_MOCK) {
-      console.log('[ONDO] Erabiltzailea ezabatuta (mock):', id);
-      return of(void 0).pipe(delay(300));
-    }
-    
-    return this.http.delete<void>(`${this.API_URL}/${id}`);
+  createUser(user: User): Observable<User> {
+    return this.http.post<User>(ApiUtil.buildUrl('/users'), user);
   }
 
   /**
-   * Erabiltzaileen estatistikak lortzen ditu
+   * Actualiza un usuario existente
+   * @param userId ID del usuario
+   * @param user Datos actualizados
+   * @returns Observable con el resultado
    */
-  getStats(): Observable<{ totalStudents: number; totalTeachers: number }> {
-    if (this.USE_MOCK) {
-      return this.getMockUsers().pipe(
-        map(users => ({
-          totalStudents: users.filter(u => u.role === UserRole.STUDENT).length,
-          totalTeachers: users.filter(u => u.role === UserRole.TEACHER).length
-        })),
-        delay(200)
-      );
-    }
-    
-    return this.http.get<{ totalStudents: number; totalTeachers: number }>(`${this.API_URL}/stats`);
+  updateUser(userId: number, user: User): Observable<any> {
+    return this.http.put(ApiUtil.buildUrl(`/updateUser/${userId}`), user);
   }
 
   /**
-   * MOCK: Proba datuak
+   * Elimina un usuario
+   * @param username Username del usuario a eliminar
+   * @returns Observable con el resultado
    */
-  private getMockUsers(): Observable<User[]> {
-    const mockUsers: User[] = [
-      {
-        id: 1,
-        username: 'god',
-        email: 'god@elorrieta.com',
-        name: 'Super',
-        surname: 'Admin',
-        role: UserRole.GOD,
-        photo: 'unknown.jpg'
-      },
-      {
-        id: 2,
-        username: 'admin',
-        email: 'admin@elorrieta.com',
-        name: 'Admin',
-        surname: 'Idazkaritza',
-        role: UserRole.ADMIN,
-        photo: 'unknown.jpg'
-      },
-      {
-        id: 3,
-        username: 'jperez',
-        email: 'jperez@elorrieta.com',
-        name: 'Jon',
-        surname: 'Etxeberria Goia',
-        role: UserRole.TEACHER,
-        photo: 'unknown.jpg'
-      },
-      {
-        id: 4,
-        username: 'mlopez',
-        email: 'mlopez@elorrieta.com',
-        name: 'Miren',
-        surname: 'Agirre Zabala',
-        role: UserRole.TEACHER,
-        photo: 'unknown.jpg'
-      },
-      {
-        id: 5,
-        username: 'aalonso',
-        email: 'aalonso@elorrieta.com',
-        name: 'Ane',
-        surname: 'Uriarte Mendizabal',
-        role: UserRole.STUDENT,
-        photo: 'unknown.jpg',
-        cycle: '2DAM',
-        course: '2º',
-        isDual: false,
-        group: 'D'
-      },
-      {
-        id: 6,
-        username: 'cgomez',
-        email: 'cgomez@elorrieta.com',
-        name: 'Koldo',
-        surname: 'Azkona Arrese',
-        role: UserRole.STUDENT,
-        photo: 'unknown.jpg',
-        cycle: '2DAM',
-        course: '2º',
-        isDual: true,
-        group: 'D'
-      },
-      {
-        id: 7,
-        username: 'lgarcia',
-        email: 'lgarcia@elorrieta.com',
-        name: 'Leire',
-        surname: 'Goikoetxea Etxaniz',
-        role: UserRole.STUDENT,
-        photo: 'unknown.jpg',
-        cycle: '1DAM',
-        course: '1º',
-        isDual: false,
-        group: 'A'
-      }
-    ];
-
-    return of(mockUsers);
+  deleteUser(username: string): Observable<any> {
+    return this.http.delete(ApiUtil.buildUrl(`/deleteUser/${username}`));
   }
 }

@@ -1,1 +1,10 @@
-<router-outlet />
+@if (showHeader()) {
+  <app-header></app-header>
+  <div class="main-content with-header">
+    <router-outlet />
+  </div>
+} @else {
+  <div class="main-content">
+    <router-outlet />
+  </div>
+}
