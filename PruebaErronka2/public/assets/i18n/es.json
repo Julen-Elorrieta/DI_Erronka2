@@ -105,7 +105,6 @@
   },
   "ERROR.LOADING_CENTERS": "Error al cargar los centros",
   "USERS": "Usuarios",
-  "MEETINGS": "Reuniones",
   "CICLOS": "Ciclos Formativos",
   "CICLOS_SINGULAR": "Ciclo Formativo",
   "CICLOS.NOMBRE": "Nombre",
@@ -128,6 +127,9 @@
   "MATRICULACIONES_SINGULAR": "Matriculación",
   "MATRICULACIONES.FECHA": "Fecha",
   "MATRICULACIONES.ACTIONS": "Acciones",
+  "STUDENTS": "Total de Estudiantes",
+  "TEACHERS": "Total de Profesores",
+  "MEETINGS": "Total de Reuniones",
   "USUARIOS": {
     "ALUMNO": "Alumno"
   },

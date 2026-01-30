@@ -106,7 +106,6 @@
   },
   "ERROR.LOADING_CENTERS": "Errorea zentroak kargatzean",
   "USERS": "Erabiltzaileak",
-  "MEETINGS": "Bilerak",
   "CICLOS": "Heziketa Zikloak",
   "CICLOS_SINGULAR": "Heziketa Zikloa",
   "CICLOS.NOMBRE": "Izena",
@@ -129,6 +128,9 @@
   "MATRICULACIONES_SINGULAR": "Matrikulazioa",
   "MATRICULACIONES.FECHA": "Data",
   "MATRICULACIONES.ACTIONS": "Ekintzak",
+  "STUDENTS": "Ikasle Guztiak",
+  "TEACHERS": "Irakasle Guztiak",
+  "MEETINGS": "Bilera Guztiak",
   "USUARIOS": {
     "ALUMNO": "Ikaslea"
   },
