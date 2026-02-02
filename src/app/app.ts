@@ -20,12 +20,12 @@ import { filter } from 'rxjs';
 export class App {
   /** Aplikazioaren izenburua */
   protected readonly title = signal('PruebaErronka2');
-  
+
   private router = inject(Router);
-  
+
   /** Uneko bidearen signala */
   currentRoute = signal<string>('');
-  
+
   /** Header-a erakutsi ala ez kalkulatzen du (login orrialdean ez da erakusten) */
   showHeader = computed(() => {
     return !this.currentRoute().includes('/login');

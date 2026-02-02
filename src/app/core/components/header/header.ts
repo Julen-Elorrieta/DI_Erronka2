@@ -30,11 +30,7 @@ import { LanguageService, Language } from '../../services/language.service';
   template: `
     <mat-toolbar color="primary" class="header-toolbar">
       <div class="toolbar-left" (click)="goToDashboard()" style="cursor: pointer;">
-        <img 
-          src="/assets/logo-elorrieta.webp" 
-          alt="Elorrieta-Errekamari" 
-          class="header-logo"
-        />
+        <img src="/assets/logo-elorrieta.webp" alt="Elorrieta-Errekamari" class="header-logo" />
       </div>
 
       <div class="toolbar-right">
@@ -231,7 +227,7 @@ import { LanguageService, Language } from '../../services/language.service';
 export class HeaderComponent implements OnInit {
   /** Uneko erabiltzailearen signala */
   currentUser = signal<User | null>(null);
-  
+
   /** Hizkuntza eskuragarrien zerrenda */
   languages: Language[];
 
@@ -258,10 +254,10 @@ export class HeaderComponent implements OnInit {
 
     // Rol mapa euskaraz
     const roleMap: { [key: number]: string } = {
-      1: 'Jainkoa',          // GOD/Super Admin
+      1: 'Jainkoa', // GOD/Super Admin
       2: 'Administratzailea', // Admin
-      3: 'Irakaslea',        // Irakaslea
-      4: 'Ikaslea',          // Ikaslea
+      3: 'Irakaslea', // Irakaslea
+      4: 'Ikaslea', // Ikaslea
     };
     return roleMap[user.tipo_id] || 'Erabiltzailea';
   }

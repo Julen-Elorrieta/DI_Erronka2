@@ -7,13 +7,13 @@ export interface User {
   email: string;
   username: string;
   password: string;
-  nombre: string;      // Izena
-  apellidos: string;   // Abizenak
-  dni: string;         // NAN
-  direccion: string;   // Helbidea
-  telefono1: string;   // Lehen telefonoa
-  telefono2: string;   // Bigarren telefonoa
-  tipo_id: number;     // Rol mota (1=GOD, 2=ADMIN, 3=IRAKASLEA, 4=IKASLEA)
+  nombre: string; // Izena
+  apellidos: string; // Abizenak
+  dni: string; // NAN
+  direccion: string; // Helbidea
+  telefono1: string; // Lehen telefonoa
+  telefono2: string; // Bigarren telefonoa
+  tipo_id: number; // Rol mota (1=GOD, 2=ADMIN, 3=IRAKASLEA, 4=IKASLEA)
   argazkia_url?: string; // Argazkiaren URLa
   created_at: string;
   updated_at: string;

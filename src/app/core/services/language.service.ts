@@ -10,8 +10,8 @@ import { TranslateService } from '@ngx-translate/core';
  * Hizkuntza baten datuak definitzen ditu
  */
 export interface Language {
-  code: string;  // Hizkuntza kodea (eu, es, en)
-  name: string;  // Hizkuntzaren izena
+  code: string; // Hizkuntza kodea (eu, es, en)
+  name: string; // Hizkuntzaren izena
 }
 
 /**

@@ -9,7 +9,7 @@ import { ApiUtil } from '../utils/api.util';
  */
 export interface Ciclo {
   id: number;
-  nombre: string;  // Zikloaren izena
+  nombre: string; // Zikloaren izena
 }
 
 /**

@@ -19,7 +19,14 @@ import { ScheduleService } from '../../core/services/schedule.service';
  */
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, MatCardModule, MatIconModule, MatButtonModule, RouterModule, TranslateModule],
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatIconModule,
+    MatButtonModule,
+    RouterModule,
+    TranslateModule,
+  ],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css'],
 })
@@ -45,19 +52,19 @@ export class Dashboard implements OnInit {
     return user && user.tipo_id === 4;
   });
 
-  totalStudents = signal<number>(0);   // Ikasle kopurua
-  totalTeachers = signal<number>(0);   // Irakasle kopurua
-  todayMeetings = signal<number>(0);   // Gaurko bilera kopurua
-  myMeetings = signal<any[]>([]);      // Nire bilerak
-  mySchedule = signal<any[]>([]);      // Nire ordutegia
+  totalStudents = signal<number>(0); // Ikasle kopurua
+  totalTeachers = signal<number>(0); // Irakasle kopurua
+  todayMeetings = signal<number>(0); // Gaurko bilera kopurua
+  myMeetings = signal<any[]>([]); // Nire bilerak
+  mySchedule = signal<any[]>([]); // Nire ordutegia
 
   // Egunak euskeraz bistaratzeko
   diasLabels: Record<string, string> = {
-    'LUNES': 'Astelehena',
-    'MARTES': 'Asteartea',
-    'MIERCOLES': 'Asteazkena',
-    'JUEVES': 'Osteguna',
-    'VIERNES': 'Ostirala'
+    LUNES: 'Astelehena',
+    MARTES: 'Asteartea',
+    MIERCOLES: 'Asteazkena',
+    JUEVES: 'Osteguna',
+    VIERNES: 'Ostirala',
   };
 
   router: Router = inject(Router);
@@ -72,14 +79,14 @@ export class Dashboard implements OnInit {
 
   ngOnInit(): void {
     const user = this.authService.currentUser();
-    
+
     // Admin/GOD datuak
     if (this.isAdminRole()) {
       this.fetchMeetingsCount();
       this.fetchUsersCount();
       this.fetchTeachersCount();
     }
-    
+
     // Irakasle edo ikasle bada, bere ordutegia eta bilerak kargatu
     if ((this.isTeacherRole() || this.isStudentRole()) && user) {
       this.loadMySchedule(user.id);
@@ -96,7 +103,7 @@ export class Dashboard implements OnInit {
       error: (err) => {
         console.error('Errorea ordutegia kargatzean:', err);
         this.mySchedule.set([]);
-      }
+      },
     });
   }
 
@@ -107,7 +114,7 @@ export class Dashboard implements OnInit {
         // Hurrengo bilerak soilik (etorkizunekoak)
         const now = new Date();
         const upcoming = meetings
-          .filter(m => new Date(m.fecha) >= now)
+          .filter((m) => new Date(m.fecha) >= now)
           .sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime())
           .slice(0, 5); // 5 bilera hurrenak
         this.myMeetings.set(upcoming);
@@ -115,7 +122,7 @@ export class Dashboard implements OnInit {
       error: (err) => {
         console.error('Errorea bilerak kargatzean:', err);
         this.myMeetings.set([]);
-      }
+      },
     });
   }
 

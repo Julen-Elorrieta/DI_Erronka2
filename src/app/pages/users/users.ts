@@ -216,19 +216,19 @@ export class Users implements OnInit {
   canDelete(user: User): boolean {
     const currentUser = this.authService.currentUser();
     if (!currentUser) return false;
-    
+
     // Bakarrik GOD (1) edo Admin (2) ezabatu dezake
     if (currentUser.tipo_id !== 1 && currentUser.tipo_id !== 2) return false;
-    
+
     // Ezin du bere burua ezabatu
     if (currentUser.id === user.id) return false;
-    
+
     // Admin-ek ezin ditu GOD-ak ezabatu
     if (currentUser.tipo_id === 2 && user.tipo_id === 1) return false;
-    
+
     // Admin-ek ezin ditu beste Admin-ak ezabatu
     if (currentUser.tipo_id === 2 && user.tipo_id === 2) return false;
-    
+
     return true;
   }
 

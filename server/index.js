@@ -173,7 +173,7 @@ app.get('/centers', verifyToken, (req, res) => {
     // IRAKASLEA/IKASLEA: Bere bilerak bakarrik (profesor_id edo alumno_id)
     let query = 'SELECT * FROM reuniones';
     let params = [];
-    
+
     // Irakaslea edo ikaslea bada, bere bilerak bakarrik erakutsi
     if (req.tipoId === 3 || req.tipoId === 4) {
       query += ' WHERE profesor_id = ? OR alumno_id = ?';
@@ -200,7 +200,9 @@ app.get('/centers', verifyToken, (req, res) => {
         estado: reunion.estado_eus || reunion.estado || 'pendiente',
       }));
 
-      console.log(`📅 Devolviendo ${mappedResults.length} reuniones para usuario ${req.userId} (tipo: ${req.tipoId})`);
+      console.log(
+        `📅 Devolviendo ${mappedResults.length} reuniones para usuario ${req.userId} (tipo: ${req.tipoId})`,
+      );
 
       res.json(mappedResults);
     });

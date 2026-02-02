@@ -9,12 +9,12 @@ import { ApiUtil } from '../utils/api.util';
  */
 export interface Modulo {
   id: number;
-  nombre: string;        // Izena gaztelaniaz
-  nombre_eus: string;    // Izena euskaraz
-  horas: number;         // Ordu kopurua
-  ciclo_id: number;      // Zikloaren IDa
+  nombre: string; // Izena gaztelaniaz
+  nombre_eus: string; // Izena euskaraz
+  horas: number; // Ordu kopurua
+  ciclo_id: number; // Zikloaren IDa
   ciclo_nombre?: string; // Zikloaren izena (aukerakoa)
-  curso: number;         // Kurtsoa (1 edo 2)
+  curso: number; // Kurtsoa (1 edo 2)
 }
 
 /**

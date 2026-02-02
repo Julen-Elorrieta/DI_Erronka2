@@ -89,7 +89,9 @@
       <mat-card class="profile-summary-card">
         <mat-card-header>
           <mat-icon mat-card-avatar>person</mat-icon>
-          <mat-card-title>{{ currentUser()?.nombre }} {{ currentUser()?.apellidos }}</mat-card-title>
+          <mat-card-title
+            >{{ currentUser()?.nombre }} {{ currentUser()?.apellidos }}</mat-card-title
+          >
           <mat-card-subtitle>{{ 'ROLE.TEACHER' | translate }}</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
@@ -204,7 +206,9 @@
       <mat-card class="profile-summary-card">
         <mat-card-header>
           <mat-icon mat-card-avatar>person</mat-icon>
-          <mat-card-title>{{ currentUser()?.nombre }} {{ currentUser()?.apellidos }}</mat-card-title>
+          <mat-card-title
+            >{{ currentUser()?.nombre }} {{ currentUser()?.apellidos }}</mat-card-title
+          >
           <mat-card-subtitle>{{ currentUser()?.email }}</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>

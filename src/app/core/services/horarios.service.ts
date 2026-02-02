@@ -10,14 +10,14 @@ import { ApiUtil } from '../utils/api.util';
 export interface Horario {
   id: number;
   dia: 'ASTELEHENA' | 'ASTEARTEA' | 'ASTEAZKENA' | 'OSTEGUNA' | 'OSTIRALA';
-  hora: number;            // Ordua (1-6)
-  profe_id: number;        // Irakaslearen IDa
-  modulo_id: number;       // Moduluaren IDa
-  aula: string;            // Gela
-  observaciones?: string;  // Oharrak (aukerakoa)
+  hora: number; // Ordua (1-6)
+  profe_id: number; // Irakaslearen IDa
+  modulo_id: number; // Moduluaren IDa
+  aula: string; // Gela
+  observaciones?: string; // Oharrak (aukerakoa)
   profesor_nombre?: string; // Irakaslearen izena
-  apellidos?: string;      // Abizenak
-  modulo_nombre?: string;  // Moduluaren izena
+  apellidos?: string; // Abizenak
+  modulo_nombre?: string; // Moduluaren izena
 }
 
 /**

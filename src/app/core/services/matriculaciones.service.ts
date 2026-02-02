@@ -9,13 +9,13 @@ import { ApiUtil } from '../utils/api.util';
  */
 export interface Matriculacion {
   id: number;
-  alum_id: number;          // Ikaslearen IDa
-  ciclo_id: number;         // Zikloaren IDa
-  curso: number;            // Kurtsoa (1 edo 2)
-  fecha: Date;              // Matrikulazio data
-  alumno_nombre?: string;   // Ikaslearen izena
-  apellidos?: string;       // Abizenak
-  ciclo_nombre?: string;    // Zikloaren izena
+  alum_id: number; // Ikaslearen IDa
+  ciclo_id: number; // Zikloaren IDa
+  curso: number; // Kurtsoa (1 edo 2)
+  fecha: Date; // Matrikulazio data
+  alumno_nombre?: string; // Ikaslearen izena
+  apellidos?: string; // Abizenak
+  ciclo_nombre?: string; // Zikloaren izena
 }
 
 /**

@@ -83,11 +83,13 @@ interface ScheduleCell {
                 {{ getDiaLabel(dia) }}
               </div>
               @for (hora of horas; track hora) {
-                <div 
-                  class="grid-cell" 
+                <div
+                  class="grid-cell"
                   [class.has-content]="getCell(dia, hora).horario"
                   [class.empty-cell]="!getCell(dia, hora).horario"
-                  (click)="isAdmin() && !getCell(dia, hora).horario && openNewDialogWithParams(dia, hora)"
+                  (click)="
+                    isAdmin() && !getCell(dia, hora).horario && openNewDialogWithParams(dia, hora)
+                  "
                 >
                   @if (getCell(dia, hora).horario; as h) {
                     <div class="cell-content" [matTooltip]="getCellTooltip(h)">
@@ -99,10 +101,17 @@ interface ScheduleCell {
                       }
                       @if (isAdmin()) {
                         <div class="cell-actions">
-                          <button mat-icon-button (click)="editHorario(h); $event.stopPropagation()">
+                          <button
+                            mat-icon-button
+                            (click)="editHorario(h); $event.stopPropagation()"
+                          >
                             <mat-icon>edit</mat-icon>
                           </button>
-                          <button mat-icon-button color="warn" (click)="deleteHorario(h); $event.stopPropagation()">
+                          <button
+                            mat-icon-button
+                            color="warn"
+                            (click)="deleteHorario(h); $event.stopPropagation()"
+                          >
                             <mat-icon>delete</mat-icon>
                           </button>
                         </div>
@@ -121,232 +130,234 @@ interface ScheduleCell {
       }
     </div>
   `,
-  styles: [`
-    .schedule-container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
-    .schedule-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-    }
-
-    .schedule-header h1 {
-      font-size: 2rem;
-      font-weight: 500;
-      color: var(--primary-color);
-      margin: 0;
-    }
-
-    .loading-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 400px;
-    }
-
-    .schedule-card {
-      overflow-x: auto;
-      padding: 0 !important;
-    }
-
-    .schedule-grid {
-      display: grid;
-      grid-template-columns: 100px repeat(6, 1fr);
-      min-width: 800px;
-    }
-
-    .grid-header-corner {
-      background: var(--primary-color);
-      color: white;
-      padding: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-bottom: 2px solid var(--primary-color);
-    }
-
-    .grid-header-cell {
-      background: var(--primary-color);
-      color: white;
-      padding: 12px 8px;
-      text-align: center;
-      border-left: 1px solid rgba(255,255,255,0.2);
-      border-bottom: 2px solid var(--primary-color);
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .hora-label {
-      font-weight: 600;
-      font-size: 1rem;
-    }
-
-    .hora-time {
-      font-size: 0.7rem;
-      opacity: 0.85;
-    }
-
-    .add-button {
-      color: white !important;
-    }
-
-    .grid-day-header {
-      background: #f5f5f5;
-      padding: 16px 8px;
-      font-weight: 600;
-      color: var(--primary-color);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-bottom: 1px solid #e0e0e0;
-      border-right: 1px solid #e0e0e0;
-      font-size: 0.85rem;
-    }
-
-    .grid-cell {
-      min-height: 90px;
-      padding: 8px;
-      border-right: 1px solid #e0e0e0;
-      border-bottom: 1px solid #e0e0e0;
-      position: relative;
-      transition: background-color 0.2s;
-    }
-
-    .grid-cell.has-content {
-      background: #e3f2fd;
-    }
-
-    .grid-cell.empty-cell {
-      background: white;
-    }
-
-    .grid-cell.empty-cell:hover {
-      background: #fafafa;
-      cursor: pointer;
-    }
-
-    .cell-content {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .cell-module {
-      font-weight: 600;
-      font-size: 0.8rem;
-      color: var(--primary-color);
-      line-height: 1.2;
-    }
-
-    .cell-teacher {
-      font-size: 0.75rem;
-      color: var(--text-secondary);
-    }
-
-    .cell-room {
-      font-size: 0.7rem;
-      color: var(--text-secondary);
-      background: white;
-      padding: 2px 6px;
-      border-radius: 4px;
-      display: inline-block;
-      width: fit-content;
-      margin-top: auto;
-    }
-
-    .cell-note {
-      position: absolute;
-      top: 4px;
-      right: 4px;
-      font-size: 14px;
-      width: 14px;
-      height: 14px;
-      color: var(--accent-color);
-    }
-
-    .cell-actions {
-      position: absolute;
-      bottom: 2px;
-      right: 2px;
-      display: none;
-      gap: 0;
-      background: rgba(255,255,255,0.9);
-      border-radius: 4px;
-    }
-
-    .grid-cell:hover .cell-actions {
-      display: flex;
-    }
-
-    .cell-actions button {
-      width: 28px;
-      height: 28px;
-      line-height: 28px;
-    }
-
-    .cell-actions mat-icon {
-      font-size: 16px;
-      width: 16px;
-      height: 16px;
-    }
-
-    .empty-slot {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-
-    .grid-cell.empty-cell:hover .empty-slot {
-      opacity: 0.3;
-    }
-
-    .empty-slot mat-icon {
-      font-size: 24px;
-      width: 24px;
-      height: 24px;
-      color: var(--text-secondary);
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .schedule-grid {
-        grid-template-columns: 70px repeat(6, 1fr);
-        min-width: 600px;
+  styles: [
+    `
+      .schedule-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
       }
 
-      .grid-day-header {
-        font-size: 0.7rem;
-        padding: 12px 4px;
+      .schedule-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+      }
+
+      .schedule-header h1 {
+        font-size: 2rem;
+        font-weight: 500;
+        color: var(--primary-color);
+        margin: 0;
+      }
+
+      .loading-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 400px;
+      }
+
+      .schedule-card {
+        overflow-x: auto;
+        padding: 0 !important;
+      }
+
+      .schedule-grid {
+        display: grid;
+        grid-template-columns: 100px repeat(6, 1fr);
+        min-width: 800px;
+      }
+
+      .grid-header-corner {
+        background: var(--primary-color);
+        color: white;
+        padding: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-bottom: 2px solid var(--primary-color);
+      }
+
+      .grid-header-cell {
+        background: var(--primary-color);
+        color: white;
+        padding: 12px 8px;
+        text-align: center;
+        border-left: 1px solid rgba(255, 255, 255, 0.2);
+        border-bottom: 2px solid var(--primary-color);
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
       }
 
       .hora-label {
-        font-size: 0.85rem;
+        font-weight: 600;
+        font-size: 1rem;
       }
 
       .hora-time {
-        display: none;
+        font-size: 0.7rem;
+        opacity: 0.85;
+      }
+
+      .add-button {
+        color: white !important;
+      }
+
+      .grid-day-header {
+        background: #f5f5f5;
+        padding: 16px 8px;
+        font-weight: 600;
+        color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-bottom: 1px solid #e0e0e0;
+        border-right: 1px solid #e0e0e0;
+        font-size: 0.85rem;
+      }
+
+      .grid-cell {
+        min-height: 90px;
+        padding: 8px;
+        border-right: 1px solid #e0e0e0;
+        border-bottom: 1px solid #e0e0e0;
+        position: relative;
+        transition: background-color 0.2s;
+      }
+
+      .grid-cell.has-content {
+        background: #e3f2fd;
+      }
+
+      .grid-cell.empty-cell {
+        background: white;
+      }
+
+      .grid-cell.empty-cell:hover {
+        background: #fafafa;
+        cursor: pointer;
+      }
+
+      .cell-content {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
       }
 
       .cell-module {
-        font-size: 0.7rem;
+        font-weight: 600;
+        font-size: 0.8rem;
+        color: var(--primary-color);
+        line-height: 1.2;
       }
 
-      .cell-teacher,
-      .cell-room {
-        font-size: 0.65rem;
+      .cell-teacher {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
       }
-    }
-  `],
+
+      .cell-room {
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+        background: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        display: inline-block;
+        width: fit-content;
+        margin-top: auto;
+      }
+
+      .cell-note {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+        color: var(--accent-color);
+      }
+
+      .cell-actions {
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        display: none;
+        gap: 0;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 4px;
+      }
+
+      .grid-cell:hover .cell-actions {
+        display: flex;
+      }
+
+      .cell-actions button {
+        width: 28px;
+        height: 28px;
+        line-height: 28px;
+      }
+
+      .cell-actions mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+      }
+
+      .empty-slot {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+
+      .grid-cell.empty-cell:hover .empty-slot {
+        opacity: 0.3;
+      }
+
+      .empty-slot mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+        color: var(--text-secondary);
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .schedule-grid {
+          grid-template-columns: 70px repeat(6, 1fr);
+          min-width: 600px;
+        }
+
+        .grid-day-header {
+          font-size: 0.7rem;
+          padding: 12px 4px;
+        }
+
+        .hora-label {
+          font-size: 0.85rem;
+        }
+
+        .hora-time {
+          display: none;
+        }
+
+        .cell-module {
+          font-size: 0.7rem;
+        }
+
+        .cell-teacher,
+        .cell-room {
+          font-size: 0.65rem;
+        }
+      }
+    `,
+  ],
 })
 export class HorariosComponent implements OnInit {
   horarios = signal<Horario[]>([]);
@@ -364,16 +375,16 @@ export class HorariosComponent implements OnInit {
 
   /** Asteko egunak (datu-basean gordetzen diren bezala) */
   dias = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES'];
-  
+
   /** Egunen izenak euskaraz */
   diasLabels: { [key: string]: string } = {
-    'LUNES': 'ASTELEHENA',
-    'MARTES': 'ASTEARTEA',
-    'MIERCOLES': 'ASTEAZKENA',
-    'JUEVES': 'OSTEGUNA',
-    'VIERNES': 'OSTIRALA'
+    LUNES: 'ASTELEHENA',
+    MARTES: 'ASTEARTEA',
+    MIERCOLES: 'ASTEAZKENA',
+    JUEVES: 'OSTEGUNA',
+    VIERNES: 'OSTIRALA',
   };
-  
+
   /** Eskola orduak */
   horas = [1, 2, 3, 4, 5, 6];
 
@@ -384,20 +395,20 @@ export class HorariosComponent implements OnInit {
     3: '10:15 - 11:15',
     4: '11:15 - 12:15',
     5: '12:30 - 13:30',
-    6: '13:30 - 14:30'
+    6: '13:30 - 14:30',
   };
 
   /** Ordutegi matrizea egun eta orduen arabera */
   private scheduleMatrix = computed(() => {
     const matrix: { [key: string]: ScheduleCell } = {};
-    
+
     // Hasieratu gelaxka guztiak hutsik
     for (const dia of this.dias) {
       for (const hora of this.horas) {
         matrix[`${dia}-${hora}`] = { horario: null, isEmpty: true };
       }
     }
-    
+
     // Bete horarioekin
     for (const h of this.horarios()) {
       const key = `${h.dia}-${h.hora}`;
@@ -405,7 +416,7 @@ export class HorariosComponent implements OnInit {
         matrix[key] = { horario: h, isEmpty: false };
       }
     }
-    
+
     return matrix;
   });
 
