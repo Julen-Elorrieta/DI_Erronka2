@@ -161,12 +161,20 @@ export class CiclosComponent implements OnInit {
   createCiclo(ciclo: any): void {
     this.ciclosService.createCiclo(ciclo).subscribe({
       next: () => {
-        this.snackBar.open(this.translate.instant('CICLOS.CREATED'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
+        this.snackBar.open(
+          this.translate.instant('CICLOS.CREATED'),
+          this.translate.instant('COMMON.CLOSE'),
+          { duration: 3000 },
+        );
         this.loadCiclos();
       },
       error: (err) => {
         console.error('Errorea zikloa sortzean:', err);
-        this.snackBar.open(this.translate.instant('CICLOS.ERROR_CREATE'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
+        this.snackBar.open(
+          this.translate.instant('CICLOS.ERROR_CREATE'),
+          this.translate.instant('COMMON.CLOSE'),
+          { duration: 3000 },
+        );
       },
     });
   }
@@ -191,12 +199,20 @@ export class CiclosComponent implements OnInit {
         if (nombre) {
           this.ciclosService.updateCiclo(ciclo.id, { nombre } as any).subscribe({
             next: () => {
-              this.snackBar.open(this.translate.instant('CICLOS.UPDATED'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
+              this.snackBar.open(
+                this.translate.instant('CICLOS.UPDATED'),
+                this.translate.instant('COMMON.CLOSE'),
+                { duration: 3000 },
+              );
               this.loadCiclos();
             },
             error: (err) => {
               console.error('Errorea zikloa eguneratzean:', err);
-              this.snackBar.open(this.translate.instant('CICLOS.ERROR_UPDATE'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
+              this.snackBar.open(
+                this.translate.instant('CICLOS.ERROR_UPDATE'),
+                this.translate.instant('COMMON.CLOSE'),
+                { duration: 3000 },
+              );
             },
           });
         }
@@ -220,12 +236,20 @@ export class CiclosComponent implements OnInit {
       if (result.isConfirmed) {
         this.ciclosService.deleteCiclo(ciclo.id).subscribe({
           next: () => {
-            this.snackBar.open(this.translate.instant('CICLOS.DELETED'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
+            this.snackBar.open(
+              this.translate.instant('CICLOS.DELETED'),
+              this.translate.instant('COMMON.CLOSE'),
+              { duration: 3000 },
+            );
             this.loadCiclos();
           },
           error: (err) => {
             console.error('Errorea zikloa ezabatzean:', err);
-            this.snackBar.open(this.translate.instant('CICLOS.ERROR_DELETE'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
+            this.snackBar.open(
+              this.translate.instant('CICLOS.ERROR_DELETE'),
+              this.translate.instant('COMMON.CLOSE'),
+              { duration: 3000 },
+            );
           },
         });
       }

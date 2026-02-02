@@ -145,7 +145,11 @@ export class ModulosComponent implements OnInit {
       error: (err) => {
         console.error('Errorea moduluak kargatzean:', err);
         this.loading.set(false);
-        this.snackBar.open(this.translate.instant('ERROR.LOADING_MODULES'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
+        this.snackBar.open(
+          this.translate.instant('ERROR.LOADING_MODULES'),
+          this.translate.instant('COMMON.CLOSE'),
+          { duration: 3000 },
+        );
       },
     });
   }
@@ -202,12 +206,20 @@ export class ModulosComponent implements OnInit {
   createModulo(modulo: any): void {
     this.modulosService.createModulo(modulo).subscribe({
       next: () => {
-        this.snackBar.open(this.translate.instant('MODULOS.CREATED'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
+        this.snackBar.open(
+          this.translate.instant('MODULOS.CREATED'),
+          this.translate.instant('COMMON.CLOSE'),
+          { duration: 3000 },
+        );
         this.loadModulos();
       },
       error: (err) => {
         console.error('Errorea modulua sortzean:', err);
-        this.snackBar.open(this.translate.instant('MODULOS.ERROR_CREATE'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
+        this.snackBar.open(
+          this.translate.instant('MODULOS.ERROR_CREATE'),
+          this.translate.instant('COMMON.CLOSE'),
+          { duration: 3000 },
+        );
       },
     });
   }
@@ -247,12 +259,20 @@ export class ModulosComponent implements OnInit {
         };
         this.modulosService.updateModulo(modulo.id, updated as any).subscribe({
           next: () => {
-            this.snackBar.open(this.translate.instant('MODULOS.UPDATED'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
+            this.snackBar.open(
+              this.translate.instant('MODULOS.UPDATED'),
+              this.translate.instant('COMMON.CLOSE'),
+              { duration: 3000 },
+            );
             this.loadModulos();
           },
           error: (err) => {
             console.error('Errorea modulua eguneratzean:', err);
-            this.snackBar.open(this.translate.instant('MODULOS.ERROR_UPDATE'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
+            this.snackBar.open(
+              this.translate.instant('MODULOS.ERROR_UPDATE'),
+              this.translate.instant('COMMON.CLOSE'),
+              { duration: 3000 },
+            );
           },
         });
       }
@@ -275,12 +295,20 @@ export class ModulosComponent implements OnInit {
       if (result.isConfirmed) {
         this.modulosService.deleteModulo(modulo.id).subscribe({
           next: () => {
-            this.snackBar.open(this.translate.instant('MODULOS.DELETED'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
+            this.snackBar.open(
+              this.translate.instant('MODULOS.DELETED'),
+              this.translate.instant('COMMON.CLOSE'),
+              { duration: 3000 },
+            );
             this.loadModulos();
           },
           error: (err) => {
             console.error('Errorea modulua ezabatzean:', err);
-            this.snackBar.open(this.translate.instant('MODULOS.ERROR_DELETE'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
+            this.snackBar.open(
+              this.translate.instant('MODULOS.ERROR_DELETE'),
+              this.translate.instant('COMMON.CLOSE'),
+              { duration: 3000 },
+            );
           },
         });
       }

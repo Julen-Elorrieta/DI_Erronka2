@@ -564,12 +564,20 @@ export class HorariosComponent implements OnInit {
   createHorario(horario: any): void {
     this.horariosService.createHorario(horario).subscribe({
       next: () => {
-        this.snackBar.open(this.translate.instant('HORARIOS.CREATED'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
+        this.snackBar.open(
+          this.translate.instant('HORARIOS.CREATED'),
+          this.translate.instant('COMMON.CLOSE'),
+          { duration: 3000 },
+        );
         this.loadData();
       },
       error: (err) => {
         console.error('Errorea ordutegia sortzean:', err);
-        this.snackBar.open(this.translate.instant('HORARIOS.ERROR_CREATE'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
+        this.snackBar.open(
+          this.translate.instant('HORARIOS.ERROR_CREATE'),
+          this.translate.instant('COMMON.CLOSE'),
+          { duration: 3000 },
+        );
       },
     });
   }
@@ -619,12 +627,20 @@ export class HorariosComponent implements OnInit {
         };
         this.horariosService.updateHorario(horario.id, updated as any).subscribe({
           next: () => {
-            this.snackBar.open(this.translate.instant('HORARIOS.UPDATED'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
+            this.snackBar.open(
+              this.translate.instant('HORARIOS.UPDATED'),
+              this.translate.instant('COMMON.CLOSE'),
+              { duration: 3000 },
+            );
             this.loadData();
           },
           error: (err) => {
             console.error('Errorea ordutegia eguneratzean:', err);
-            this.snackBar.open(this.translate.instant('HORARIOS.ERROR_UPDATE'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
+            this.snackBar.open(
+              this.translate.instant('HORARIOS.ERROR_UPDATE'),
+              this.translate.instant('COMMON.CLOSE'),
+              { duration: 3000 },
+            );
           },
         });
       }
@@ -644,12 +660,20 @@ export class HorariosComponent implements OnInit {
       if (result.isConfirmed) {
         this.horariosService.deleteHorario(horario.id).subscribe({
           next: () => {
-            this.snackBar.open(this.translate.instant('HORARIOS.DELETED'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
+            this.snackBar.open(
+              this.translate.instant('HORARIOS.DELETED'),
+              this.translate.instant('COMMON.CLOSE'),
+              { duration: 3000 },
+            );
             this.loadData();
           },
           error: (err) => {
             console.error('Errorea ordutegia ezabatzean:', err);
-            this.snackBar.open(this.translate.instant('HORARIOS.ERROR_DELETE'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
+            this.snackBar.open(
+              this.translate.instant('HORARIOS.ERROR_DELETE'),
+              this.translate.instant('COMMON.CLOSE'),
+              { duration: 3000 },
+            );
           },
         });
       }

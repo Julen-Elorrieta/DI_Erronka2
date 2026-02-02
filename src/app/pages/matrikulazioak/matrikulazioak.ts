@@ -233,12 +233,20 @@ export class MatriculacionesComponent implements OnInit {
   createMatriculacion(matriculacion: any): void {
     this.matriculacionesService.createMatriculacion(matriculacion).subscribe({
       next: () => {
-        this.snackBar.open(this.translate.instant('MATRICULACIONES.CREATED'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
+        this.snackBar.open(
+          this.translate.instant('MATRICULACIONES.CREATED'),
+          this.translate.instant('COMMON.CLOSE'),
+          { duration: 3000 },
+        );
         this.loadData();
       },
       error: (err) => {
         console.error('Errorea matrikulazioa sortzean:', err);
-        this.snackBar.open(this.translate.instant('MATRICULACIONES.ERROR_CREATE'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
+        this.snackBar.open(
+          this.translate.instant('MATRICULACIONES.ERROR_CREATE'),
+          this.translate.instant('COMMON.CLOSE'),
+          { duration: 3000 },
+        );
       },
     });
   }
@@ -288,14 +296,22 @@ export class MatriculacionesComponent implements OnInit {
           .updateMatriculacion(matriculacion.id, updated as any)
           .subscribe({
             next: () => {
-              this.snackBar.open(this.translate.instant('MATRICULACIONES.UPDATED'), this.translate.instant('COMMON.CLOSE'), {
-                duration: 3000,
-              });
+              this.snackBar.open(
+                this.translate.instant('MATRICULACIONES.UPDATED'),
+                this.translate.instant('COMMON.CLOSE'),
+                {
+                  duration: 3000,
+                },
+              );
               this.loadData();
             },
             error: (err) => {
               console.error('Errorea matrikulazioa eguneratzean:', err);
-              this.snackBar.open(this.translate.instant('MATRICULACIONES.ERROR_UPDATE'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
+              this.snackBar.open(
+                this.translate.instant('MATRICULACIONES.ERROR_UPDATE'),
+                this.translate.instant('COMMON.CLOSE'),
+                { duration: 3000 },
+              );
             },
           });
       }
@@ -318,14 +334,22 @@ export class MatriculacionesComponent implements OnInit {
       if (result.isConfirmed) {
         this.matriculacionesService.deleteMatriculacion(matriculacion.id).subscribe({
           next: () => {
-            this.snackBar.open(this.translate.instant('MATRICULACIONES.DELETED'), this.translate.instant('COMMON.CLOSE'), {
-              duration: 3000,
-            });
+            this.snackBar.open(
+              this.translate.instant('MATRICULACIONES.DELETED'),
+              this.translate.instant('COMMON.CLOSE'),
+              {
+                duration: 3000,
+              },
+            );
             this.loadData();
           },
           error: (err) => {
             console.error('Errorea matrikulazioa ezabatzean:', err);
-            this.snackBar.open(this.translate.instant('MATRICULACIONES.ERROR_DELETE'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
+            this.snackBar.open(
+              this.translate.instant('MATRICULACIONES.ERROR_DELETE'),
+              this.translate.instant('COMMON.CLOSE'),
+              { duration: 3000 },
+            );
           },
         });
       }
