@@ -359,15 +359,6 @@ app.get('/schedule/:userId', verifyToken, (req, res) => {
 // ENDPOINTS DE MEETINGS
 // ============================================
 
-app.get('/meetings', verifyToken, (_req, res) => {
-  connection.query('SELECT * FROM reuniones ORDER BY fecha DESC', (err, results) => {
-    if (err) {
-      return res.status(500).json({ success: false, error: 'DB error' });
-    }
-    res.json(results || []);
-  });
-});
-
 app.get('/meetings/user/:userId', verifyToken, (req, res) => {
   const userId = req.params.userId;
 
@@ -383,22 +374,6 @@ app.get('/meetings/user/:userId', verifyToken, (req, res) => {
       return res.status(500).json({ success: false, error: 'DB error' });
     }
     res.json(results || []);
-  });
-});
-
-app.get('/meetings/:meetingId', verifyToken, (req, res) => {
-  const meetingId = req.params.meetingId;
-
-  connection.query('SELECT * FROM reuniones WHERE id_reunion = ?', [meetingId], (err, results) => {
-    if (err) {
-      return res.status(500).json({ success: false, error: 'DB error' });
-    }
-
-    if (results && results.length > 0) {
-      res.json(results[0]);
-    } else {
-      res.status(404).json({ success: false, error: 'Meeting not found' });
-    }
   });
 });
 
@@ -420,21 +395,6 @@ app.post('/meetings', verifyToken, (req, res) => {
   );
 });
 
-app.put('/meetings/:meetingId', verifyToken, (req, res) => {
-  const meetingId = req.params.meetingId;
-  const { title, topic, fecha, classroom } = req.body;
-
-  const query =
-    'UPDATE reuniones SET titulo = ?, asunto = ?, fecha = ?, aula = ? WHERE id_reunion = ?';
-
-  connection.query(query, [title, topic, fecha, classroom, meetingId], (err) => {
-    if (err) {
-      return res.status(500).json({ success: false, error: 'DB error', details: err.message });
-    }
-    res.json({ success: true });
-  });
-});
-
 app.put('/meetings/:meetingId/status', verifyToken, (req, res) => {
   const meetingId = req.params.meetingId;
   const { status } = req.body;
@@ -444,40 +404,6 @@ app.put('/meetings/:meetingId/status', verifyToken, (req, res) => {
   connection.query(query, [status, meetingId], (err) => {
     if (err) {
       return res.status(500).json({ success: false, error: 'DB error', details: err.message });
-    }
-    res.json({ success: true });
-  });
-});
-
-app.delete('/meetings/:meetingId', verifyToken, (req, res) => {
-  const meetingId = req.params.meetingId;
-
-  connection.query('DELETE FROM reuniones WHERE id_reunion = ?', [meetingId], (err) => {
-    if (err) {
-      return res.status(500).json({ success: false, error: 'DB error', details: err.message });
-    }
-    res.json({ success: true });
-  });
-});
-
-app.put('/updateMeeting/:id', verifyToken, (req, res) => {
-  const meetingId = req.params.id;
-  const nuevoEstado = req.body.estado;
-
-  console.log('=== UPDATE MEETING ===');
-  console.log('ID recibido:', meetingId);
-  console.log('Nuevo estado recibido:', nuevoEstado);
-
-  const query = 'UPDATE reuniones SET estado = ? WHERE id_reunion = ?';
-
-  connection.query(query, [nuevoEstado, meetingId], (err) => {
-    if (err) {
-      console.error('ERROR en UPDATE:', err);
-      return res.status(500).json({
-        success: false,
-        error: 'Error en base de datos',
-        details: err.message,
-      });
     }
     res.json({ success: true });
   });
@@ -777,60 +703,6 @@ app.delete('/matriculaciones/:id', verifyToken, (req, res) => {
       return res.status(500).json({ success: false, error: 'DB error' });
     }
     res.json({ success: true });
-  });
-});
-
-// ============================================
-// ENDPOINTS DE USUARIO (CRUD adicional)
-// ============================================
-
-app.post('/users', verifyToken, (req, res) => {
-  if (req.tipoId !== 1 && req.tipoId !== 2) {
-    return res.status(403).json({ success: false, error: 'No tienes permisos' });
-  }
-
-  const {
-    email,
-    username,
-    password,
-    nombre,
-    apellidos,
-    dni,
-    direccion,
-    telefono1,
-    telefono2,
-    tipo_id,
-  } = req.body;
-  const query = `INSERT INTO users (email, username, password, nombre, apellidos, dni, direccion, telefono1, telefono2, tipo_id)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-
-  connection.query(
-    query,
-    [email, username, password, nombre, apellidos, dni, direccion, telefono1, telefono2, tipo_id],
-    (err, result) => {
-      if (err) {
-        return res.status(500).json({ success: false, error: 'DB error', details: err.message });
-      }
-      res.json({ success: true, id: result.insertId });
-    },
-  );
-});
-
-app.get('/users/:id', verifyToken, (req, res) => {
-  // Verificar permisos: solo GOD/ADMIN o el mismo usuario
-  if (req.tipoId !== 1 && req.tipoId !== 2 && req.userId !== parseInt(req.params.id)) {
-    return res.status(403).json({ success: false, error: 'No tienes permisos' });
-  }
-
-  connection.query('SELECT * FROM users WHERE id = ?', [req.params.id], (err, results) => {
-    if (err) {
-      return res.status(500).json({ success: false, error: 'DB error' });
-    }
-    if (results && results.length > 0) {
-      res.json(results[0]);
-    } else {
-      res.status(404).json({ success: false, error: 'User not found' });
-    }
   });
 });
 

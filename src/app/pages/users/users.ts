@@ -166,12 +166,6 @@ export class Users implements OnInit {
     return user.argazkia_url || '/unknown.webp';
   }
 
-  getRoleClass(role: number): string {
-    if (role === 1) return 'admin';
-    if (role === 2) return 'user';
-    return 'unknown';
-  }
-
   canEdit(user: User): boolean {
     return this.isAdmin();
   }

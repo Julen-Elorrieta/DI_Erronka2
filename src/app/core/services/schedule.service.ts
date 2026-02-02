@@ -18,14 +18,4 @@ export class ScheduleService {
   getUserSchedule(userId: number): Observable<Schedule> {
     return this.http.get<Schedule>(ApiUtil.buildUrl(`/schedule/${userId}`));
   }
-
-  /**
-   * Erabiltzaile baten ordutegia eguneratzen du
-   * @param userId Erabiltzailearen IDa
-   * @param schedule Eguneratu beharreko ordutegiaren datuak
-   * @returns Observable emaitzarekin
-   */
-  updateUserSchedule(userId: number, schedule: Schedule): Observable<any> {
-    return this.http.put(ApiUtil.buildUrl(`/schedule/${userId}`), schedule);
-  }
 }

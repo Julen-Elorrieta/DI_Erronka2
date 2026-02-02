@@ -3,7 +3,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
@@ -58,7 +58,6 @@ export class Dashboard implements OnInit {
   myMeetings = signal<any[]>([]); // Nire bilerak
   mySchedule = signal<any[]>([]); // Nire ordutegia
 
-  router: Router = inject(Router);
   authService: AuthService = inject(AuthService);
   scheduleService: ScheduleService = inject(ScheduleService);
   translate: TranslateService = inject(TranslateService);
@@ -146,11 +145,6 @@ export class Dashboard implements OnInit {
   /** Irakaslearen izena lortu edo default itzulpena */
   getTeacherLabel(teacher: string | null | undefined): string {
     return teacher || this.translate.instant('SCHEDULE.NO_TEACHER');
-  }
-
-  /** Saioa ixteko metodoa */
-  logout(): void {
-    this.authService.logout(this.router);
   }
 
   /**

@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
@@ -34,7 +34,6 @@ interface ScheduleCell {
   imports: [
     CommonModule,
     FormsModule,
-    ReactiveFormsModule,
     MatButtonModule,
     MatIconModule,
     MatCardModule,

@@ -11,6 +11,8 @@ import {
   ElementRef,
   ViewChild,
   inject,
+  ChangeDetectorRef,
+  NgZone,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -145,6 +147,8 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
   private readonly translate = inject(TranslateService);
   private readonly dialog = inject(MatDialog);
   private readonly meetingsService = inject(MeetingsService);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly ngZone = inject(NgZone);
 
   @ViewChild('mapContainer', { static: false }) mapContainer!: ElementRef;
 
@@ -227,6 +231,9 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
 
   private map: mapboxgl.Map | null = null;
   private markers = new Map<string, mapboxgl.Marker>();
+  private mapInitAttempts = 0;
+  private readonly MAX_MAP_INIT_ATTEMPTS = 10;
+  private pendingCentersForMarkers: Center[] = [];
 
   constructor() {
     if (!this.authService.isLoggedIn()) this.router.navigate(['/login']);
@@ -236,34 +243,66 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.loadInitialData();
     this.setupFilterCascade();
-    this.processedData$
-      .pipe(
-        takeUntil(this.destroy$),
-        filter(() => !!this.mapContainer),
-        take(1),
-      )
-      .subscribe(() => setTimeout(() => this.initializeMap(), 200));
-    this.mapMarkersUpdate$.subscribe((centers) => this.updateMapMarkers(centers));
+    
+    // Suscribirse a los datos procesados para actualizar marcadores
+    this.mapMarkersUpdate$.subscribe((centers) => {
+      if (this.map && this.mapInitialized$.value) {
+        this.updateMapMarkers(centers);
+      } else {
+        // Guardar los centros pendientes para cuando el mapa esté listo
+        this.pendingCentersForMarkers = centers;
+      }
+    });
   }
 
   ngAfterViewInit(): void {
+    // Inicializar el mapa después de que la vista esté lista
+    this.ngZone.runOutsideAngular(() => {
+      setTimeout(() => this.tryInitializeMap(), 100);
+    });
+
+    // Cuando cambie a la pestaña del mapa, asegurar que se redimensione
     this.activeTab$
       .pipe(
         filter((tab) => tab === 0),
-        debounceTime(300),
+        debounceTime(100),
         takeUntil(this.destroy$),
       )
-      .subscribe(() => this.map?.resize());
+      .subscribe(() => {
+        if (this.map) {
+          this.ngZone.runOutsideAngular(() => {
+            setTimeout(() => {
+              this.map?.resize();
+              // Volver a ajustar los bounds si hay marcadores
+              if (this.markers.size > 0) {
+                const centers = this.centersSource$.value.filter(c => this.markers.has(c.CCEN));
+                if (centers.length) this.fitMapBounds(centers);
+              }
+            }, 50);
+          });
+        } else {
+          // Si el mapa no existe, intentar inicializarlo
+          this.tryInitializeMap();
+        }
+      });
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    
+    // Limpiar marcadores
+    this.markers.forEach((marker) => marker.remove());
+    this.markers.clear();
+    
+    // Limpiar mapa
     if (this.map) {
       this.map.remove();
       this.map = null;
     }
-    this.markers.clear();
+    
+    this.mapInitialized$.next(false);
+    this.pendingCentersForMarkers = [];
   }
 
   private loadInitialData(): void {
@@ -447,22 +486,83 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
+  private tryInitializeMap(): void {
+    // Si ya está inicializado, no hacer nada
+    if (this.map && this.mapInitialized$.value) {
+      return;
+    }
+
+    // Si no hay contenedor, reintentar
+    if (!this.mapContainer?.nativeElement) {
+      this.mapInitAttempts++;
+      if (this.mapInitAttempts < this.MAX_MAP_INIT_ATTEMPTS) {
+        setTimeout(() => this.tryInitializeMap(), 200);
+      } else {
+        console.warn('Ezin izan da mapa hasieratu: kontainerra ez dago eskuragarri');
+      }
+      return;
+    }
+
+    // Verificar que el contenedor tenga dimensiones
+    const container = this.mapContainer.nativeElement;
+    if (container.offsetWidth === 0 || container.offsetHeight === 0) {
+      this.mapInitAttempts++;
+      if (this.mapInitAttempts < this.MAX_MAP_INIT_ATTEMPTS) {
+        setTimeout(() => this.tryInitializeMap(), 200);
+      }
+      return;
+    }
+
+    this.initializeMap();
+  }
+
   private initializeMap(): void {
-    if (!this.mapContainer || this.map) return;
+    if (this.map) {
+      // Si el mapa ya existe, solo redimensionar
+      this.map.resize();
+      return;
+    }
+
+    if (!this.mapContainer?.nativeElement) {
+      console.warn('Mapa kontainerra ez dago eskuragarri');
+      return;
+    }
+
     try {
-      this.map = new mapboxgl.Map({
-        container: this.mapContainer.nativeElement,
-        style: 'mapbox://styles/mapbox/streets-v12',
-        center: [-2.5, 42.85],
-        zoom: 8,
+      this.ngZone.runOutsideAngular(() => {
+        this.map = new mapboxgl.Map({
+          container: this.mapContainer.nativeElement,
+          style: 'mapbox://styles/mapbox/streets-v12',
+          center: [-2.5, 42.85],
+          zoom: 8,
+          failIfMajorPerformanceCaveat: false,
+        });
+
+        this.map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+        this.map.addControl(new mapboxgl.FullscreenControl(), 'top-right');
+
+        this.map.on('load', () => {
+          console.log('Mapbox mapa kargatuta');
+          this.ngZone.run(() => {
+            this.mapInitialized$.next(true);
+            // Procesar los centros pendientes
+            if (this.pendingCentersForMarkers.length > 0) {
+              this.updateMapMarkers(this.pendingCentersForMarkers);
+              this.pendingCentersForMarkers = [];
+            }
+            this.cdr.markForCheck();
+          });
+        });
+
+        this.map.on('error', (e) => {
+          console.error('Mapbox errorea:', e);
+        });
+
+        // Redimensionar cuando el mapa esté idle
+        this.map.on('idle', () => {
+          this.map?.resize();
+        });
       });
-      this.map.addControl(new mapboxgl.NavigationControl());
-      this.map.addControl(new mapboxgl.FullscreenControl());
-      this.map.on('load', () => {
-        console.log('Mapbox mapa kargatuta');
-        this.mapInitialized$.next(true);
-      });
-      this.map.on('error', (e) => console.error('Mapbox errorea:', e));
     } catch (error) {
       console.error('Errorea mapa hasieratzen:', error);
       this.mapInitialized$.next(false);
@@ -470,64 +570,89 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private updateMapMarkers(centers: Center[]): void {
-    if (!this.map) return;
-    const valid = centers.filter(
-      (c) =>
-        c.LONGITUD &&
-        c.LATITUD &&
-        !isNaN(c.LONGITUD) &&
-        !isNaN(c.LATITUD) &&
-        c.LONGITUD !== 0 &&
-        c.LATITUD !== 0,
-    );
-    const newIds = new Set(valid.map((c) => c.CCEN));
-    this.markers.forEach((marker, id) => {
-      if (!newIds.has(id)) {
-        marker.remove();
-        this.markers.delete(id);
-      }
-    });
-    valid.forEach((c) => {
-      if (!this.markers.has(c.CCEN)) {
-        const [lng, lat] = [c.LATITUD, c.LONGITUD]; // Mapbox [lng, lat] formatuan
-        const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
-          <div style="min-width: 200px; padding: 8px;">
-            <strong style="font-size: 14px;">${c.NOM}</strong><br>
-            <small style="color: #666;">${c.CCEN}</small><br>
-            <span style="font-size: 13px;">${c.DMUNIC} - ${c.DTERRC}</span>
-          </div>
-        `);
-        try {
-          const marker = new mapboxgl.Marker({ color: '#3F51B5' })
-            .setLngLat([lng, lat])
-            .setPopup(popup)
-            .addTo(this.map!);
-          this.markers.set(c.CCEN, marker);
-        } catch (error) {
-          console.error(`Errorea markatzailea gehitzen ${c.NOM}:`, error);
+    if (!this.map || !this.mapInitialized$.value) {
+      // Guardar para procesar después
+      this.pendingCentersForMarkers = centers;
+      return;
+    }
+
+    this.ngZone.runOutsideAngular(() => {
+      const valid = centers.filter(
+        (c) =>
+          c.LONGITUD &&
+          c.LATITUD &&
+          !isNaN(c.LONGITUD) &&
+          !isNaN(c.LATITUD) &&
+          c.LONGITUD !== 0 &&
+          c.LATITUD !== 0,
+      );
+
+      const newIds = new Set(valid.map((c) => c.CCEN));
+
+      // Eliminar marcadores que ya no están
+      this.markers.forEach((marker, id) => {
+        if (!newIds.has(id)) {
+          marker.remove();
+          this.markers.delete(id);
         }
+      });
+
+      // Añadir nuevos marcadores
+      valid.forEach((c) => {
+        if (!this.markers.has(c.CCEN)) {
+          const [lng, lat] = [c.LATITUD, c.LONGITUD]; // Mapbox [lng, lat] formatuan
+          const popup = new mapboxgl.Popup({ offset: 25, closeOnClick: false }).setHTML(`
+            <div style="min-width: 200px; padding: 8px;">
+              <strong style="font-size: 14px;">${c.NOM}</strong><br>
+              <small style="color: #666;">${c.CCEN}</small><br>
+              <span style="font-size: 13px;">${c.DMUNIC} - ${c.DTERRC}</span>
+            </div>
+          `);
+          try {
+            const marker = new mapboxgl.Marker({ color: '#3F51B5' })
+              .setLngLat([lng, lat])
+              .setPopup(popup)
+              .addTo(this.map!);
+            this.markers.set(c.CCEN, marker);
+          } catch (error) {
+            console.error(`Errorea markatzailea gehitzen ${c.NOM}:`, error);
+          }
+        }
+      });
+
+      // Ajustar bounds si hay marcadores
+      if (valid.length > 0) {
+        // Pequeño delay para asegurar que los marcadores están renderizados
+        setTimeout(() => this.fitMapBounds(valid), 100);
       }
     });
-    if (valid.length) this.fitMapBounds(valid);
   }
 
   private fitMapBounds(centers: Center[]): void {
-    if (!this.map || !centers.length) return;
-    const bounds = new mapboxgl.LngLatBounds();
-    centers.forEach((c) => {
-      if (c.LATITUD && c.LONGITUD) {
-        try {
-          bounds.extend([c.LATITUD, c.LONGITUD]);
-        } catch (error) {
-          console.error(`Errorea bounds hedatzen ${c.NOM}:`, error);
-        }
-      }
-    });
+    if (!this.map || !centers.length || !this.mapInitialized$.value) return;
+
     try {
-      this.map.fitBounds(bounds, {
-        padding: { top: 50, bottom: 50, left: 50, right: 50 },
-        maxZoom: 15,
+      const bounds = new mapboxgl.LngLatBounds();
+      let validPoints = 0;
+
+      centers.forEach((c) => {
+        if (c.LATITUD && c.LONGITUD && !isNaN(c.LATITUD) && !isNaN(c.LONGITUD)) {
+          try {
+            bounds.extend([c.LATITUD, c.LONGITUD]);
+            validPoints++;
+          } catch (error) {
+            console.error(`Errorea bounds hedatzen ${c.NOM}:`, error);
+          }
+        }
       });
+
+      if (validPoints > 0) {
+        this.map.fitBounds(bounds, {
+          padding: { top: 50, bottom: 50, left: 50, right: 50 },
+          maxZoom: 14,
+          duration: 500,
+        });
+      }
     } catch (error) {
       console.error('Errorea mapa bounds doitzen:', error);
     }
@@ -583,20 +708,6 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
     return user?.tipo_id === 3; // Bakarrik irakasleak
   }
 
-  /**
-   * Bilera editatzeko baimena - Inork ezin du editatu
-   */
-  canEditMeeting(): boolean {
-    return false; // Ezin da bilera bat editatu
-  }
-
-  /**
-   * Bilera ezabatzeko baimena - Inork ezin du ezabatu
-   */
-  canDeleteMeeting(): boolean {
-    return false; // Ezin da bilera bat ezabatu
-  }
-
   private showSnackBar(message: string, error = false): void {
     this.snackBar.open(message, this.translate.instant('COMMON.CLOSE'), {
       duration: 3000,
@@ -642,36 +753,6 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  openEditMeetingDialog(meeting: Meeting): void {
-    const dialogRef = this.dialog.open(MeetingDialogComponent, { width: '500px', data: meeting });
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.handleMeetingOperation(
-          this.meetingsService.updateMeeting(parseInt(meeting.id), result),
-          'SUCCESS.MEETING_UPDATED',
-          'ERROR.UPDATING_MEETING',
-          'updateMeeting',
-        );
-      }
-    });
-  }
-
-  deleteMeeting(meeting: Meeting): void {
-    if (
-      confirm(
-        this.translate.instant('CONFIRM.DELETE_MEETING') ||
-          'Ziur zaude bilera ezabatu nahi duzula?',
-      )
-    ) {
-      this.handleMeetingOperation(
-        this.meetingsService.deleteMeeting(parseInt(meeting.id)),
-        'SUCCESS.MEETING_DELETED',
-        'ERROR.DELETING_MEETING',
-        'deleteMeeting',
-      );
-    }
-  }
-
   updateMeetingStatus(meeting: Meeting, newStatus: string): void {
     this.handleMeetingOperation(
       this.meetingsService.updateMeetingStatus(parseInt(meeting.id), newStatus),
@@ -686,9 +767,34 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
   }
 
   focusOnCenter(center: Center): void {
-    if (this.map && center.LONGITUD && center.LATITUD) {
-      this.map.flyTo({ center: [center.LATITUD, center.LONGITUD], zoom: 15, essential: true });
-      this.markers.get(center.CCEN)?.togglePopup();
+    if (!this.map || !this.mapInitialized$.value) {
+      console.warn('Mapa ez dago eskuragarri');
+      return;
+    }
+    
+    if (center.LONGITUD && center.LATITUD) {
+      // Cambiar a la pestaña del mapa si no está activa
+      if (this.activeTabSource$.value !== 0) {
+        this.activeTabSource$.next(0);
+        // Esperar a que el tab cambie y el mapa se redimensione
+        setTimeout(() => {
+          this.map?.flyTo({ 
+            center: [center.LATITUD, center.LONGITUD], 
+            zoom: 15, 
+            essential: true,
+            duration: 1000 
+          });
+          setTimeout(() => this.markers.get(center.CCEN)?.togglePopup(), 1000);
+        }, 200);
+      } else {
+        this.map.flyTo({ 
+          center: [center.LATITUD, center.LONGITUD], 
+          zoom: 15, 
+          essential: true,
+          duration: 1000 
+        });
+        setTimeout(() => this.markers.get(center.CCEN)?.togglePopup(), 1000);
+      }
     }
   }
 

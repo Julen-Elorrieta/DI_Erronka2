@@ -2,7 +2,7 @@
  * Bilera dialogoaren osagaia
  * Bilerak sortu eta editatzeko elkarrizketa-koadroa
  */
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -106,7 +106,7 @@ import { Meeting } from '../../core/models/meeting.model';
     `,
   ],
 })
-export class MeetingDialogComponent implements OnInit {
+export class MeetingDialogComponent {
   meetingForm: FormGroup;
   hours = [1, 2, 3, 4, 5, 6];
 
@@ -129,8 +129,6 @@ export class MeetingDialogComponent implements OnInit {
       this.meetingForm.patchValue(data);
     }
   }
-
-  ngOnInit(): void {}
 
   onCancel(): void {
     this.dialogRef.close();
