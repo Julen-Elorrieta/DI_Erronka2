@@ -10,6 +10,10 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 
+/**
+ * Autentifikazio osagaia
+ * Saioa hasteko formularioa kudeatzen du
+ */
 @Component({
   selector: 'app-auth',
   standalone: true,
@@ -42,6 +46,10 @@ export class Auth {
     });
   }
 
+  /**
+   * Formularioa bidaltzen du saioa hasteko
+   * Kredentzialak egiaztatzen ditu eta dashboard-era birbideratzen du arrakastatsua bada
+   */
   onSubmit() {
     if (this.loginForm.valid) {
       const { username, password } = this.loginForm.value;

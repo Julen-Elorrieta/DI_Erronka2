@@ -11,63 +11,63 @@ export class UsersService {
   constructor(private http: HttpClient) {}
 
   /**
-   * Obtiene todos los usuarios
-   * @returns Observable con array de usuarios
+   * Erabiltzaile guztiak eskuratzen ditu
+   * @returns Observable erabiltzaileen array-arekin
    */
   getAllUsers(): Observable<User[]> {
     return this.http.get<User[]>(ApiUtil.buildUrl('/users'));
   }
 
   /**
-   * Obtiene un usuario por ID
-   * @param userId ID del usuario
-   * @returns Observable con datos del usuario
+   * Erabiltzaile bat eskuratzen du ID bidez
+   * @param userId Erabiltzailearen IDa
+   * @returns Observable erabiltzailearen datuekin
    */
   getUserById(userId: number): Observable<User> {
     return this.http.get<User>(ApiUtil.buildUrl(`/users/${userId}`));
   }
 
   /**
-   * Obtiene usuarios filtrados por rol
-   * @param tipoId ID del tipo de usuario/rol
-   * @returns Observable con usuarios del rol
+   * Erabiltzaileak iragazten ditu rolaren arabera
+   * @param tipoId Erabiltzaile mota/rol IDa
+   * @returns Observable rolaren erabiltzaileekin
    */
   getUsersByRole(tipoId: number): Observable<User[]> {
     return this.http.get<User[]>(ApiUtil.buildUrl('/filterUserByRole', { tipo_id: tipoId }));
   }
 
   /**
-   * Filtrar usuarios por rol (alias para getUsersByRole)
-   * @param tipoId ID del tipo de usuario/rol
-   * @returns Observable con usuarios del rol
+   * Erabiltzaileak iragazten ditu rolaren arabera (getUsersByRole-ren aliasa)
+   * @param tipoId Erabiltzaile mota/rol IDa
+   * @returns Observable rolaren erabiltzaileekin
    */
   filterUserByRole(tipoId: number): Observable<User[]> {
     return this.http.get<User[]>(ApiUtil.buildUrl('/filterUserByRole', { tipo_id: tipoId }));
   }
 
   /**
-   * Crea un nuevo usuario
-   * @param user Datos del usuario a crear
-   * @returns Observable con el usuario creado
+   * Erabiltzaile berri bat sortzen du
+   * @param user Sortu beharreko erabiltzailearen datuak
+   * @returns Observable sortutako erabiltzailearekin
    */
   createUser(user: User): Observable<User> {
     return this.http.post<User>(ApiUtil.buildUrl('/users'), user);
   }
 
   /**
-   * Actualiza un usuario existente
-   * @param userId ID del usuario
-   * @param user Datos actualizados
-   * @returns Observable con el resultado
+   * Lehendik dagoen erabiltzaile bat eguneratzen du
+   * @param userId Erabiltzailearen IDa
+   * @param user Datu eguneratuak
+   * @returns Observable emaitzarekin
    */
   updateUser(userId: number, user: User): Observable<any> {
     return this.http.put(ApiUtil.buildUrl(`/updateUser/${userId}`), user);
   }
 
   /**
-   * Elimina un usuario
-   * @param username Username del usuario a eliminar
-   * @returns Observable con el resultado
+   * Erabiltzaile bat ezabatzen du
+   * @param username Ezabatu beharreko erabiltzailearen username-a
+   * @returns Observable emaitzarekin
    */
   deleteUser(username: string): Observable<any> {
     return this.http.delete(ApiUtil.buildUrl(`/deleteUser/${username}`));

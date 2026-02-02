@@ -131,12 +131,16 @@ export class CiclosComponent implements OnInit {
     });
   }
 
+  /**
+   * Ziklo berria sortzeko dialogoa irekitzen du
+   */
   openNewDialog(): void {
     Swal.fire({
-      title: 'Nuevo Ciclo',
-      html: `<input type="text" id="nombre" class="swal2-input" placeholder="Nombre del ciclo">`,
+      title: 'Ziklo Berria',
+      html: `<input type="text" id="nombre" class="swal2-input" placeholder="Zikloaren izena">`,
       showCancelButton: true,
-      confirmButtonText: 'Crear',
+      confirmButtonText: 'Sortu',
+      cancelButtonText: 'Ezeztatu',
       didOpen: () => {
         document.getElementById('nombre')?.focus();
       },
@@ -150,25 +154,34 @@ export class CiclosComponent implements OnInit {
     });
   }
 
+  /**
+   * Ziklo berria sortzen du datu-basean
+   * @param ciclo Sortu beharreko zikloaren datuak
+   */
   createCiclo(ciclo: any): void {
     this.ciclosService.createCiclo(ciclo).subscribe({
       next: () => {
-        this.snackBar.open('Ciclo creado correctamente', 'Close', { duration: 3000 });
+        this.snackBar.open('Zikloa ondo sortu da', 'Itxi', { duration: 3000 });
         this.loadCiclos();
       },
       error: (err) => {
-        console.error('Error creating ciclo:', err);
-        this.snackBar.open('Error al crear ciclo', 'Close', { duration: 3000 });
+        console.error('Errorea zikloa sortzean:', err);
+        this.snackBar.open('Errorea zikloa sortzean', 'Itxi', { duration: 3000 });
       },
     });
   }
 
+  /**
+   * Zikloa editatzeko dialogoa irekitzen du
+   * @param ciclo Editatu beharreko zikloa
+   */
   editCiclo(ciclo: Ciclo): void {
     Swal.fire({
-      title: 'Editar Ciclo',
-      html: `<input type="text" id="nombre" class="swal2-input" placeholder="Nombre del ciclo" value="${ciclo.nombre}">`,
+      title: 'Zikloa Editatu',
+      html: `<input type="text" id="nombre" class="swal2-input" placeholder="Zikloaren izena" value="${ciclo.nombre}">`,
       showCancelButton: true,
-      confirmButtonText: 'Actualizar',
+      confirmButtonText: 'Eguneratu',
+      cancelButtonText: 'Ezeztatu',
       didOpen: () => {
         document.getElementById('nombre')?.focus();
       },
@@ -178,12 +191,12 @@ export class CiclosComponent implements OnInit {
         if (nombre) {
           this.ciclosService.updateCiclo(ciclo.id, { nombre } as any).subscribe({
             next: () => {
-              this.snackBar.open('Ciclo actualizado correctamente', 'Close', { duration: 3000 });
+              this.snackBar.open('Zikloa ondo eguneratu da', 'Itxi', { duration: 3000 });
               this.loadCiclos();
             },
             error: (err) => {
-              console.error('Error updating ciclo:', err);
-              this.snackBar.open('Error al actualizar ciclo', 'Close', { duration: 3000 });
+              console.error('Errorea zikloa eguneratzean:', err);
+              this.snackBar.open('Errorea zikloa eguneratzean', 'Itxi', { duration: 3000 });
             },
           });
         }
@@ -191,30 +204,38 @@ export class CiclosComponent implements OnInit {
     });
   }
 
+  /**
+   * Zikloa ezabatzeko baieztapena eskatzen du
+   * @param ciclo Ezabatu beharreko zikloa
+   */
   deleteCiclo(ciclo: Ciclo): void {
     Swal.fire({
-      title: '¿Eliminar ciclo?',
-      text: `¿Está seguro de que desea eliminar el ciclo ${ciclo.nombre}?`,
+      title: 'Zikloa ezabatu?',
+      text: `Ziur zaude ${ciclo.nombre} zikloa ezabatu nahi duzula?`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
+      confirmButtonText: 'Bai, ezabatu',
+      cancelButtonText: 'Ezeztatu',
     }).then((result) => {
       if (result.isConfirmed) {
         this.ciclosService.deleteCiclo(ciclo.id).subscribe({
           next: () => {
-            this.snackBar.open('Ciclo eliminado correctamente', 'Close', { duration: 3000 });
+            this.snackBar.open('Zikloa ondo ezabatu da', 'Itxi', { duration: 3000 });
             this.loadCiclos();
           },
           error: (err) => {
-            console.error('Error deleting ciclo:', err);
-            this.snackBar.open('Error al eliminar ciclo', 'Close', { duration: 3000 });
+            console.error('Errorea zikloa ezabatzean:', err);
+            this.snackBar.open('Errorea zikloa ezabatzean', 'Itxi', { duration: 3000 });
           },
         });
       }
     });
   }
 
+  /**
+   * Erabiltzailea administratzailea den egiaztatzen du
+   * @returns true administratzailea bada
+   */
   isAdmin(): boolean {
     const user = this.authService.currentUser();
     return user?.tipo_id === 1 || user?.tipo_id === 2;

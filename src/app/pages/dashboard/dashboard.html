@@ -2,7 +2,7 @@
   <h1 class="page-title">{{ 'MENU.HOME' | translate }}</h1>
 
   <div class="welcome-section">
-    <h2>{{ 'MENU.WELCOME' | translate }}, {{ currentUser()?.name }}!</h2>
+    <h2>{{ 'MENU.WELCOME' | translate }}, {{ currentUser()?.nombre }}!</h2>
   </div>
 
   <!-- Admin/God Dashboard -->
@@ -83,79 +83,21 @@
   }
 
   <!-- Teacher Dashboard -->
-  @if (currentUser()?.role === 'TEACHER') {
+  @if (isTeacherRole()) {
     <div class="teacher-dashboard">
-      <mat-card class="info-card">
-        <mat-card-header>
-          <mat-icon mat-card-avatar>schedule</mat-icon>
-          <mat-card-title>{{ 'SCHEDULE.TITLE' | translate }}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <p>{{ 'DASHBOARD.VIEW_SCHEDULE_DESC' | translate }}</p>
-        </mat-card-content>
-        <mat-card-actions>
-          <a mat-button color="primary" routerLink="/schedule">
-            {{ 'COMMON.VIEW' | translate }}
-            <mat-icon>arrow_forward</mat-icon>
-          </a>
-        </mat-card-actions>
-      </mat-card>
-
-      <mat-card class="info-card">
-        <mat-card-header>
-          <mat-icon mat-card-avatar>event</mat-icon>
-          <mat-card-title>{{ 'MEETING.MY_MEETINGS' | translate }}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <p>{{ 'DASHBOARD.VIEW_MEETINGS_DESC' | translate }}</p>
-        </mat-card-content>
-        <mat-card-actions>
-          <a mat-button color="primary" routerLink="/meetings">
-            {{ 'COMMON.VIEW' | translate }}
-            <mat-icon>arrow_forward</mat-icon>
-          </a>
-        </mat-card-actions>
-      </mat-card>
-
-      <mat-card class="info-card">
-        <mat-card-header>
-          <mat-icon mat-card-avatar>school</mat-icon>
-          <mat-card-title>{{ 'MENU.STUDENTS' | translate }}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <p>{{ 'DASHBOARD.VIEW_STUDENTS_DESC' | translate }}</p>
-        </mat-card-content>
-        <mat-card-actions>
-          <a mat-button color="primary" routerLink="/students">
-            {{ 'COMMON.VIEW' | translate }}
-            <mat-icon>arrow_forward</mat-icon>
-          </a>
-        </mat-card-actions>
-      </mat-card>
-    </div>
-  }
-
-  <!-- Student Dashboard -->
-  @if (currentUser()?.role === 'STUDENT') {
-    <div class="student-dashboard">
+      <!-- Nire datuak -->
       <mat-card class="profile-summary-card">
         <mat-card-header>
           <mat-icon mat-card-avatar>person</mat-icon>
-          <mat-card-title>{{ currentUser()?.name }} {{ currentUser()?.surname }}</mat-card-title>
-          <mat-card-subtitle>{{ currentUser()?.email }}</mat-card-subtitle>
+          <mat-card-title>{{ currentUser()?.nombre }} {{ currentUser()?.apellidos }}</mat-card-title>
+          <mat-card-subtitle>{{ 'ROLE.TEACHER' | translate }}</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
-          <div class="student-details">
-            @if (currentUser()?.cycle) {
+          <div class="teacher-details">
+            @if (currentUser()?.email) {
               <div class="detail-item">
-                <mat-icon>school</mat-icon>
-                <span>{{ currentUser()?.cycle }}</span>
-              </div>
-            }
-            @if (currentUser()?.group) {
-              <div class="detail-item">
-                <mat-icon>group</mat-icon>
-                <span>{{ 'USER.GROUP' | translate }}: {{ currentUser()?.group }}</span>
+                <mat-icon>email</mat-icon>
+                <span>{{ currentUser()?.email }}</span>
               </div>
             }
           </div>
@@ -168,33 +110,194 @@
         </mat-card-actions>
       </mat-card>
 
-      <mat-card class="info-card">
+      <!-- Gaurko ordutegia -->
+      <mat-card class="schedule-card">
         <mat-card-header>
           <mat-icon mat-card-avatar>schedule</mat-icon>
           <mat-card-title>{{ 'SCHEDULE.TITLE' | translate }}</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <p>{{ 'DASHBOARD.VIEW_SCHEDULE_DESC' | translate }}</p>
+          @if (mySchedule().length > 0) {
+            <div class="schedule-mini-list">
+              @for (slot of mySchedule().slice(0, 6); track slot) {
+                <div class="schedule-mini-item">
+                  <div class="schedule-time">{{ slot.hour || '--' }}:00</div>
+                  <div class="schedule-info">
+                    <span class="schedule-subject">{{ slot.subject || 'Modulurik gabe' }}</span>
+                    @if (slot.classroom) {
+                      <span class="schedule-classroom">{{ slot.classroom }}</span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="empty-message">{{ 'SCHEDULE.NO_CLASSES' | translate }}</p>
+          }
         </mat-card-content>
         <mat-card-actions>
-          <a mat-button color="primary" routerLink="/schedule">
-            {{ 'COMMON.VIEW' | translate }}
+          <a mat-button color="primary" routerLink="/horarios">
+            {{ 'COMMON.VIEW_ALL' | translate }}
             <mat-icon>arrow_forward</mat-icon>
           </a>
         </mat-card-actions>
       </mat-card>
 
-      <mat-card class="info-card">
+      <!-- Hurrengo bilerak -->
+      <mat-card class="meetings-card">
         <mat-card-header>
           <mat-icon mat-card-avatar>event</mat-icon>
-          <mat-card-title>{{ 'MEETING.MY_MEETINGS' | translate }}</mat-card-title>
+          <mat-card-title>{{ 'MEETING.UPCOMING' | translate }}</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <p>{{ 'DASHBOARD.VIEW_MEETINGS_DESC' | translate }}</p>
+          @if (myMeetings().length > 0) {
+            <div class="meetings-mini-list">
+              @for (meeting of myMeetings(); track meeting.id_reunion) {
+                <div class="meeting-mini-item">
+                  <div class="meeting-date">
+                    <span class="day">{{ formatDate(meeting.fecha) }}</span>
+                    <span class="time">{{ formatTime(meeting.fecha) }}</span>
+                  </div>
+                  <div class="meeting-info">
+                    <span class="meeting-title">{{ meeting.titulo || meeting.asunto }}</span>
+                    @if (meeting.aula) {
+                      <span class="meeting-place">{{ meeting.aula }}</span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="empty-message">{{ 'MEETING.NO_UPCOMING' | translate }}</p>
+          }
         </mat-card-content>
         <mat-card-actions>
           <a mat-button color="primary" routerLink="/meetings">
+            {{ 'COMMON.VIEW_ALL' | translate }}
+            <mat-icon>arrow_forward</mat-icon>
+          </a>
+        </mat-card-actions>
+      </mat-card>
+
+      <!-- Ikasleak ikusi -->
+      <mat-card class="info-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>school</mat-icon>
+          <mat-card-title>{{ 'MENU.STUDENTS' | translate }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>{{ 'DASHBOARD.VIEW_STUDENTS_DESC' | translate }}</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <a mat-button color="primary" routerLink="/users">
             {{ 'COMMON.VIEW' | translate }}
+            <mat-icon>arrow_forward</mat-icon>
+          </a>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  }
+
+  <!-- Student Dashboard -->
+  @if (isStudentRole()) {
+    <div class="student-dashboard">
+      <mat-card class="profile-summary-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>person</mat-icon>
+          <mat-card-title>{{ currentUser()?.nombre }} {{ currentUser()?.apellidos }}</mat-card-title>
+          <mat-card-subtitle>{{ currentUser()?.email }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="student-details">
+            @if (currentUser()?.direccion) {
+              <div class="detail-item">
+                <mat-icon>location_on</mat-icon>
+                <span>{{ currentUser()?.direccion }}</span>
+              </div>
+            }
+            @if (currentUser()?.telefono1) {
+              <div class="detail-item">
+                <mat-icon>phone</mat-icon>
+                <span>{{ currentUser()?.telefono1 }}</span>
+              </div>
+            }
+          </div>
+        </mat-card-content>
+        <mat-card-actions>
+          <a mat-button color="primary" routerLink="/profile">
+            {{ 'MENU.PROFILE' | translate }}
+            <mat-icon>arrow_forward</mat-icon>
+          </a>
+        </mat-card-actions>
+      </mat-card>
+
+      <!-- Nire ordutegia -->
+      <mat-card class="schedule-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>schedule</mat-icon>
+          <mat-card-title>{{ 'SCHEDULE.TITLE' | translate }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @if (mySchedule().length > 0) {
+            <div class="schedule-mini-list">
+              @for (slot of mySchedule().slice(0, 6); track slot) {
+                <div class="schedule-mini-item">
+                  <div class="schedule-time">{{ slot.hour || '--' }}:00</div>
+                  <div class="schedule-info">
+                    <span class="schedule-subject">{{ slot.subject || 'Modulurik gabe' }}</span>
+                    @if (slot.teacher) {
+                      <span class="schedule-teacher">{{ slot.teacher }}</span>
+                    }
+                    @if (slot.classroom) {
+                      <span class="schedule-classroom">{{ slot.classroom }}</span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="empty-message">{{ 'SCHEDULE.NO_CLASSES' | translate }}</p>
+          }
+        </mat-card-content>
+        <mat-card-actions>
+          <a mat-button color="primary" routerLink="/profile">
+            {{ 'COMMON.VIEW_ALL' | translate }}
+            <mat-icon>arrow_forward</mat-icon>
+          </a>
+        </mat-card-actions>
+      </mat-card>
+
+      <!-- Hurrengo bilerak -->
+      <mat-card class="meetings-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>event</mat-icon>
+          <mat-card-title>{{ 'MEETING.UPCOMING' | translate }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @if (myMeetings().length > 0) {
+            <div class="meetings-mini-list">
+              @for (meeting of myMeetings(); track meeting.id_reunion) {
+                <div class="meeting-mini-item">
+                  <div class="meeting-date">
+                    <span class="day">{{ formatDate(meeting.fecha) }}</span>
+                    <span class="time">{{ formatTime(meeting.fecha) }}</span>
+                  </div>
+                  <div class="meeting-info">
+                    <span class="meeting-title">{{ meeting.titulo || meeting.asunto }}</span>
+                    @if (meeting.aula) {
+                      <span class="meeting-place">{{ meeting.aula }}</span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="empty-message">{{ 'MEETING.NO_UPCOMING' | translate }}</p>
+          }
+        </mat-card-content>
+        <mat-card-actions>
+          <a mat-button color="primary" routerLink="/meetings">
+            {{ 'COMMON.VIEW_ALL' | translate }}
             <mat-icon>arrow_forward</mat-icon>
           </a>
         </mat-card-actions>

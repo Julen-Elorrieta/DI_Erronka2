@@ -1,3 +1,7 @@
+/**
+ * Bilera dialogoaren osagaia
+ * Bilerak sortu eta editatzeko elkarrizketa-koadroa
+ */
 import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -10,8 +14,6 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule } from '@ngx-translate/core';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
 import { Meeting } from '../../core/models/meeting.model';
 
 @Component({
@@ -112,7 +114,6 @@ export class MeetingDialogComponent implements OnInit {
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<MeetingDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: Meeting | null,
-    private http: HttpClient,
   ) {
     this.meetingForm = this.fb.group({
       title: ['', Validators.required],
@@ -138,7 +139,7 @@ export class MeetingDialogComponent implements OnInit {
   onSave(): void {
     if (this.meetingForm.valid) {
       const formValue = this.meetingForm.value;
-      // Transformar los datos al formato que espera el backend
+      // Datuak backend-ak espero duen formatura eraldatu
       const meetingData = {
         title: formValue.title,
         topic: formValue.topic,

@@ -26,6 +26,10 @@ import { AuthService } from '../../core/services/auth.service';
 import { ScheduleService } from '../../core/services/schedule.service';
 import { MeetingsService } from '../../core/services/meetings.service';
 
+/**
+ * Profileko osagaia
+ * Erabiltzaileak bere datu pertsonalak, ordutegia eta bilerak ikus ditzake
+ */
 @Component({
   selector: 'app-profile',
   standalone: true,

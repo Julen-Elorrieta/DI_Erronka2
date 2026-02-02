@@ -1,23 +1,23 @@
 import { environment } from '../../../environments/environment';
 
 /**
- * Utilidad para construir URLs de API
- * Centraliza la lógica de obtención de apiUrl de environment
+ * API URLak eraikitzeko utilitatea
+ * Environment-etik apiUrl lortzeko logika zentralizatzen du
  */
 export class ApiUtil {
   /**
-   * Obtiene la URL base de la API desde environment
-   * @returns URL de la API
+   * APIaren oinarrizko URLa eskuratzen du environment-etik
+   * @returns APIaren URLa
    */
   static getApiUrl(): string {
     return Array.isArray(environment.apiUrl) ? environment.apiUrl.join('') : environment.apiUrl;
   }
 
   /**
-   * Construye una URL completa de API con endpoint
-   * @param endpoint - Endpoint de la API (ej: '/users', '/meetings')
-   * @param params - Parámetros opcionales de query
-   * @returns URL completa
+   * API URL osoa eraikitzen du endpoint-arekin
+   * @param endpoint - APIaren endpoint-a (adib: '/users', '/meetings')
+   * @param params - Query parametro aukerakoak
+   * @returns URL osoa
    */
   static buildUrl(endpoint: string, params?: Record<string, any>): string {
     const baseUrl = this.getApiUrl();

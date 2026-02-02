@@ -11,19 +11,19 @@ export class ScheduleService {
   constructor(private http: HttpClient) {}
 
   /**
-   * Obtiene el horario de un usuario específico
-   * @param userId ID del usuario
-   * @returns Observable con el horario del usuario
+   * Erabiltzaile baten ordutegia eskuratzen du
+   * @param userId Erabiltzailearen IDa
+   * @returns Observable erabiltzailearen ordutegiarekin
    */
   getUserSchedule(userId: number): Observable<Schedule> {
     return this.http.get<Schedule>(ApiUtil.buildUrl(`/schedule/${userId}`));
   }
 
   /**
-   * Actualiza el horario de un usuario
-   * @param userId ID del usuario
-   * @param schedule Datos del horario a actualizar
-   * @returns Observable con el resultado
+   * Erabiltzaile baten ordutegia eguneratzen du
+   * @param userId Erabiltzailearen IDa
+   * @param schedule Eguneratu beharreko ordutegiaren datuak
+   * @returns Observable emaitzarekin
    */
   updateUserSchedule(userId: number, schedule: Schedule): Observable<any> {
     return this.http.put(ApiUtil.buildUrl(`/schedule/${userId}`), schedule);

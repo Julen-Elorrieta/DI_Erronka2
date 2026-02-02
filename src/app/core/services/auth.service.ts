@@ -17,6 +17,10 @@ export class AuthService {
     this.loadUserFromStorage();
   }
 
+  /**
+   * LocalStorage-tik erabiltzailea kargatzen du
+   * Saioa berrezartzeko erabiltzen da nabigatzailea berrabiaraztean
+   */
   private loadUserFromStorage(): void {
     const userStr = localStorage.getItem('user');
     const token = localStorage.getItem('token');
@@ -26,7 +30,7 @@ export class AuthService {
         const user = JSON.parse(userStr);
         this.currentUserSignal.set(user);
       } catch (error) {
-        console.error('Error parsing user from localStorage:', error);
+        console.error('Errorea erabiltzailea localStorage-tik kargatzean:', error);
         this.clearAuth();
       }
     }
@@ -43,7 +47,7 @@ export class AuthService {
         if (response.success && response.token) {
           setLoginError(false);
 
-          // Guardar token y usuario en localStorage
+          // Tokena eta erabiltzailea localStorage-n gorde
           localStorage.setItem('token', response.token);
           localStorage.setItem('user', JSON.stringify(response.user));
 
@@ -54,13 +58,16 @@ export class AuthService {
         }
       },
       error: (err) => {
-        console.error('Error during authentication:', err);
+        console.error('Errorea autentikazioan:', err);
         setLoginError(true);
       },
     });
   }
 
-  // Verificar el token con el backend
+  /**
+   * Tokena backend-ean egiaztatzen du
+   * @returns Observable<boolean> tokena baliozkoa den ala ez
+   */
   verifyToken(): Observable<boolean> {
     const token = localStorage.getItem('token');
 

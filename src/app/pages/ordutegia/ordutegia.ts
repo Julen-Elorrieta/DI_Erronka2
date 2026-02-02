@@ -1,16 +1,15 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
-import { TranslateModule } from '@ngx-translate/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { HorariosService, Horario } from '../../core/services/horarios.service';
 import { UsersService } from '../../core/services/users.service';
@@ -23,6 +22,12 @@ interface Usuario {
   tipo_id: number;
 }
 
+/** Gelaxka baten datuak ordutegi grid-ean */
+interface ScheduleCell {
+  horario: Horario | null;
+  isEmpty: boolean;
+}
+
 @Component({
   selector: 'app-horarios',
   standalone: true,
@@ -30,121 +35,412 @@ interface Usuario {
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    MatTableModule,
     MatButtonModule,
     MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
     MatCardModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatSelectModule,
+    MatTooltipModule,
     TranslateModule,
   ],
   template: `
-    <div class="container">
-      <div class="header">
+    <div class="schedule-container">
+      <!-- Goiburua -->
+      <div class="schedule-header">
         <h1>{{ 'HORARIOS' | translate }}</h1>
-        <button mat-raised-button color="primary" (click)="openNewDialog()" *ngIf="isAdmin()">
-          <mat-icon>add</mat-icon>
-          {{ 'COMMON.ADD' | translate }}
-        </button>
+        @if (isAdmin()) {
+          <button mat-raised-button color="primary" class="add-button" (click)="openNewDialog()">
+            <mat-icon>add</mat-icon>
+            {{ 'COMMON.ADD' | translate }}
+          </button>
+        }
       </div>
 
-      <div *ngIf="loading()" class="loading">
-        <mat-spinner></mat-spinner>
-      </div>
+      <!-- Kargatzean -->
+      @if (loading()) {
+        <div class="loading-container">
+          <mat-spinner diameter="50"></mat-spinner>
+        </div>
+      } @else {
+        <!-- Ordutegi Grid-a -->
+        <mat-card class="schedule-card">
+          <div class="schedule-grid">
+            <!-- Goiburuko errenkada: orduak -->
+            <div class="grid-header-corner">
+              <mat-icon>schedule</mat-icon>
+            </div>
+            @for (hora of horas; track hora) {
+              <div class="grid-header-cell">
+                <span class="hora-label">{{ hora }}.</span>
+                <span class="hora-time">{{ getHoraTime(hora) }}</span>
+              </div>
+            }
 
-      <table mat-table [dataSource]="horarios()" class="horarios-table" *ngIf="!loading()">
-        <ng-container matColumnDef="dia">
-          <th mat-header-cell *matHeaderCellDef>{{ 'HORARIOS.DIA' | translate }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.dia }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="hora">
-          <th mat-header-cell *matHeaderCellDef>{{ 'HORARIOS.HORA' | translate }}</th>
-          <td mat-cell *matCellDef="let element">Hora {{ element.hora }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="profesor">
-          <th mat-header-cell *matHeaderCellDef>{{ 'HORARIOS.PROFESOR' | translate }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.profesor_nombre }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="modulo">
-          <th mat-header-cell *matHeaderCellDef>{{ 'MODULOS' | translate }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.modulo_nombre }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="aula">
-          <th mat-header-cell *matHeaderCellDef>{{ 'HORARIOS.AULA' | translate }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.aula }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="observaciones">
-          <th mat-header-cell *matHeaderCellDef>{{ 'HORARIOS.OBSERVACIONES' | translate }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.observaciones }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="actions" *ngIf="isAdmin()">
-          <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.ACTIONS' | translate }}</th>
-          <td mat-cell *matCellDef="let element">
-            <button mat-icon-button (click)="editHorario(element)">
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button mat-icon-button (click)="deleteHorario(element)">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-      </table>
+            <!-- Egun errenkadak -->
+            @for (dia of dias; track dia) {
+              <div class="grid-day-header">
+                {{ getDiaLabel(dia) }}
+              </div>
+              @for (hora of horas; track hora) {
+                <div 
+                  class="grid-cell" 
+                  [class.has-content]="getCell(dia, hora).horario"
+                  [class.empty-cell]="!getCell(dia, hora).horario"
+                  (click)="isAdmin() && !getCell(dia, hora).horario && openNewDialogWithParams(dia, hora)"
+                >
+                  @if (getCell(dia, hora).horario; as h) {
+                    <div class="cell-content" [matTooltip]="getCellTooltip(h)">
+                      <div class="cell-module">{{ h.modulo_nombre || 'Modulurik gabe' }}</div>
+                      <div class="cell-teacher">{{ h.profesor_nombre || 'Irakaslerik gabe' }}</div>
+                      <div class="cell-room">{{ h.aula || '-' }}</div>
+                      @if (h.observaciones) {
+                        <mat-icon class="cell-note">info_outline</mat-icon>
+                      }
+                      @if (isAdmin()) {
+                        <div class="cell-actions">
+                          <button mat-icon-button (click)="editHorario(h); $event.stopPropagation()">
+                            <mat-icon>edit</mat-icon>
+                          </button>
+                          <button mat-icon-button color="warn" (click)="deleteHorario(h); $event.stopPropagation()">
+                            <mat-icon>delete</mat-icon>
+                          </button>
+                        </div>
+                      }
+                    </div>
+                  } @else if (isAdmin()) {
+                    <div class="empty-slot">
+                      <mat-icon>add</mat-icon>
+                    </div>
+                  }
+                </div>
+              }
+            }
+          </div>
+        </mat-card>
+      }
     </div>
   `,
-  styles: [
-    `
-      .container {
-        padding: 20px;
+  styles: [`
+    .schedule-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .schedule-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .schedule-header h1 {
+      font-size: 2rem;
+      font-weight: 500;
+      color: var(--primary-color);
+      margin: 0;
+    }
+
+    .loading-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 400px;
+    }
+
+    .schedule-card {
+      overflow-x: auto;
+      padding: 0 !important;
+    }
+
+    .schedule-grid {
+      display: grid;
+      grid-template-columns: 100px repeat(6, 1fr);
+      min-width: 800px;
+    }
+
+    .grid-header-corner {
+      background: var(--primary-color);
+      color: white;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 2px solid var(--primary-color);
+    }
+
+    .grid-header-cell {
+      background: var(--primary-color);
+      color: white;
+      padding: 12px 8px;
+      text-align: center;
+      border-left: 1px solid rgba(255,255,255,0.2);
+      border-bottom: 2px solid var(--primary-color);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .hora-label {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .hora-time {
+      font-size: 0.7rem;
+      opacity: 0.85;
+    }
+
+    .add-button {
+      color: white !important;
+    }
+
+    .grid-day-header {
+      background: #f5f5f5;
+      padding: 16px 8px;
+      font-weight: 600;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid #e0e0e0;
+      border-right: 1px solid #e0e0e0;
+      font-size: 0.85rem;
+    }
+
+    .grid-cell {
+      min-height: 90px;
+      padding: 8px;
+      border-right: 1px solid #e0e0e0;
+      border-bottom: 1px solid #e0e0e0;
+      position: relative;
+      transition: background-color 0.2s;
+    }
+
+    .grid-cell.has-content {
+      background: #e3f2fd;
+    }
+
+    .grid-cell.empty-cell {
+      background: white;
+    }
+
+    .grid-cell.empty-cell:hover {
+      background: #fafafa;
+      cursor: pointer;
+    }
+
+    .cell-content {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .cell-module {
+      font-weight: 600;
+      font-size: 0.8rem;
+      color: var(--primary-color);
+      line-height: 1.2;
+    }
+
+    .cell-teacher {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .cell-room {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      background: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      display: inline-block;
+      width: fit-content;
+      margin-top: auto;
+    }
+
+    .cell-note {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+      color: var(--accent-color);
+    }
+
+    .cell-actions {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      display: none;
+      gap: 0;
+      background: rgba(255,255,255,0.9);
+      border-radius: 4px;
+    }
+
+    .grid-cell:hover .cell-actions {
+      display: flex;
+    }
+
+    .cell-actions button {
+      width: 28px;
+      height: 28px;
+      line-height: 28px;
+    }
+
+    .cell-actions mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+
+    .empty-slot {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .grid-cell.empty-cell:hover .empty-slot {
+      opacity: 0.3;
+    }
+
+    .empty-slot mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+      color: var(--text-secondary);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .schedule-grid {
+        grid-template-columns: 70px repeat(6, 1fr);
+        min-width: 600px;
       }
-      .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
+
+      .grid-day-header {
+        font-size: 0.7rem;
+        padding: 12px 4px;
       }
-      .horarios-table {
-        width: 100%;
-        border-collapse: collapse;
+
+      .hora-label {
+        font-size: 0.85rem;
       }
-      .loading {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 300px;
+
+      .hora-time {
+        display: none;
       }
-    `,
-  ],
+
+      .cell-module {
+        font-size: 0.7rem;
+      }
+
+      .cell-teacher,
+      .cell-room {
+        font-size: 0.65rem;
+      }
+    }
+  `],
 })
 export class HorariosComponent implements OnInit {
   horarios = signal<Horario[]>([]);
   profesores = signal<Usuario[]>([]);
   modulos = signal<Modulo[]>([]);
   loading = signal(true);
-  displayedColumns = ['dia', 'hora', 'profesor', 'modulo', 'aula', 'observaciones', 'actions'];
 
   private horariosService = inject(HorariosService);
   private usersService = inject(UsersService);
   private modulosService = inject(ModulosService);
   private authService = inject(AuthService);
   private snackBar = inject(MatSnackBar);
+  private translate = inject(TranslateService);
+  private router = inject(Router);
 
+  /** Asteko egunak (datu-basean gordetzen diren bezala) */
   dias = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES'];
+  
+  /** Egunen izenak euskaraz */
+  diasLabels: { [key: string]: string } = {
+    'LUNES': 'ASTELEHENA',
+    'MARTES': 'ASTEARTEA',
+    'MIERCOLES': 'ASTEAZKENA',
+    'JUEVES': 'OSTEGUNA',
+    'VIERNES': 'OSTIRALA'
+  };
+  
+  /** Eskola orduak */
   horas = [1, 2, 3, 4, 5, 6];
 
+  /** Orduen ordu errealak */
+  horasTimes: { [key: number]: string } = {
+    1: '08:00 - 09:00',
+    2: '09:00 - 10:00',
+    3: '10:15 - 11:15',
+    4: '11:15 - 12:15',
+    5: '12:30 - 13:30',
+    6: '13:30 - 14:30'
+  };
+
+  /** Ordutegi matrizea egun eta orduen arabera */
+  private scheduleMatrix = computed(() => {
+    const matrix: { [key: string]: ScheduleCell } = {};
+    
+    // Hasieratu gelaxka guztiak hutsik
+    for (const dia of this.dias) {
+      for (const hora of this.horas) {
+        matrix[`${dia}-${hora}`] = { horario: null, isEmpty: true };
+      }
+    }
+    
+    // Bete horarioekin
+    for (const h of this.horarios()) {
+      const key = `${h.dia}-${h.hora}`;
+      if (matrix[key]) {
+        matrix[key] = { horario: h, isEmpty: false };
+      }
+    }
+    
+    return matrix;
+  });
+
   ngOnInit(): void {
+    // Ikasleak ezin dute ordutegi orrira sartu
+    const user = this.authService.currentUser();
+    if (user?.tipo_id === 4) {
+      this.router.navigate(['/dashboard']);
+      return;
+    }
     this.loadData();
+  }
+
+  /** Gelaxka bat lortu egun eta ordua erabiliz */
+  getCell(dia: string, hora: number): ScheduleCell {
+    return this.scheduleMatrix()[`${dia}-${hora}`] || { horario: null, isEmpty: true };
+  }
+
+  /** Orduaren denbora lortu */
+  getHoraTime(hora: number): string {
+    return this.horasTimes[hora] || '';
+  }
+
+  /** Egunaren etiketa lortu euskaraz */
+  getDiaLabel(dia: string): string {
+    return this.diasLabels[dia] || dia;
+  }
+
+  /** Gelaxkaren tooltip-a sortu */
+  getCellTooltip(h: Horario): string {
+    let tooltip = `${h.modulo_nombre || 'Modulurik gabe'}\n${h.profesor_nombre || 'Irakaslerik gabe'}\n${h.aula || '-'}`;
+    if (h.observaciones) {
+      tooltip += `\n\n${h.observaciones}`;
+    }
+    return tooltip;
   }
 
   loadData(): void {
@@ -157,7 +453,7 @@ export class HorariosComponent implements OnInit {
             resolve();
           },
           error: (err) => {
-            console.error('Error loading horarios:', err);
+            console.error('Errorea ordutegiak kargatzean:', err);
             resolve();
           },
         });
@@ -169,7 +465,7 @@ export class HorariosComponent implements OnInit {
             resolve();
           },
           error: (err) => {
-            console.error('Error loading profesores:', err);
+            console.error('Errorea irakasleak kargatzean:', err);
             resolve();
           },
         });
@@ -181,7 +477,7 @@ export class HorariosComponent implements OnInit {
             resolve();
           },
           error: (err) => {
-            console.error('Error loading modulos:', err);
+            console.error('Errorea moduluak kargatzean:', err);
             resolve();
           },
         });
@@ -191,35 +487,42 @@ export class HorariosComponent implements OnInit {
     });
   }
 
-  openNewDialog(): void {
+  /** Ordutegia berria sortzeko dialogoa irekitzen du parametroekin */
+  openNewDialogWithParams(dia: string, hora: number): void {
+    this.openNewDialog(dia, hora);
+  }
+
+  /** Ordutegia berria sortzeko dialogoa irekitzen du */
+  openNewDialog(defaultDia?: string, defaultHora?: number): void {
     Swal.fire({
-      title: 'Nuevo Horario',
+      title: 'Ordutegia Berria',
       html: `
         <select id="dia" class="swal2-input">
-          <option value="">Seleccionar Día</option>
-          ${this.dias.map((d) => `<option value="${d}">${d}</option>`).join('')}
+          <option value="">Eguna aukeratu</option>
+          ${this.dias.map((d) => `<option value="${d}" ${d === defaultDia ? 'selected' : ''}>${this.diasLabels[d]}</option>`).join('')}
         </select>
         <select id="hora" class="swal2-input">
-          <option value="">Seleccionar Hora</option>
-          ${this.horas.map((h) => `<option value="${h}">Hora ${h}</option>`).join('')}
+          <option value="">Ordua aukeratu</option>
+          ${this.horas.map((h) => `<option value="${h}" ${h === defaultHora ? 'selected' : ''}>${h}. ordua (${this.horasTimes[h]})</option>`).join('')}
         </select>
         <select id="profe_id" class="swal2-input">
-          <option value="">Seleccionar Profesor</option>
+          <option value="">Irakaslea aukeratu</option>
           ${this.profesores()
             .map((p) => `<option value="${p.id}">${p.nombre}</option>`)
             .join('')}
         </select>
         <select id="modulo_id" class="swal2-input">
-          <option value="">Seleccionar Módulo</option>
+          <option value="">Modulua aukeratu</option>
           ${this.modulos()
             .map((m) => `<option value="${m.id}">${m.nombre}</option>`)
             .join('')}
         </select>
-        <input type="text" id="aula" class="swal2-input" placeholder="Aula">
-        <textarea id="observaciones" class="swal2-textarea" placeholder="Observaciones"></textarea>
+        <input type="text" id="aula" class="swal2-input" placeholder="Gela">
+        <textarea id="observaciones" class="swal2-textarea" placeholder="Oharrak"></textarea>
       `,
       showCancelButton: true,
-      confirmButtonText: 'Crear',
+      confirmButtonText: 'Sortu',
+      cancelButtonText: 'Ezeztatu',
     }).then((result) => {
       if (result.isConfirmed) {
         const horario = {
@@ -235,28 +538,30 @@ export class HorariosComponent implements OnInit {
     });
   }
 
+  /** Ordutegia berria sortzen du datu-basean */
   createHorario(horario: any): void {
     this.horariosService.createHorario(horario).subscribe({
       next: () => {
-        this.snackBar.open('Horario creado correctamente', 'Close', { duration: 3000 });
+        this.snackBar.open('Ordutegia ondo sortu da', 'Itxi', { duration: 3000 });
         this.loadData();
       },
       error: (err) => {
-        console.error('Error creating horario:', err);
-        this.snackBar.open('Error al crear horario', 'Close', { duration: 3000 });
+        console.error('Errorea ordutegia sortzean:', err);
+        this.snackBar.open('Errorea ordutegia sortzean', 'Itxi', { duration: 3000 });
       },
     });
   }
 
+  /** Ordutegia editatzeko dialogoa irekitzen du */
   editHorario(horario: Horario): void {
     Swal.fire({
-      title: 'Editar Horario',
+      title: 'Ordutegia Editatu',
       html: `
         <select id="dia" class="swal2-input">
-          ${this.dias.map((d) => `<option value="${d}" ${d === horario.dia ? 'selected' : ''}>${d}</option>`).join('')}
+          ${this.dias.map((d) => `<option value="${d}" ${d === horario.dia ? 'selected' : ''}>${this.diasLabels[d]}</option>`).join('')}
         </select>
         <select id="hora" class="swal2-input">
-          ${this.horas.map((h) => `<option value="${h}" ${h === horario.hora ? 'selected' : ''}>Hora ${h}</option>`).join('')}
+          ${this.horas.map((h) => `<option value="${h}" ${h === horario.hora ? 'selected' : ''}>${h}. ordua (${this.horasTimes[h]})</option>`).join('')}
         </select>
         <select id="profe_id" class="swal2-input">
           ${this.profesores()
@@ -274,11 +579,12 @@ export class HorariosComponent implements OnInit {
             )
             .join('')}
         </select>
-        <input type="text" id="aula" class="swal2-input" placeholder="Aula" value="${horario.aula}">
-        <textarea id="observaciones" class="swal2-textarea" placeholder="Observaciones">${horario.observaciones || ''}</textarea>
+        <input type="text" id="aula" class="swal2-input" placeholder="Gela" value="${horario.aula}">
+        <textarea id="observaciones" class="swal2-textarea" placeholder="Oharrak">${horario.observaciones || ''}</textarea>
       `,
       showCancelButton: true,
-      confirmButtonText: 'Actualizar',
+      confirmButtonText: 'Eguneratu',
+      cancelButtonText: 'Ezeztatu',
     }).then((result) => {
       if (result.isConfirmed) {
         const updated = {
@@ -291,42 +597,44 @@ export class HorariosComponent implements OnInit {
         };
         this.horariosService.updateHorario(horario.id, updated as any).subscribe({
           next: () => {
-            this.snackBar.open('Horario actualizado correctamente', 'Close', { duration: 3000 });
+            this.snackBar.open('Ordutegia ondo eguneratu da', 'Itxi', { duration: 3000 });
             this.loadData();
           },
           error: (err) => {
-            console.error('Error updating horario:', err);
-            this.snackBar.open('Error al actualizar horario', 'Close', { duration: 3000 });
+            console.error('Errorea ordutegia eguneratzean:', err);
+            this.snackBar.open('Errorea ordutegia eguneratzean', 'Itxi', { duration: 3000 });
           },
         });
       }
     });
   }
 
+  /** Ordutegia ezabatzeko baieztapena eskatzen du */
   deleteHorario(horario: Horario): void {
     Swal.fire({
-      title: '¿Eliminar horario?',
-      text: `¿Está seguro de que desea eliminar este horario?`,
+      title: 'Ordutegia ezabatu?',
+      text: `Ziur zaude ordutegia hau ezabatu nahi duzula?`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
+      confirmButtonText: 'Bai, ezabatu',
+      cancelButtonText: 'Ezeztatu',
     }).then((result) => {
       if (result.isConfirmed) {
         this.horariosService.deleteHorario(horario.id).subscribe({
           next: () => {
-            this.snackBar.open('Horario eliminado correctamente', 'Close', { duration: 3000 });
+            this.snackBar.open('Ordutegia ondo ezabatu da', 'Itxi', { duration: 3000 });
             this.loadData();
           },
           error: (err) => {
-            console.error('Error deleting horario:', err);
-            this.snackBar.open('Error al eliminar horario', 'Close', { duration: 3000 });
+            console.error('Errorea ordutegia ezabatzean:', err);
+            this.snackBar.open('Errorea ordutegia ezabatzean', 'Itxi', { duration: 3000 });
           },
         });
       }
     });
   }
 
+  /** Erabiltzailea administratzailea den egiaztatzen du */
   isAdmin(): boolean {
     const user = this.authService.currentUser();
     return user?.tipo_id === 1 || user?.tipo_id === 2;

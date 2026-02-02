@@ -1,3 +1,7 @@
+/**
+ * Aplikazioaren bideratze konfigurazioa
+ * Orrialde guztien routak eta guardak definitzen ditu
+ */
 import { Routes } from '@angular/router';
 import { Auth } from './pages/auth/auth';
 import { Dashboard } from './pages/dashboard/dashboard';
@@ -11,6 +15,18 @@ import { MatriculacionesComponent } from './pages/matrikulazioak/matrikulazioak'
 import { authGuard } from './core/guards/auth.guard';
 import { loginGuard } from './core/guards/login.guard';
 
+/**
+ * Aplikazioaren bide guztiak
+ * - login: Autentifikazio orrialdea (loginGuard-ekin)
+ * - dashboard: Hasiera orrialdea (authGuard-ekin)
+ * - profile: Erabiltzailearen profila
+ * - users: Erabiltzaileen kudeaketa
+ * - meetings: Bileren kudeaketa
+ * - ciclos: Zikloen kudeaketa
+ * - modulos: Moduluen kudeaketa
+ * - horarios: Ordutegien kudeaketa
+ * - matriculaciones: Matrikulazioen kudeaketa
+ */
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   {

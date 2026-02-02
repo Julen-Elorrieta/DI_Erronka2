@@ -14,7 +14,9 @@
     "WELCOME": "Welcome",
     "PROFILE": "Profile",
     "LOGOUT": "Logout",
-    "LANGUAGE": "Language"
+    "LANGUAGE": "Language",
+    "USERS": "Users",
+    "STUDENTS": "Students"
   },
   "COMMON": {
     "ALL": "All",
@@ -32,9 +34,14 @@
     "ERROR": "Error",
     "ADD": "Add",
     "VIEW": "View",
+    "VIEW_ALL": "View all",
     "EDIT": "Edit",
     "SAVE": "Save",
-    "NO_RESULTS": "No results found"
+    "NO_RESULTS": "No results found",
+    "UPDATE": "Update",
+    "CREATE": "Create",
+    "DELETE": "Delete",
+    "RESULTS": "result"
   },
   "CENTER": {
     "TITLE": "Centers",
@@ -50,6 +57,8 @@
     "NAME": "Name",
     "CENTERS": "Centers",
     "MY_MEETINGS": "My Meetings",
+    "UPCOMING": "Upcoming Meetings",
+    "NO_UPCOMING": "No upcoming meetings",
     "CENTERS_COUNT": "Centers Count",
     "NO_MEETINGS": "You have no meetings scheduled.",
     "CREATE": "Create Meeting",
@@ -60,7 +69,14 @@
     "HOUR": "Hour",
     "CLASSROOM": "Classroom",
     "CENTER": "Center",
-    "ADDRESS": "Address"
+    "ADDRESS": "Address",
+    "EDIT": "Edit Meeting",
+    "STATUS": {
+      "PENDING": "Pending",
+      "ACCEPTED": "Accepted",
+      "REJECTED": "Rejected",
+      "CONFLICT": "Conflict"
+    }
   },
   "FILTER": {
     "TYPE": "Type",
@@ -104,6 +120,31 @@
     "STUDENT": "Student"
   },
   "ERROR.LOADING_CENTERS": "Error loading centers",
+  "SCHEDULE": {
+    "TITLE": "Schedule",
+    "HOUR": "Hour",
+    "DAY": "Day",
+    "NO_CLASSES": "No classes assigned"
+  },
+  "DASHBOARD": {
+    "VIEW_SCHEDULE_DESC": "View your schedule",
+    "VIEW_MEETINGS_DESC": "View your meetings",
+    "VIEW_STUDENTS_DESC": "View your students",
+    "VIEW_PROFILE_DESC": "View and edit your profile"
+  },
+  "VALIDATION": {
+    "REQUIRED": "This field is required"
+  },
+  "SUCCESS": {
+    "PROFILE_UPDATED": "Profile updated successfully"
+  },
+  "ERROR": {
+    "LOADING_CENTERS": "Error loading centers",
+    "LOADING_MEETINGS": "Error loading meetings",
+    "LOADING_SCHEDULE": "Error loading schedule",
+    "LOADING_CICLOS": "Error loading degree programs",
+    "UPDATING_PROFILE": "Error updating profile"
+  },
   "USERS": "Users",
   "CICLOS": "Degree Programs",
   "CICLOS_SINGULAR": "Degree Program",

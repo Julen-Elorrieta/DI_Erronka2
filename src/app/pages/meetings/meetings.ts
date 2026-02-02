@@ -1,3 +1,7 @@
+/**
+ * Bileren osagaia
+ * Zentroen eta bileren kudeaketa egiten du maparekin
+ */
 import {
   Component,
   OnInit,
@@ -362,8 +366,13 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
     return labels[status] || status;
   }
 
+  /**
+   * Bileraren egoera aldatzeko baimena
+   * Bakarrik GOD (1) eta Admin (2) alda dezakete egoera
+   */
   canChangeStatus(_: Meeting): boolean {
-    return true;
+    const user = this.authService.getUser();
+    return user?.tipo_id === 1 || user?.tipo_id === 2;
   }
 
   getAvailableStatusActions(meeting: Meeting) {
@@ -565,8 +574,27 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
     this.paginationSource$.next({ ...current, pageIndex: 0 });
   }
 
+  /**
+   * Bilera sortzeko baimena duen egiaztatzen du
+   * Bakarrik irakasleak (tipo_id=3) sortu dezakete bilerak
+   */
   canCreateMeeting(): boolean {
-    return true;
+    const user = this.authService.getUser();
+    return user?.tipo_id === 3; // Bakarrik irakasleak
+  }
+
+  /**
+   * Bilera editatzeko baimena - Inork ezin du editatu
+   */
+  canEditMeeting(): boolean {
+    return false; // Ezin da bilera bat editatu
+  }
+
+  /**
+   * Bilera ezabatzeko baimena - Inork ezin du ezabatu
+   */
+  canDeleteMeeting(): boolean {
+    return false; // Ezin da bilera bat ezabatu
   }
 
   private showSnackBar(message: string, error = false): void {

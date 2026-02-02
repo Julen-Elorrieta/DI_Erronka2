@@ -279,3 +279,81 @@
   background-color: white !important;
   color: #005cbb !important;
 }
+
+/* Ordutegia eta bilerak mini zerrendak */
+.schedule-card,
+.meetings-card {
+  min-height: 280px;
+}
+
+.schedule-mini-list,
+.meetings-mini-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.schedule-mini-item,
+.meeting-mini-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: var(--bg-secondary, #f5f7fa);
+  border-radius: 8px;
+  border-left: 3px solid var(--primary-color, #004d99);
+}
+
+.schedule-time {
+  font-weight: 600;
+  color: var(--primary-color, #004d99);
+  font-size: 0.9rem;
+  min-width: 50px;
+}
+
+.schedule-info,
+.meeting-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.schedule-subject,
+.meeting-title {
+  font-weight: 500;
+  color: var(--text-primary, #333);
+  font-size: 0.95rem;
+}
+
+.schedule-classroom,
+.schedule-teacher,
+.meeting-place {
+  font-size: 0.8rem;
+  color: var(--text-secondary, #666);
+}
+
+.meeting-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 50px;
+}
+
+.meeting-date .day {
+  font-weight: 600;
+  color: var(--primary-color, #004d99);
+  font-size: 0.85rem;
+}
+
+.meeting-date .time {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #666);
+}
+
+.empty-message {
+  color: var(--text-secondary, #666);
+  font-style: italic;
+  text-align: center;
+  padding: 1rem;
+}

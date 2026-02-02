@@ -22,6 +22,11 @@ import { Router } from '@angular/router';
 import { UsersService } from '../../core/services/users.service';
 import { ApiUtil } from '../../core/utils/api.util';
 
+/**
+ * Erabiltzaileen kudeaketa osagaia
+ * Erabiltzaileak bistaratu, bilatu, editatu eta ezabatzeko aukera ematen du
+ * GOD eta ADMIN rolak soilik sar daitezke
+ */
 @Component({
   selector: 'app-users',
   standalone: true,
@@ -70,6 +75,11 @@ export class Users implements OnInit {
     this.authenticate();
   }
 
+  /**
+   * Erabiltzailea autentikatuta dagoen eta baimena duen egiaztatzen du
+   * GOD, ADMIN eta IRAKASLEA sar daitezke orri honetara (irakasleek irakurtzeko soilik)
+   * IKASLEEK ezin dute sartu
+   */
   authenticate(): void {
     const currentUser = this.authService.currentUser();
     if (!this.authService.isLoggedIn() || !currentUser) {
@@ -77,11 +87,11 @@ export class Users implements OnInit {
       return;
     }
 
-    // Validar que solo GOD y ADMIN pueden acceder a esta página
     const userRole = getUserRoleFromTipoId(currentUser.tipo_id);
     this.currentUserRole.set(userRole);
 
-    if (userRole !== UserRole.GOD && userRole !== UserRole.ADMIN) {
+    // Ikasleak ezin dute sartu erabiltzaile orrira
+    if (userRole === UserRole.STUDENT) {
       this.router.navigate(['/dashboard']);
     }
   }
@@ -109,12 +119,16 @@ export class Users implements OnInit {
     this.getUsersByRole(value);
   }
 
+  /**
+   * Erabiltzaileak bilatzen ditu testua eta rolaren arabera
+   * Izena, abizenak, username, email, NAN eta telefonoan bilatzen du
+   */
   onSearch() {
     const searchLower = this.searchTerm.toLowerCase().trim();
 
     this.filteredUsers.set(
       this.users.filter((user) => {
-        // Filtro de búsqueda por texto
+        // Testu bidezko bilaketa iragazkia
         const matchesSearch =
           !searchLower ||
           user.nombre?.toLowerCase().includes(searchLower) ||
@@ -125,14 +139,14 @@ export class Users implements OnInit {
           (user.telefono1 && user.telefono1.toString().includes(searchLower)) ||
           (user.telefono2 && user.telefono2.toString().includes(searchLower));
 
-        // Filtro de rol - ahora comparamos con string vacío
+        // Rol iragazkia
         const matchesRole = this.selectedRole === '' || user.tipo_id === this.selectedRole;
 
         return matchesSearch && matchesRole;
       }),
     );
 
-    // Resetear paginación al buscar
+    // Paginazioa berrezarri bilatzean
     this.pageIndex = 0;
   }
 
@@ -192,8 +206,30 @@ export class Users implements OnInit {
     });
   }
 
+  /**
+   * Erabiltzailea ezabatu daitekeen egiaztatzen du
+   * Arauak:
+   * - GOD-ek ezin du bere burua ezabatu
+   * - Admin-ek ezin ditu GOD edo beste Admin-ak ezabatu
+   * - Bakarrik GOD-ek eta Admin-ek ezabatu dezakete
+   */
   canDelete(user: User): boolean {
-    return this.isAdmin();
+    const currentUser = this.authService.currentUser();
+    if (!currentUser) return false;
+    
+    // Bakarrik GOD (1) edo Admin (2) ezabatu dezake
+    if (currentUser.tipo_id !== 1 && currentUser.tipo_id !== 2) return false;
+    
+    // Ezin du bere burua ezabatu
+    if (currentUser.id === user.id) return false;
+    
+    // Admin-ek ezin ditu GOD-ak ezabatu
+    if (currentUser.tipo_id === 2 && user.tipo_id === 1) return false;
+    
+    // Admin-ek ezin ditu beste Admin-ak ezabatu
+    if (currentUser.tipo_id === 2 && user.tipo_id === 2) return false;
+    
+    return true;
   }
 
   deleteUser(user: User) {

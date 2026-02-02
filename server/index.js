@@ -168,8 +168,20 @@ app.get('/centers', verifyToken, (req, res) => {
         res.status(500).json({ error: 'Error fetching data' });
       });
   } else if (type === 'meetings') {
-    // ⚠️ CORREGIDO: Mejor manejo de datos nulos
-    connection.query('SELECT * FROM reuniones ORDER BY fecha DESC', (err, results) => {
+    // Bilerak filtratu erabiltzailearen arabera
+    // GOD/ADMIN: Bilera guztiak ikus ditzake
+    // IRAKASLEA/IKASLEA: Bere bilerak bakarrik (profesor_id edo alumno_id)
+    let query = 'SELECT * FROM reuniones';
+    let params = [];
+    
+    // Irakaslea edo ikaslea bada, bere bilerak bakarrik erakutsi
+    if (req.tipoId === 3 || req.tipoId === 4) {
+      query += ' WHERE profesor_id = ? OR alumno_id = ?';
+      params = [req.userId, req.userId];
+    }
+    query += ' ORDER BY fecha DESC';
+
+    connection.query(query, params, (err, results) => {
       if (err) {
         console.error('Error fetching meetings:', err);
         return res.status(500).json({ success: false, error: 'DB error' });
@@ -188,13 +200,7 @@ app.get('/centers', verifyToken, (req, res) => {
         estado: reunion.estado_eus || reunion.estado || 'pendiente',
       }));
 
-      console.log(`📅 Devolviendo ${mappedResults.length} reuniones`);
-
-      // Log de reuniones sin centro para debugging
-      const sinCentro = mappedResults.filter((r) => !r.id_centro);
-      if (sinCentro.length > 0) {
-        console.warn(`⚠️ ${sinCentro.length} reuniones sin id_centro asignado`);
-      }
+      console.log(`📅 Devolviendo ${mappedResults.length} reuniones para usuario ${req.userId} (tipo: ${req.tipoId})`);
 
       res.json(mappedResults);
     });
@@ -272,23 +278,51 @@ app.get('/schedule/:userId', verifyToken, (req, res) => {
     return res.status(403).json({ success: false, error: 'No tienes permisos' });
   }
 
-  // Obtener horarios del profesor/usuario
-  connection.query(
-    `SELECT h.id, h.dia, h.hora, h.profe_id, h.modulo_id, h.aula, h.observaciones,
-            m.nombre as subject, m.nombre_eus, c.nombre as cycle
-     FROM horarios h
-     LEFT JOIN modulos m ON h.modulo_id = m.id
-     LEFT JOIN ciclos c ON m.ciclo_id = c.id
-     WHERE h.profe_id = ?
-     ORDER BY CASE h.dia
-       WHEN 'LUNES' THEN 0
-       WHEN 'MARTES' THEN 1
-       WHEN 'MIERCOLES' THEN 2
-       WHEN 'JUEVES' THEN 3
-       WHEN 'VIERNES' THEN 4
-     END, h.hora`,
-    [userId],
-    (err, results) => {
+  // Primero determinar el tipo de usuario
+  connection.query('SELECT tipo_id FROM users WHERE id = ?', [userId], (err, userResults) => {
+    if (err || !userResults.length) {
+      return res.status(500).json({ success: false, error: 'DB error' });
+    }
+
+    const userTipoId = userResults[0].tipo_id;
+    let query;
+    let params;
+
+    if (userTipoId === 3) {
+      // PROFESOR: obtener horarios donde es profesor
+      query = `SELECT h.id, h.dia, h.hora, h.profe_id, h.modulo_id, h.aula, h.observaciones,
+                      m.nombre as subject, m.nombre_eus, c.nombre as cycle
+               FROM horarios h
+               LEFT JOIN modulos m ON h.modulo_id = m.id
+               LEFT JOIN ciclos c ON m.ciclo_id = c.id
+               WHERE h.profe_id = ?
+               ORDER BY CASE h.dia
+                 WHEN 'LUNES' THEN 0 WHEN 'MARTES' THEN 1 WHEN 'MIERCOLES' THEN 2
+                 WHEN 'JUEVES' THEN 3 WHEN 'VIERNES' THEN 4
+               END, h.hora`;
+      params = [userId];
+    } else if (userTipoId === 4) {
+      // ALUMNO: obtener horarios basados en su matrícula (ciclo/curso)
+      query = `SELECT DISTINCT h.id, h.dia, h.hora, h.profe_id, h.modulo_id, h.aula, h.observaciones,
+                      m.nombre as subject, m.nombre_eus, c.nombre as cycle,
+                      u.nombre as profesor_nombre
+               FROM horarios h
+               INNER JOIN modulos m ON h.modulo_id = m.id
+               INNER JOIN ciclos c ON m.ciclo_id = c.id
+               INNER JOIN matriculaciones mat ON mat.ciclo_id = c.id
+               LEFT JOIN users u ON h.profe_id = u.id
+               WHERE mat.alum_id = ? AND m.curso = mat.curso
+               ORDER BY CASE h.dia
+                 WHEN 'LUNES' THEN 0 WHEN 'MARTES' THEN 1 WHEN 'MIERCOLES' THEN 2
+                 WHEN 'JUEVES' THEN 3 WHEN 'VIERNES' THEN 4
+               END, h.hora`;
+      params = [userId];
+    } else {
+      // GOD/ADMIN: sin horario propio, devolver vacío
+      return res.json({ userId: userId, slots: [] });
+    }
+
+    connection.query(query, params, (err, results) => {
       if (err) {
         console.error('Error fetching schedule:', err);
         return res.status(500).json({ success: false, error: 'DB error' });
@@ -305,16 +339,18 @@ app.get('/schedule/:userId', verifyToken, (req, res) => {
               ? 'GUARDIA'
               : 'CLASS'
           : 'CLASS',
-        subject: row.subject,
+        subject: row.subject || row.modulo_nombre,
         cycle: row.cycle,
+        classroom: row.aula,
+        teacher: row.profesor_nombre,
       }));
 
       res.json({
         userId: userId,
         slots: slots,
       });
-    },
-  );
+    });
+  });
 });
 
 // ============================================

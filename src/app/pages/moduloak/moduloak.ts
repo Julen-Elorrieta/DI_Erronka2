@@ -131,6 +131,9 @@ export class ModulosComponent implements OnInit {
     this.loadModulos();
   }
 
+  /**
+   * Moduluak datu-basetik kargatzen ditu
+   */
   loadModulos(): void {
     this.loading.set(true);
     this.modulosService.getAllModulos().subscribe({
@@ -139,37 +142,44 @@ export class ModulosComponent implements OnInit {
         this.loading.set(false);
       },
       error: (err) => {
-        console.error('Error loading modulos:', err);
+        console.error('Errorea moduluak kargatzean:', err);
         this.loading.set(false);
-        this.snackBar.open('Error al cargar módulos', 'Close', { duration: 3000 });
+        this.snackBar.open('Errorea moduluak kargatzean', 'Itxi', { duration: 3000 });
       },
     });
   }
 
+  /**
+   * Zikloak kargatzen ditu aukerak bistaratzeko
+   */
   loadCiclos(): void {
     this.ciclosService.getAllCiclos().subscribe({
       next: (ciclos) => this.ciclos.set(ciclos),
-      error: (err) => console.error('Error loading ciclos:', err),
+      error: (err) => console.error('Errorea zikloak kargatzean:', err),
     });
   }
 
+  /**
+   * Modulu berria sortzeko dialogoa irekitzen du
+   */
   openNewDialog(): void {
     Swal.fire({
-      title: 'Nuevo Módulo',
+      title: 'Modulu Berria',
       html: `
-        <input type="text" id="nombre" class="swal2-input" placeholder="Nombre">
-        <input type="text" id="nombre_eus" class="swal2-input" placeholder="Nombre Euskera">
-        <input type="number" id="horas" class="swal2-input" placeholder="Horas">
+        <input type="text" id="nombre" class="swal2-input" placeholder="Izena">
+        <input type="text" id="nombre_eus" class="swal2-input" placeholder="Izena Euskaraz">
+        <input type="number" id="horas" class="swal2-input" placeholder="Orduak">
         <select id="ciclo_id" class="swal2-input">
-          <option value="">Seleccionar Ciclo</option>
+          <option value="">Zikloa aukeratu</option>
           ${this.ciclos()
             .map((c) => `<option value="${c.id}">${c.nombre}</option>`)
             .join('')}
         </select>
-        <input type="number" id="curso" class="swal2-input" placeholder="Curso (1 o 2)">
+        <input type="number" id="curso" class="swal2-input" placeholder="Kurtsoa (1 edo 2)">
       `,
       showCancelButton: true,
-      confirmButtonText: 'Crear',
+      confirmButtonText: 'Sortu',
+      cancelButtonText: 'Ezeztatu',
     }).then((result) => {
       if (result.isConfirmed) {
         const modulo = {
@@ -184,26 +194,34 @@ export class ModulosComponent implements OnInit {
     });
   }
 
+  /**
+   * Modulu berria sortzen du datu-basean
+   * @param modulo Sortu beharreko moduluaren datuak
+   */
   createModulo(modulo: any): void {
     this.modulosService.createModulo(modulo).subscribe({
       next: () => {
-        this.snackBar.open('Módulo creado correctamente', 'Close', { duration: 3000 });
+        this.snackBar.open('Modulua ondo sortu da', 'Itxi', { duration: 3000 });
         this.loadModulos();
       },
       error: (err) => {
-        console.error('Error creating modulo:', err);
-        this.snackBar.open('Error al crear módulo', 'Close', { duration: 3000 });
+        console.error('Errorea modulua sortzean:', err);
+        this.snackBar.open('Errorea modulua sortzean', 'Itxi', { duration: 3000 });
       },
     });
   }
 
+  /**
+   * Modulua editatzeko dialogoa irekitzen du
+   * @param modulo Editatu beharreko modulua
+   */
   editModulo(modulo: Modulo): void {
     Swal.fire({
-      title: 'Editar Módulo',
+      title: 'Modulua Editatu',
       html: `
-        <input type="text" id="nombre" class="swal2-input" placeholder="Nombre" value="${modulo.nombre}">
-        <input type="text" id="nombre_eus" class="swal2-input" placeholder="Nombre Euskera" value="${modulo.nombre_eus || ''}">
-        <input type="number" id="horas" class="swal2-input" placeholder="Horas" value="${modulo.horas}">
+        <input type="text" id="nombre" class="swal2-input" placeholder="Izena" value="${modulo.nombre}">
+        <input type="text" id="nombre_eus" class="swal2-input" placeholder="Izena Euskaraz" value="${modulo.nombre_eus || ''}">
+        <input type="number" id="horas" class="swal2-input" placeholder="Orduak" value="${modulo.horas}">
         <select id="ciclo_id" class="swal2-input">
           ${this.ciclos()
             .map(
@@ -212,10 +230,11 @@ export class ModulosComponent implements OnInit {
             )
             .join('')}
         </select>
-        <input type="number" id="curso" class="swal2-input" placeholder="Curso" value="${modulo.curso}">
+        <input type="number" id="curso" class="swal2-input" placeholder="Kurtsoa" value="${modulo.curso}">
       `,
       showCancelButton: true,
-      confirmButtonText: 'Actualizar',
+      confirmButtonText: 'Eguneratu',
+      cancelButtonText: 'Ezeztatu',
     }).then((result) => {
       if (result.isConfirmed) {
         const updated = {
@@ -227,42 +246,50 @@ export class ModulosComponent implements OnInit {
         };
         this.modulosService.updateModulo(modulo.id, updated as any).subscribe({
           next: () => {
-            this.snackBar.open('Módulo actualizado correctamente', 'Close', { duration: 3000 });
+            this.snackBar.open('Modulua ondo eguneratu da', 'Itxi', { duration: 3000 });
             this.loadModulos();
           },
           error: (err) => {
-            console.error('Error updating modulo:', err);
-            this.snackBar.open('Error al actualizar módulo', 'Close', { duration: 3000 });
+            console.error('Errorea modulua eguneratzean:', err);
+            this.snackBar.open('Errorea modulua eguneratzean', 'Itxi', { duration: 3000 });
           },
         });
       }
     });
   }
 
+  /**
+   * Modulua ezabatzeko baieztapena eskatzen du
+   * @param modulo Ezabatu beharreko modulua
+   */
   deleteModulo(modulo: Modulo): void {
     Swal.fire({
-      title: '¿Eliminar módulo?',
-      text: `¿Está seguro de que desea eliminar ${modulo.nombre}?`,
+      title: 'Modulua ezabatu?',
+      text: `Ziur zaude ${modulo.nombre} modulua ezabatu nahi duzula?`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
+      confirmButtonText: 'Bai, ezabatu',
+      cancelButtonText: 'Ezeztatu',
     }).then((result) => {
       if (result.isConfirmed) {
         this.modulosService.deleteModulo(modulo.id).subscribe({
           next: () => {
-            this.snackBar.open('Módulo eliminado correctamente', 'Close', { duration: 3000 });
+            this.snackBar.open('Modulua ondo ezabatu da', 'Itxi', { duration: 3000 });
             this.loadModulos();
           },
           error: (err) => {
-            console.error('Error deleting modulo:', err);
-            this.snackBar.open('Error al eliminar módulo', 'Close', { duration: 3000 });
+            console.error('Errorea modulua ezabatzean:', err);
+            this.snackBar.open('Errorea modulua ezabatzean', 'Itxi', { duration: 3000 });
           },
         });
       }
     });
   }
 
+  /**
+   * Erabiltzailea administratzailea den egiaztatzen du
+   * @returns true administratzailea bada
+   */
   isAdmin(): boolean {
     const user = this.authService.currentUser();
     return user?.tipo_id === 1 || user?.tipo_id === 2;

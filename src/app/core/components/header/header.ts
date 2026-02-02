@@ -1,3 +1,7 @@
+/**
+ * Header osagaia
+ * Aplikazioaren goiburua, erabiltzaile menua eta hizkuntza aldaketa kudeatzen ditu
+ */
 import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -25,8 +29,12 @@ import { LanguageService, Language } from '../../services/language.service';
   ],
   template: `
     <mat-toolbar color="primary" class="header-toolbar">
-      <div class="toolbar-left">
-        <span class="app-title" (click)="goToDashboard()">Elorrieta-Errekamari</span>
+      <div class="toolbar-left" (click)="goToDashboard()" style="cursor: pointer;">
+        <img 
+          src="/assets/logo-elorrieta.webp" 
+          alt="Elorrieta-Errekamari" 
+          class="header-logo"
+        />
       </div>
 
       <div class="toolbar-right">
@@ -94,6 +102,13 @@ import { LanguageService, Language } from '../../services/language.service';
       .toolbar-left {
         display: flex;
         align-items: center;
+        gap: 12px;
+      }
+
+      .header-logo {
+        height: 50px;
+        width: auto;
+        max-width: 200px;
       }
 
       .app-title {
@@ -214,7 +229,10 @@ import { LanguageService, Language } from '../../services/language.service';
   ],
 })
 export class HeaderComponent implements OnInit {
+  /** Uneko erabiltzailearen signala */
   currentUser = signal<User | null>(null);
+  
+  /** Hizkuntza eskuragarrien zerrenda */
   languages: Language[];
 
   private authService = inject(AuthService);
@@ -225,44 +243,56 @@ export class HeaderComponent implements OnInit {
     this.languages = this.languageService.languages;
   }
 
+  /** Hasieratu osagaia eta uneko erabiltzailea kargatu */
   ngOnInit(): void {
     this.currentUser.set(this.authService.currentUser());
   }
 
+  /**
+   * Erabiltzailearen rolaren etiketa euskaraz itzultzen du
+   * @returns Rolaren izena
+   */
   getRoleLabel(): string {
     const user = this.currentUser();
     if (!user) return '';
 
+    // Rol mapa euskaraz
     const roleMap: { [key: number]: string } = {
-      1: 'GOD',
-      2: 'Admin',
-      3: 'Profesor',
-      4: 'Alumno',
+      1: 'Jainkoa',          // GOD/Super Admin
+      2: 'Administratzailea', // Admin
+      3: 'Irakaslea',        // Irakaslea
+      4: 'Ikaslea',          // Ikaslea
     };
-    return roleMap[user.tipo_id] || 'User';
+    return roleMap[user.tipo_id] || 'Erabiltzailea';
   }
 
+  /** Erabiltzailearen profil irudiaren URLa eskuratzen du */
   getProfileImageUrl(): string {
     const user = this.currentUser();
     return user?.argazkia_url || '/unknown.webp';
   }
 
+  /** Uneko hizkuntza eskuratzen du */
   getCurrentLanguage(): Language | undefined {
     return this.languageService.getCurrentLanguage();
   }
 
+  /** Hizkuntza aldatzen du */
   changeLanguage(lang: string): void {
     this.languageService.setLanguage(lang);
   }
 
+  /** Dashboard orrialdera nabigatu */
   goToDashboard(): void {
     this.router.navigate(['/dashboard']);
   }
 
+  /** Profil orrialdera nabigatu */
   goToProfile(): void {
     this.router.navigate(['/profile']);
   }
 
+  /** Saioa itxi eta login orrialdera birbideratu */
   logout(): void {
     this.authService.logout(this.router);
   }

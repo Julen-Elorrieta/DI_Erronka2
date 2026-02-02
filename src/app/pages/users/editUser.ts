@@ -1,3 +1,7 @@
+/**
+ * Erabiltzailea editatzeko elkarrizketa-koadroa
+ * Erabiltzailearen datuak aldatzeko formularioa
+ */
 import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -8,7 +12,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
 import { User } from '../../core/models/user.model';
 import { ApiUtil } from '../../core/utils/api.util';
 

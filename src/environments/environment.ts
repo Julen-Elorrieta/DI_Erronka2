@@ -1,12 +1,8 @@
 /**
- * PRODUKZIO ingurunearen konfigurazioa
- * Datu-basea: elordb 10.5.104.100 zerbitzarian
+ * Ingurunearen konfigurazioa
+ * Backend zerbitzariaren URLa definitzen du
  */
 export const environment = {
   production: true,
   apiUrl: 'http://localhost:3000',
-  database: {
-    host: '10.5.104.100',
-    name: 'elordb',
-  },
 };

@@ -183,31 +183,35 @@ export class MatriculacionesComponent implements OnInit {
     });
   }
 
+  /**
+   * Matrikulazio berria sortzeko dialogoa irekitzen du
+   */
   openNewDialog(): void {
     Swal.fire({
-      title: 'Nueva Matriculación',
+      title: 'Matrikulazio Berria',
       html: `
         <select id="alum_id" class="swal2-input">
-          <option value="">Seleccionar Alumno</option>
+          <option value="">Ikaslea aukeratu</option>
           ${this.alumnos()
             .map((a) => `<option value="${a.id}">${a.nombre}</option>`)
             .join('')}
         </select>
         <select id="ciclo_id" class="swal2-input">
-          <option value="">Seleccionar Ciclo</option>
+          <option value="">Zikloa aukeratu</option>
           ${this.ciclos()
             .map((c) => `<option value="${c.id}">${c.nombre}</option>`)
             .join('')}
         </select>
         <select id="curso" class="swal2-input">
-          <option value="">Seleccionar Curso</option>
-          <option value="1">1º Curso</option>
-          <option value="2">2º Curso</option>
+          <option value="">Kurtsoa aukeratu</option>
+          <option value="1">1. Kurtsoa</option>
+          <option value="2">2. Kurtsoa</option>
         </select>
         <input type="date" id="fecha" class="swal2-input">
       `,
       showCancelButton: true,
-      confirmButtonText: 'Crear',
+      confirmButtonText: 'Sortu',
+      cancelButtonText: 'Ezeztatu',
     }).then((result) => {
       if (result.isConfirmed) {
         const matriculacion = {
@@ -221,22 +225,30 @@ export class MatriculacionesComponent implements OnInit {
     });
   }
 
+  /**
+   * Matrikulazio berria sortzen du datu-basean
+   * @param matriculacion Sortu beharreko matrikulazioaren datuak
+   */
   createMatriculacion(matriculacion: any): void {
     this.matriculacionesService.createMatriculacion(matriculacion).subscribe({
       next: () => {
-        this.snackBar.open('Matriculación creada correctamente', 'Close', { duration: 3000 });
+        this.snackBar.open('Matrikulazioa ondo sortu da', 'Itxi', { duration: 3000 });
         this.loadData();
       },
       error: (err) => {
-        console.error('Error creating matriculacion:', err);
-        this.snackBar.open('Error al crear matriculación', 'Close', { duration: 3000 });
+        console.error('Errorea matrikulazioa sortzean:', err);
+        this.snackBar.open('Errorea matrikulazioa sortzean', 'Itxi', { duration: 3000 });
       },
     });
   }
 
+  /**
+   * Matrikulazioa editatzeko dialogoa irekitzen du
+   * @param matriculacion Editatu beharreko matrikulazioa
+   */
   editMatriculacion(matriculacion: Matriculacion): void {
     Swal.fire({
-      title: 'Editar Matriculación',
+      title: 'Matrikulazioa Editatu',
       html: `
         <select id="alum_id" class="swal2-input">
           ${this.alumnos()
@@ -255,13 +267,14 @@ export class MatriculacionesComponent implements OnInit {
             .join('')}
         </select>
         <select id="curso" class="swal2-input">
-          <option value="1" ${matriculacion.curso === 1 ? 'selected' : ''}>1º Curso</option>
-          <option value="2" ${matriculacion.curso === 2 ? 'selected' : ''}>2º Curso</option>
+          <option value="1" ${matriculacion.curso === 1 ? 'selected' : ''}>1. Kurtsoa</option>
+          <option value="2" ${matriculacion.curso === 2 ? 'selected' : ''}>2. Kurtsoa</option>
         </select>
         <input type="date" id="fecha" class="swal2-input" value="${matriculacion.fecha}">
       `,
       showCancelButton: true,
-      confirmButtonText: 'Actualizar',
+      confirmButtonText: 'Eguneratu',
+      cancelButtonText: 'Ezeztatu',
     }).then((result) => {
       if (result.isConfirmed) {
         const updated = {
@@ -274,46 +287,54 @@ export class MatriculacionesComponent implements OnInit {
           .updateMatriculacion(matriculacion.id, updated as any)
           .subscribe({
             next: () => {
-              this.snackBar.open('Matriculación actualizada correctamente', 'Close', {
+              this.snackBar.open('Matrikulazioa ondo eguneratu da', 'Itxi', {
                 duration: 3000,
               });
               this.loadData();
             },
             error: (err) => {
-              console.error('Error updating matriculacion:', err);
-              this.snackBar.open('Error al actualizar matriculación', 'Close', { duration: 3000 });
+              console.error('Errorea matrikulazioa eguneratzean:', err);
+              this.snackBar.open('Errorea matrikulazioa eguneratzean', 'Itxi', { duration: 3000 });
             },
           });
       }
     });
   }
 
+  /**
+   * Matrikulazioa ezabatzeko baieztapena eskatzen du
+   * @param matriculacion Ezabatu beharreko matrikulazioa
+   */
   deleteMatriculacion(matriculacion: Matriculacion): void {
     Swal.fire({
-      title: '¿Eliminar matriculación?',
-      text: `¿Está seguro de que desea eliminar esta matriculación?`,
+      title: 'Matrikulazioa ezabatu?',
+      text: `Ziur zaude matrikulazio hau ezabatu nahi duzula?`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
+      confirmButtonText: 'Bai, ezabatu',
+      cancelButtonText: 'Ezeztatu',
     }).then((result) => {
       if (result.isConfirmed) {
         this.matriculacionesService.deleteMatriculacion(matriculacion.id).subscribe({
           next: () => {
-            this.snackBar.open('Matriculación eliminada correctamente', 'Close', {
+            this.snackBar.open('Matrikulazioa ondo ezabatu da', 'Itxi', {
               duration: 3000,
             });
             this.loadData();
           },
           error: (err) => {
-            console.error('Error deleting matriculacion:', err);
-            this.snackBar.open('Error al eliminar matriculación', 'Close', { duration: 3000 });
+            console.error('Errorea matrikulazioa ezabatzean:', err);
+            this.snackBar.open('Errorea matrikulazioa ezabatzean', 'Itxi', { duration: 3000 });
           },
         });
       }
     });
   }
 
+  /**
+   * Erabiltzailea administratzailea den egiaztatzen du
+   * @returns true administratzailea bada
+   */
   isAdmin(): boolean {
     const user = this.authService.currentUser();
     return user?.tipo_id === 1 || user?.tipo_id === 2;

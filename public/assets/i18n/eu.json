@@ -15,7 +15,8 @@
     "PROFILE": "Profila",
     "LOGOUT": "Saioa itxi",
     "LANGUAGE": "Hizkuntza",
-    "USERS": "Erabiltzaileak"
+    "USERS": "Erabiltzaileak",
+    "STUDENTS": "Ikasleak"
   },
   "COMMON": {
     "ALL": "Guztiak",
@@ -33,9 +34,14 @@
     "ERROR": "Errorea",
     "ADD": "Gehitu",
     "VIEW": "Ikusi",
+    "VIEW_ALL": "Guztiak ikusi",
     "EDIT": "Editatu",
     "SAVE": "Gorde",
-    "NO_RESULTS": "Ez da emaitzarik aurkitu"
+    "NO_RESULTS": "Ez da emaitzarik aurkitu",
+    "UPDATE": "Eguneratu",
+    "CREATE": "Sortu",
+    "DELETE": "Ezabatu",
+    "RESULTS": "emaitza"
   },
   "CENTER": {
     "TITLE": "Zentroak",
@@ -51,6 +57,8 @@
     "NAME": "Izena",
     "CENTERS": "Zentroak",
     "MY_MEETINGS": "Nire Bilerak",
+    "UPCOMING": "Hurrengo Bilerak",
+    "NO_UPCOMING": "Ez daukazu hurrengo bilerarik",
     "CENTERS_COUNT": "Zentro Kopurua",
     "NO_MEETINGS": "Ez duzu bilerarik programatuta.",
     "CREATE": "Bilera sortu",
@@ -61,7 +69,14 @@
     "HOUR": "Ordua",
     "CLASSROOM": "Gela",
     "CENTER": "Zentroa",
-    "ADDRESS": "Helbidea"
+    "ADDRESS": "Helbidea",
+    "EDIT": "Bilera editatu",
+    "STATUS": {
+      "PENDING": "Zain",
+      "ACCEPTED": "Onartuta",
+      "REJECTED": "Ukatua",
+      "CONFLICT": "Gatazka"
+    }
   },
   "FILTER": {
     "TYPE": "Mota",
@@ -90,12 +105,15 @@
     "PHONE1": "Telefonoa 1",
     "PHONE2": "Telefonoa 2",
     "ADDRESS": "Helbidea",
+    "PASSWORD": "Pasahitza",
+    "PHOTO_URL": "Argazkiaren URLa",
     "CONFIRM_DELETE": "Ziur zaude erabiltzaile hau ezabatu nahi duzula?",
     "DELETE_CONFIRM_TITLE": "Erabiltzailearen Ezabaketa Baieztatu",
     "DELETE_CONFIRM_TEXT": "{{nombre}} erabiltzailea ezabatzear zaude. Ekintza hau ezin da desegin.",
     "ACTIVE": "Aktiboa",
     "DELETE_SUCCESSFUL": "Erabiltzailea ondo ezabatu da",
-    "DELETE_SUCCESSFUL_TEXT": "{{nombre}} erabiltzailea ezabatu da."
+    "DELETE_SUCCESSFUL_TEXT": "{{nombre}} erabiltzailea ezabatu da.",
+    "DELETE_ERROR": "Errorea {{nombre}} erabiltzailea ezabatzean"
   },
   "ROLE": {
     "ADMIN": "Administratzailea",
@@ -104,7 +122,31 @@
     "TEACHER": "Irakaslea",
     "STUDENT": "Ikaslea"
   },
-  "ERROR.LOADING_CENTERS": "Errorea zentroak kargatzean",
+  "SCHEDULE": {
+    "TITLE": "Ordutegia",
+    "HOUR": "Ordua",
+    "DAY": "Eguna",
+    "NO_CLASSES": "Ez daukazu klasrik esleituta"
+  },
+  "DASHBOARD": {
+    "VIEW_SCHEDULE_DESC": "Zure ordutegia ikusi",
+    "VIEW_MEETINGS_DESC": "Zure bilerak ikusi",
+    "VIEW_STUDENTS_DESC": "Zure ikasleak ikusi",
+    "VIEW_PROFILE_DESC": "Zure profila ikusi eta editatu"
+  },
+  "VALIDATION": {
+    "REQUIRED": "Eremu hau beharrezkoa da"
+  },
+  "SUCCESS": {
+    "PROFILE_UPDATED": "Profila ondo eguneratu da"
+  },
+  "ERROR": {
+    "LOADING_CENTERS": "Errorea zentroak kargatzean",
+    "LOADING_MEETINGS": "Errorea bilerak kargatzean",
+    "LOADING_SCHEDULE": "Errorea ordutegia kargatzean",
+    "LOADING_CICLOS": "Errorea zikloak kargatzean",
+    "UPDATING_PROFILE": "Errorea profila eguneratzean"
+  },
   "USERS": "Erabiltzaileak",
   "CICLOS": "Heziketa Zikloak",
   "CICLOS_SINGULAR": "Heziketa Zikloa",

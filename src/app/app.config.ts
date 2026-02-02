@@ -11,7 +11,10 @@ import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 
-// Factory for TranslateHttpLoader
+/**
+ * TranslateHttpLoader-en faktoria funtzioa
+ * Itzulpen fitxategiak kargatzeko erabiltzen da
+ */
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
@@ -22,7 +25,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(
-      withInterceptors([authInterceptor]), // Añadido el interceptor JWT aquí
+      withInterceptors([authInterceptor]), // JWT interceptorra gehituta
     ),
     importProvidersFrom(
       TranslateModule.forRoot({

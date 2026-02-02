@@ -14,7 +14,9 @@
     "WELCOME": "Bienvenido",
     "PROFILE": "Perfil",
     "LOGOUT": "Cerrar sesión",
-    "LANGUAGE": "Idioma"
+    "LANGUAGE": "Idioma",
+    "USERS": "Usuarios",
+    "STUDENTS": "Estudiantes"
   },
   "COMMON": {
     "ALL": "Todos",
@@ -32,9 +34,14 @@
     "ERROR": "Error",
     "ADD": "Añadir",
     "VIEW": "Ver",
+    "VIEW_ALL": "Ver todos",
     "EDIT": "Editar",
     "SAVE": "Guardar",
-    "NO_RESULTS": "No se han encontrado resultados"
+    "NO_RESULTS": "No se han encontrado resultados",
+    "UPDATE": "Actualizar",
+    "CREATE": "Crear",
+    "DELETE": "Eliminar",
+    "RESULTS": "resultado"
   },
   "CENTER": {
     "TITLE": "Centros",
@@ -50,17 +57,26 @@
     "NAME": "Nombre",
     "CENTERS": "Centros",
     "MY_MEETINGS": "Mis Reuniones",
+    "UPCOMING": "Próximas Reuniones",
+    "NO_UPCOMING": "No tienes próximas reuniones",
     "CENTERS_COUNT": "Número de Centros",
     "NO_MEETINGS": "No tienes reuniones programadas.",
     "CREATE": "Crear Reunión",
-    "MEETING_IN_CENTER": "Crear Reunión en el Centro",
+    "CREATE_IN_CENTER": "Crear Reunión en el Centro",
     "TOPIC": "Tema",
     "DATE": "Fecha",
     "TIME": "Hora",
     "HOUR": "Hora",
     "CLASSROOM": "Aula",
     "CENTER": "Centro",
-    "ADDRESS": "Dirección"
+    "ADDRESS": "Dirección",
+    "EDIT": "Editar Reunión",
+    "STATUS": {
+      "PENDING": "Pendiente",
+      "ACCEPTED": "Aceptada",
+      "REJECTED": "Denegada",
+      "CONFLICT": "Conflicto"
+    }
   },
   "FILTER": {
     "TYPE": "Tipo",
@@ -104,6 +120,31 @@
     "STUDENT": "Estudiante"
   },
   "ERROR.LOADING_CENTERS": "Error al cargar los centros",
+  "SCHEDULE": {
+    "TITLE": "Horario",
+    "HOUR": "Hora",
+    "DAY": "Día",
+    "NO_CLASSES": "No tienes clases asignadas"
+  },
+  "DASHBOARD": {
+    "VIEW_SCHEDULE_DESC": "Ver tu horario",
+    "VIEW_MEETINGS_DESC": "Ver tus reuniones",
+    "VIEW_STUDENTS_DESC": "Ver tus estudiantes",
+    "VIEW_PROFILE_DESC": "Ver y editar tu perfil"
+  },
+  "VALIDATION": {
+    "REQUIRED": "Este campo es requerido"
+  },
+  "SUCCESS": {
+    "PROFILE_UPDATED": "Perfil actualizado correctamente"
+  },
+  "ERROR": {
+    "LOADING_CENTERS": "Error al cargar los centros",
+    "LOADING_MEETINGS": "Error al cargar las reuniones",
+    "LOADING_SCHEDULE": "Error al cargar el horario",
+    "LOADING_CICLOS": "Error al cargar los ciclos",
+    "UPDATING_PROFILE": "Error al actualizar el perfil"
+  },
   "USERS": "Usuarios",
   "CICLOS": "Ciclos Formativos",
   "CICLOS_SINGULAR": "Ciclo Formativo",

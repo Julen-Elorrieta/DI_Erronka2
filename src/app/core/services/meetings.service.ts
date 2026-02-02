@@ -11,64 +11,64 @@ export class MeetingsService {
   constructor(private http: HttpClient) {}
 
   /**
-   * Obtiene todas las reuniones
-   * @returns Observable con array de reuniones
+   * Bilera guztiak eskuratzen ditu
+   * @returns Observable bileren array-arekin
    */
   getAllMeetings(): Observable<Meeting[]> {
     return this.http.get<Meeting[]>(ApiUtil.buildUrl('/meetings'));
   }
 
   /**
-   * Obtiene las reuniones de un usuario específico
-   * @param userId ID del usuario
-   * @returns Observable con reuniones del usuario
+   * Erabiltzaile baten bilerak eskuratzen ditu
+   * @param userId Erabiltzailearen IDa
+   * @returns Observable erabiltzailearen bilerekin
    */
   getUserMeetings(userId: number): Observable<Meeting[]> {
     return this.http.get<Meeting[]>(ApiUtil.buildUrl(`/meetings/user/${userId}`));
   }
 
   /**
-   * Obtiene una reunión por ID
-   * @param meetingId ID de la reunión
-   * @returns Observable con datos de la reunión
+   * Bilera bat eskuratzen du ID bidez
+   * @param meetingId Bileraren IDa
+   * @returns Observable bileraren datuekin
    */
   getMeetingById(meetingId: number): Observable<Meeting> {
     return this.http.get<Meeting>(ApiUtil.buildUrl(`/meetings/${meetingId}`));
   }
 
   /**
-   * Crea una nueva reunión
-   * @param meeting Datos de la reunión a crear
-   * @returns Observable con la reunión creada
+   * Bilera berri bat sortzen du
+   * @param meeting Sortu beharreko bileraren datuak
+   * @returns Observable sortutako bilerarekin
    */
   createMeeting(meeting: Meeting): Observable<Meeting> {
     return this.http.post<Meeting>(ApiUtil.buildUrl('/meetings'), meeting);
   }
 
   /**
-   * Actualiza una reunión existente
-   * @param meetingId ID de la reunión
-   * @param meeting Datos actualizados
-   * @returns Observable con el resultado
+   * Lehendik dagoen bilera bat eguneratzen du
+   * @param meetingId Bileraren IDa
+   * @param meeting Datu eguneratuak
+   * @returns Observable emaitzarekin
    */
   updateMeeting(meetingId: number, meeting: Meeting): Observable<any> {
     return this.http.put(ApiUtil.buildUrl(`/meetings/${meetingId}`), meeting);
   }
 
   /**
-   * Cambia el estado de una reunión
-   * @param meetingId ID de la reunión
-   * @param status Nuevo estado (PENDING, ACCEPTED, CANCELLED, CONFLICT)
-   * @returns Observable con el resultado
+   * Bilera baten egoera aldatzen du
+   * @param meetingId Bileraren IDa
+   * @param status Egoera berria (PENDING, ACCEPTED, CANCELLED, CONFLICT)
+   * @returns Observable emaitzarekin
    */
   updateMeetingStatus(meetingId: number, status: string): Observable<any> {
     return this.http.put(ApiUtil.buildUrl(`/meetings/${meetingId}/status`), { status });
   }
 
   /**
-   * Elimina una reunión
-   * @param meetingId ID de la reunión a eliminar
-   * @returns Observable con el resultado
+   * Bilera bat ezabatzen du
+   * @param meetingId Ezabatu beharreko bileraren IDa
+   * @returns Observable emaitzarekin
    */
   deleteMeeting(meetingId: number): Observable<any> {
     return this.http.delete(ApiUtil.buildUrl(`/meetings/${meetingId}`));
