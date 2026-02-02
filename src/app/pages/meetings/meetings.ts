@@ -243,7 +243,7 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.loadInitialData();
     this.setupFilterCascade();
-    
+
     // Suscribirse a los datos procesados para actualizar marcadores
     this.mapMarkersUpdate$.subscribe((centers) => {
       if (this.map && this.mapInitialized$.value) {
@@ -275,7 +275,7 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
               this.map?.resize();
               // Volver a ajustar los bounds si hay marcadores
               if (this.markers.size > 0) {
-                const centers = this.centersSource$.value.filter(c => this.markers.has(c.CCEN));
+                const centers = this.centersSource$.value.filter((c) => this.markers.has(c.CCEN));
                 if (centers.length) this.fitMapBounds(centers);
               }
             }, 50);
@@ -290,17 +290,17 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    
+
     // Limpiar marcadores
     this.markers.forEach((marker) => marker.remove());
     this.markers.clear();
-    
+
     // Limpiar mapa
     if (this.map) {
       this.map.remove();
       this.map = null;
     }
-    
+
     this.mapInitialized$.next(false);
     this.pendingCentersForMarkers = [];
   }
@@ -771,27 +771,27 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
       console.warn('Mapa ez dago eskuragarri');
       return;
     }
-    
+
     if (center.LONGITUD && center.LATITUD) {
       // Cambiar a la pestaña del mapa si no está activa
       if (this.activeTabSource$.value !== 0) {
         this.activeTabSource$.next(0);
         // Esperar a que el tab cambie y el mapa se redimensione
         setTimeout(() => {
-          this.map?.flyTo({ 
-            center: [center.LATITUD, center.LONGITUD], 
-            zoom: 15, 
+          this.map?.flyTo({
+            center: [center.LATITUD, center.LONGITUD],
+            zoom: 15,
             essential: true,
-            duration: 1000 
+            duration: 1000,
           });
           setTimeout(() => this.markers.get(center.CCEN)?.togglePopup(), 1000);
         }, 200);
       } else {
-        this.map.flyTo({ 
-          center: [center.LATITUD, center.LONGITUD], 
-          zoom: 15, 
+        this.map.flyTo({
+          center: [center.LATITUD, center.LONGITUD],
+          zoom: 15,
           essential: true,
-          duration: 1000 
+          duration: 1000,
         });
         setTimeout(() => this.markers.get(center.CCEN)?.togglePopup(), 1000);
       }
