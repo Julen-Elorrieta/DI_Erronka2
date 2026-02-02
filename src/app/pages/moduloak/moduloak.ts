@@ -55,7 +55,7 @@ import Swal from 'sweetalert2';
         </ng-container>
 
         <ng-container matColumnDef="nombre_eus">
-          <th mat-header-cell *matHeaderCellDef>Euskera</th>
+          <th mat-header-cell *matHeaderCellDef>{{ 'MODULOS.BASQUE' | translate }}</th>
           <td mat-cell *matCellDef="let element">{{ element.nombre_eus }}</td>
         </ng-container>
 
@@ -125,6 +125,7 @@ export class ModulosComponent implements OnInit {
   private ciclosService = inject(CiclosService);
   private authService = inject(AuthService);
   private snackBar = inject(MatSnackBar);
+  private translate = inject(TranslateService);
 
   ngOnInit(): void {
     this.loadCiclos();
@@ -144,7 +145,7 @@ export class ModulosComponent implements OnInit {
       error: (err) => {
         console.error('Errorea moduluak kargatzean:', err);
         this.loading.set(false);
-        this.snackBar.open('Errorea moduluak kargatzean', 'Itxi', { duration: 3000 });
+        this.snackBar.open(this.translate.instant('ERROR.LOADING_MODULES'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
       },
     });
   }
@@ -164,22 +165,22 @@ export class ModulosComponent implements OnInit {
    */
   openNewDialog(): void {
     Swal.fire({
-      title: 'Modulu Berria',
+      title: this.translate.instant('MODULOS.NEW'),
       html: `
-        <input type="text" id="nombre" class="swal2-input" placeholder="Izena">
-        <input type="text" id="nombre_eus" class="swal2-input" placeholder="Izena Euskaraz">
-        <input type="number" id="horas" class="swal2-input" placeholder="Orduak">
+        <input type="text" id="nombre" class="swal2-input" placeholder="${this.translate.instant('MODULOS.NOMBRE')}">
+        <input type="text" id="nombre_eus" class="swal2-input" placeholder="${this.translate.instant('MODULOS.NOMBRE_EUS')}">
+        <input type="number" id="horas" class="swal2-input" placeholder="${this.translate.instant('MODULOS.HORAS')}">
         <select id="ciclo_id" class="swal2-input">
-          <option value="">Zikloa aukeratu</option>
+          <option value="">${this.translate.instant('MODULOS.SELECT_CICLO')}</option>
           ${this.ciclos()
             .map((c) => `<option value="${c.id}">${c.nombre}</option>`)
             .join('')}
         </select>
-        <input type="number" id="curso" class="swal2-input" placeholder="Kurtsoa (1 edo 2)">
+        <input type="number" id="curso" class="swal2-input" placeholder="${this.translate.instant('MODULOS.CURSO_HINT')}">
       `,
       showCancelButton: true,
-      confirmButtonText: 'Sortu',
-      cancelButtonText: 'Ezeztatu',
+      confirmButtonText: this.translate.instant('COMMON.CREATE'),
+      cancelButtonText: this.translate.instant('COMMON.CANCEL'),
     }).then((result) => {
       if (result.isConfirmed) {
         const modulo = {
@@ -201,12 +202,12 @@ export class ModulosComponent implements OnInit {
   createModulo(modulo: any): void {
     this.modulosService.createModulo(modulo).subscribe({
       next: () => {
-        this.snackBar.open('Modulua ondo sortu da', 'Itxi', { duration: 3000 });
+        this.snackBar.open(this.translate.instant('MODULOS.CREATED'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
         this.loadModulos();
       },
       error: (err) => {
         console.error('Errorea modulua sortzean:', err);
-        this.snackBar.open('Errorea modulua sortzean', 'Itxi', { duration: 3000 });
+        this.snackBar.open(this.translate.instant('MODULOS.ERROR_CREATE'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
       },
     });
   }
@@ -217,11 +218,11 @@ export class ModulosComponent implements OnInit {
    */
   editModulo(modulo: Modulo): void {
     Swal.fire({
-      title: 'Modulua Editatu',
+      title: this.translate.instant('MODULOS.EDIT'),
       html: `
-        <input type="text" id="nombre" class="swal2-input" placeholder="Izena" value="${modulo.nombre}">
-        <input type="text" id="nombre_eus" class="swal2-input" placeholder="Izena Euskaraz" value="${modulo.nombre_eus || ''}">
-        <input type="number" id="horas" class="swal2-input" placeholder="Orduak" value="${modulo.horas}">
+        <input type="text" id="nombre" class="swal2-input" placeholder="${this.translate.instant('MODULOS.NOMBRE')}" value="${modulo.nombre}">
+        <input type="text" id="nombre_eus" class="swal2-input" placeholder="${this.translate.instant('MODULOS.NOMBRE_EUS')}" value="${modulo.nombre_eus || ''}">
+        <input type="number" id="horas" class="swal2-input" placeholder="${this.translate.instant('MODULOS.HORAS')}" value="${modulo.horas}">
         <select id="ciclo_id" class="swal2-input">
           ${this.ciclos()
             .map(
@@ -230,11 +231,11 @@ export class ModulosComponent implements OnInit {
             )
             .join('')}
         </select>
-        <input type="number" id="curso" class="swal2-input" placeholder="Kurtsoa" value="${modulo.curso}">
+        <input type="number" id="curso" class="swal2-input" placeholder="${this.translate.instant('MODULOS.CURSO')}" value="${modulo.curso}">
       `,
       showCancelButton: true,
-      confirmButtonText: 'Eguneratu',
-      cancelButtonText: 'Ezeztatu',
+      confirmButtonText: this.translate.instant('COMMON.UPDATE'),
+      cancelButtonText: this.translate.instant('COMMON.CANCEL'),
     }).then((result) => {
       if (result.isConfirmed) {
         const updated = {
@@ -246,12 +247,12 @@ export class ModulosComponent implements OnInit {
         };
         this.modulosService.updateModulo(modulo.id, updated as any).subscribe({
           next: () => {
-            this.snackBar.open('Modulua ondo eguneratu da', 'Itxi', { duration: 3000 });
+            this.snackBar.open(this.translate.instant('MODULOS.UPDATED'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
             this.loadModulos();
           },
           error: (err) => {
             console.error('Errorea modulua eguneratzean:', err);
-            this.snackBar.open('Errorea modulua eguneratzean', 'Itxi', { duration: 3000 });
+            this.snackBar.open(this.translate.instant('MODULOS.ERROR_UPDATE'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
           },
         });
       }
@@ -264,22 +265,22 @@ export class ModulosComponent implements OnInit {
    */
   deleteModulo(modulo: Modulo): void {
     Swal.fire({
-      title: 'Modulua ezabatu?',
-      text: `Ziur zaude ${modulo.nombre} modulua ezabatu nahi duzula?`,
+      title: this.translate.instant('MODULOS.DELETE_CONFIRM'),
+      text: this.translate.instant('MODULOS.DELETE_TEXT'),
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Bai, ezabatu',
-      cancelButtonText: 'Ezeztatu',
+      confirmButtonText: this.translate.instant('COMMON.YES_DELETE'),
+      cancelButtonText: this.translate.instant('COMMON.CANCEL'),
     }).then((result) => {
       if (result.isConfirmed) {
         this.modulosService.deleteModulo(modulo.id).subscribe({
           next: () => {
-            this.snackBar.open('Modulua ondo ezabatu da', 'Itxi', { duration: 3000 });
+            this.snackBar.open(this.translate.instant('MODULOS.DELETED'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
             this.loadModulos();
           },
           error: (err) => {
             console.error('Errorea modulua ezabatzean:', err);
-            this.snackBar.open('Errorea modulua ezabatzean', 'Itxi', { duration: 3000 });
+            this.snackBar.open(this.translate.instant('MODULOS.ERROR_DELETE'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
           },
         });
       }

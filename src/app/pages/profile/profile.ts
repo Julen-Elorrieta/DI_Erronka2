@@ -117,9 +117,7 @@ export class ProfileComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error loading schedule:', err);
-        this.showError(
-          this.translate.instant('ERROR.LOADING_SCHEDULE') || 'Error cargando horario',
-        );
+        this.showError(this.translate.instant('ERROR.LOADING_SCHEDULE'));
       },
     });
   }
@@ -132,9 +130,7 @@ export class ProfileComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error loading meetings:', err);
-        this.showError(
-          this.translate.instant('ERROR.LOADING_MEETINGS') || 'Error cargando reuniones',
-        );
+        this.showError(this.translate.instant('ERROR.LOADING_MEETINGS'));
         this.loading.set(false);
       },
     });
@@ -154,16 +150,14 @@ export class ProfileComponent implements OnInit {
       //   next: (user) => {
       //     this.user.set(user);
       //     this.editing.set(false);
-      //     this.showSuccess(this.translate.instant('SUCCESS.PROFILE_UPDATED') || 'Perfil actualizado correctamente');
+      //     this.showSuccess(this.translate.instant('SUCCESS.PROFILE_UPDATED'));
       //   },
-      //   error: () => this.showError(this.translate.instant('ERROR.UPDATING_PROFILE') || 'Error al actualizar perfil')
+      //   error: () => this.showError(this.translate.instant('ERROR.UPDATING_PROFILE'))
       // });
 
       // Por ahora, solo mostramos un mensaje
       this.editing.set(false);
-      this.showSuccess(
-        this.translate.instant('SUCCESS.PROFILE_UPDATED') || 'Perfil actualizado correctamente',
-      );
+      this.showSuccess(this.translate.instant('SUCCESS.PROFILE_UPDATED'));
     }
   }
 
@@ -217,14 +211,14 @@ export class ProfileComponent implements OnInit {
   }
 
   private showSuccess(message: string): void {
-    this.snackBar.open(message, 'OK', {
+    this.snackBar.open(message, this.translate.instant('COMMON.CLOSE'), {
       duration: 3000,
       panelClass: ['snackbar-success'],
     });
   }
 
   private showError(message: string): void {
-    this.snackBar.open(message, 'OK', {
+    this.snackBar.open(message, this.translate.instant('COMMON.CLOSE'), {
       duration: 5000,
       panelClass: ['snackbar-error'],
     });

@@ -10,7 +10,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
 import { MatriculacionesService, Matriculacion } from '../../core/services/matriculaciones.service';
 import { UsersService } from '../../core/services/users.service';
@@ -134,6 +134,7 @@ export class MatriculacionesComponent implements OnInit {
   private ciclosService = inject(CiclosService);
   private authService = inject(AuthService);
   private snackBar = inject(MatSnackBar);
+  private translate = inject(TranslateService);
 
   ngOnInit(): void {
     this.loadData();
@@ -188,30 +189,30 @@ export class MatriculacionesComponent implements OnInit {
    */
   openNewDialog(): void {
     Swal.fire({
-      title: 'Matrikulazio Berria',
+      title: this.translate.instant('MATRICULACIONES.NEW'),
       html: `
         <select id="alum_id" class="swal2-input">
-          <option value="">Ikaslea aukeratu</option>
+          <option value="">${this.translate.instant('MATRICULACIONES.SELECT_STUDENT')}</option>
           ${this.alumnos()
             .map((a) => `<option value="${a.id}">${a.nombre}</option>`)
             .join('')}
         </select>
         <select id="ciclo_id" class="swal2-input">
-          <option value="">Zikloa aukeratu</option>
+          <option value="">${this.translate.instant('MATRICULACIONES.SELECT_CICLO')}</option>
           ${this.ciclos()
             .map((c) => `<option value="${c.id}">${c.nombre}</option>`)
             .join('')}
         </select>
         <select id="curso" class="swal2-input">
-          <option value="">Kurtsoa aukeratu</option>
-          <option value="1">1. Kurtsoa</option>
-          <option value="2">2. Kurtsoa</option>
+          <option value="">${this.translate.instant('MATRICULACIONES.SELECT_COURSE')}</option>
+          <option value="1">${this.translate.instant('MATRICULACIONES.COURSE_1')}</option>
+          <option value="2">${this.translate.instant('MATRICULACIONES.COURSE_2')}</option>
         </select>
         <input type="date" id="fecha" class="swal2-input">
       `,
       showCancelButton: true,
-      confirmButtonText: 'Sortu',
-      cancelButtonText: 'Ezeztatu',
+      confirmButtonText: this.translate.instant('COMMON.CREATE'),
+      cancelButtonText: this.translate.instant('COMMON.CANCEL'),
     }).then((result) => {
       if (result.isConfirmed) {
         const matriculacion = {
@@ -232,12 +233,12 @@ export class MatriculacionesComponent implements OnInit {
   createMatriculacion(matriculacion: any): void {
     this.matriculacionesService.createMatriculacion(matriculacion).subscribe({
       next: () => {
-        this.snackBar.open('Matrikulazioa ondo sortu da', 'Itxi', { duration: 3000 });
+        this.snackBar.open(this.translate.instant('MATRICULACIONES.CREATED'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
         this.loadData();
       },
       error: (err) => {
         console.error('Errorea matrikulazioa sortzean:', err);
-        this.snackBar.open('Errorea matrikulazioa sortzean', 'Itxi', { duration: 3000 });
+        this.snackBar.open(this.translate.instant('MATRICULACIONES.ERROR_CREATE'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
       },
     });
   }
@@ -248,7 +249,7 @@ export class MatriculacionesComponent implements OnInit {
    */
   editMatriculacion(matriculacion: Matriculacion): void {
     Swal.fire({
-      title: 'Matrikulazioa Editatu',
+      title: this.translate.instant('MATRICULACIONES.EDIT'),
       html: `
         <select id="alum_id" class="swal2-input">
           ${this.alumnos()
@@ -267,14 +268,14 @@ export class MatriculacionesComponent implements OnInit {
             .join('')}
         </select>
         <select id="curso" class="swal2-input">
-          <option value="1" ${matriculacion.curso === 1 ? 'selected' : ''}>1. Kurtsoa</option>
-          <option value="2" ${matriculacion.curso === 2 ? 'selected' : ''}>2. Kurtsoa</option>
+          <option value="1" ${matriculacion.curso === 1 ? 'selected' : ''}>${this.translate.instant('MATRICULACIONES.COURSE_1')}</option>
+          <option value="2" ${matriculacion.curso === 2 ? 'selected' : ''}>${this.translate.instant('MATRICULACIONES.COURSE_2')}</option>
         </select>
         <input type="date" id="fecha" class="swal2-input" value="${matriculacion.fecha}">
       `,
       showCancelButton: true,
-      confirmButtonText: 'Eguneratu',
-      cancelButtonText: 'Ezeztatu',
+      confirmButtonText: this.translate.instant('COMMON.UPDATE'),
+      cancelButtonText: this.translate.instant('COMMON.CANCEL'),
     }).then((result) => {
       if (result.isConfirmed) {
         const updated = {
@@ -287,14 +288,14 @@ export class MatriculacionesComponent implements OnInit {
           .updateMatriculacion(matriculacion.id, updated as any)
           .subscribe({
             next: () => {
-              this.snackBar.open('Matrikulazioa ondo eguneratu da', 'Itxi', {
+              this.snackBar.open(this.translate.instant('MATRICULACIONES.UPDATED'), this.translate.instant('COMMON.CLOSE'), {
                 duration: 3000,
               });
               this.loadData();
             },
             error: (err) => {
               console.error('Errorea matrikulazioa eguneratzean:', err);
-              this.snackBar.open('Errorea matrikulazioa eguneratzean', 'Itxi', { duration: 3000 });
+              this.snackBar.open(this.translate.instant('MATRICULACIONES.ERROR_UPDATE'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
             },
           });
       }
@@ -307,24 +308,24 @@ export class MatriculacionesComponent implements OnInit {
    */
   deleteMatriculacion(matriculacion: Matriculacion): void {
     Swal.fire({
-      title: 'Matrikulazioa ezabatu?',
-      text: `Ziur zaude matrikulazio hau ezabatu nahi duzula?`,
+      title: this.translate.instant('MATRICULACIONES.DELETE_CONFIRM'),
+      text: this.translate.instant('MATRICULACIONES.DELETE_TEXT'),
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Bai, ezabatu',
-      cancelButtonText: 'Ezeztatu',
+      confirmButtonText: this.translate.instant('COMMON.YES_DELETE'),
+      cancelButtonText: this.translate.instant('COMMON.CANCEL'),
     }).then((result) => {
       if (result.isConfirmed) {
         this.matriculacionesService.deleteMatriculacion(matriculacion.id).subscribe({
           next: () => {
-            this.snackBar.open('Matrikulazioa ondo ezabatu da', 'Itxi', {
+            this.snackBar.open(this.translate.instant('MATRICULACIONES.DELETED'), this.translate.instant('COMMON.CLOSE'), {
               duration: 3000,
             });
             this.loadData();
           },
           error: (err) => {
             console.error('Errorea matrikulazioa ezabatzean:', err);
-            this.snackBar.open('Errorea matrikulazioa ezabatzean', 'Itxi', { duration: 3000 });
+            this.snackBar.open(this.translate.instant('MATRICULACIONES.ERROR_DELETE'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
           },
         });
       }

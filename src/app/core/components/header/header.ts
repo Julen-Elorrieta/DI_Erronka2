@@ -10,7 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
 import { User } from '../../models/user.model';
 import { LanguageService, Language } from '../../services/language.service';
@@ -233,6 +233,7 @@ export class HeaderComponent implements OnInit {
 
   private authService = inject(AuthService);
   private router = inject(Router);
+  private translate = inject(TranslateService);
   languageService = inject(LanguageService);
 
   constructor() {
@@ -245,21 +246,22 @@ export class HeaderComponent implements OnInit {
   }
 
   /**
-   * Erabiltzailearen rolaren etiketa euskaraz itzultzen du
-   * @returns Rolaren izena
+   * Erabiltzailearen rolaren etiketa itzultzen du
+   * @returns Rolaren izena itzulita
    */
   getRoleLabel(): string {
     const user = this.currentUser();
     if (!user) return '';
 
-    // Rol mapa euskaraz
+    // Rol mapa itzulpen gakoetara
     const roleMap: { [key: number]: string } = {
-      1: 'Jainkoa', // GOD/Super Admin
-      2: 'Administratzailea', // Admin
-      3: 'Irakaslea', // Irakaslea
-      4: 'Ikaslea', // Ikaslea
+      1: 'ROLE.GOD',
+      2: 'ROLE.ADMIN',
+      3: 'ROLE.TEACHER',
+      4: 'ROLE.STUDENT',
     };
-    return roleMap[user.tipo_id] || 'Erabiltzailea';
+    const key = roleMap[user.tipo_id] || 'ROLE.USER';
+    return this.translate.instant(key);
   }
 
   /** Erabiltzailearen profil irudiaren URLa eskuratzen du */

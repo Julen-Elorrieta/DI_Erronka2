@@ -125,7 +125,7 @@
                 <div class="schedule-mini-item">
                   <div class="schedule-time">{{ slot.hour || '--' }}:00</div>
                   <div class="schedule-info">
-                    <span class="schedule-subject">{{ slot.subject || 'Modulurik gabe' }}</span>
+                    <span class="schedule-subject">{{ getSubjectLabel(slot.subject) }}</span>
                     @if (slot.classroom) {
                       <span class="schedule-classroom">{{ slot.classroom }}</span>
                     }
@@ -248,7 +248,7 @@
                 <div class="schedule-mini-item">
                   <div class="schedule-time">{{ slot.hour || '--' }}:00</div>
                   <div class="schedule-info">
-                    <span class="schedule-subject">{{ slot.subject || 'Modulurik gabe' }}</span>
+                    <span class="schedule-subject">{{ getSubjectLabel(slot.subject) }}</span>
                     @if (slot.teacher) {
                       <span class="schedule-teacher">{{ slot.teacher }}</span>
                     }

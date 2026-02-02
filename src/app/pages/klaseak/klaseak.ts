@@ -136,11 +136,11 @@ export class CiclosComponent implements OnInit {
    */
   openNewDialog(): void {
     Swal.fire({
-      title: 'Ziklo Berria',
-      html: `<input type="text" id="nombre" class="swal2-input" placeholder="Zikloaren izena">`,
+      title: this.translate.instant('CICLOS.NEW'),
+      html: `<input type="text" id="nombre" class="swal2-input" placeholder="${this.translate.instant('CICLOS.NAME_PLACEHOLDER')}">`,
       showCancelButton: true,
-      confirmButtonText: 'Sortu',
-      cancelButtonText: 'Ezeztatu',
+      confirmButtonText: this.translate.instant('COMMON.CREATE'),
+      cancelButtonText: this.translate.instant('COMMON.CANCEL'),
       didOpen: () => {
         document.getElementById('nombre')?.focus();
       },
@@ -161,12 +161,12 @@ export class CiclosComponent implements OnInit {
   createCiclo(ciclo: any): void {
     this.ciclosService.createCiclo(ciclo).subscribe({
       next: () => {
-        this.snackBar.open('Zikloa ondo sortu da', 'Itxi', { duration: 3000 });
+        this.snackBar.open(this.translate.instant('CICLOS.CREATED'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
         this.loadCiclos();
       },
       error: (err) => {
         console.error('Errorea zikloa sortzean:', err);
-        this.snackBar.open('Errorea zikloa sortzean', 'Itxi', { duration: 3000 });
+        this.snackBar.open(this.translate.instant('CICLOS.ERROR_CREATE'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
       },
     });
   }
@@ -177,11 +177,11 @@ export class CiclosComponent implements OnInit {
    */
   editCiclo(ciclo: Ciclo): void {
     Swal.fire({
-      title: 'Zikloa Editatu',
-      html: `<input type="text" id="nombre" class="swal2-input" placeholder="Zikloaren izena" value="${ciclo.nombre}">`,
+      title: this.translate.instant('CICLOS.EDIT'),
+      html: `<input type="text" id="nombre" class="swal2-input" placeholder="${this.translate.instant('CICLOS.NAME_PLACEHOLDER')}" value="${ciclo.nombre}">`,
       showCancelButton: true,
-      confirmButtonText: 'Eguneratu',
-      cancelButtonText: 'Ezeztatu',
+      confirmButtonText: this.translate.instant('COMMON.UPDATE'),
+      cancelButtonText: this.translate.instant('COMMON.CANCEL'),
       didOpen: () => {
         document.getElementById('nombre')?.focus();
       },
@@ -191,12 +191,12 @@ export class CiclosComponent implements OnInit {
         if (nombre) {
           this.ciclosService.updateCiclo(ciclo.id, { nombre } as any).subscribe({
             next: () => {
-              this.snackBar.open('Zikloa ondo eguneratu da', 'Itxi', { duration: 3000 });
+              this.snackBar.open(this.translate.instant('CICLOS.UPDATED'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
               this.loadCiclos();
             },
             error: (err) => {
               console.error('Errorea zikloa eguneratzean:', err);
-              this.snackBar.open('Errorea zikloa eguneratzean', 'Itxi', { duration: 3000 });
+              this.snackBar.open(this.translate.instant('CICLOS.ERROR_UPDATE'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
             },
           });
         }
@@ -210,22 +210,22 @@ export class CiclosComponent implements OnInit {
    */
   deleteCiclo(ciclo: Ciclo): void {
     Swal.fire({
-      title: 'Zikloa ezabatu?',
-      text: `Ziur zaude ${ciclo.nombre} zikloa ezabatu nahi duzula?`,
+      title: this.translate.instant('CICLOS.DELETE_CONFIRM'),
+      text: this.translate.instant('CICLOS.DELETE_TEXT'),
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Bai, ezabatu',
-      cancelButtonText: 'Ezeztatu',
+      confirmButtonText: this.translate.instant('COMMON.YES_DELETE'),
+      cancelButtonText: this.translate.instant('COMMON.CANCEL'),
     }).then((result) => {
       if (result.isConfirmed) {
         this.ciclosService.deleteCiclo(ciclo.id).subscribe({
           next: () => {
-            this.snackBar.open('Zikloa ondo ezabatu da', 'Itxi', { duration: 3000 });
+            this.snackBar.open(this.translate.instant('CICLOS.DELETED'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
             this.loadCiclos();
           },
           error: (err) => {
             console.error('Errorea zikloa ezabatzean:', err);
-            this.snackBar.open('Errorea zikloa ezabatzean', 'Itxi', { duration: 3000 });
+            this.snackBar.open(this.translate.instant('CICLOS.ERROR_DELETE'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
           },
         });
       }

@@ -309,10 +309,10 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
         map((reuniones) =>
           reuniones.map((r) => ({
             id: r.id_reunion?.toString() || '',
-            title: r.titulo || r.asunto || `Bilera ${r.id_reunion || 'ID gabe'}`,
+            title: r.titulo || r.asunto || this.translate.instant('MEETING.NO_TITLE'),
             date: new Date(r.fecha),
             hour: this.extractTime(r.fecha),
-            classroom: r.aula || 'Gela esleitu gabe',
+            classroom: r.aula || this.translate.instant('MEETING.NO_CLASSROOM'),
             center: r.id_centro?.toString() || '',
             centerName: this.getCenterName(r.id_centro),
             status: r.estado || 'pendiente',
@@ -324,8 +324,8 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
         catchError((err) => {
           console.error('Errorea bilerak kargatzean:', err);
           this.snackBar.open(
-            this.translate.instant('ERROR.LOADING_MEETINGS') || 'Errorea bilerak kargatzean',
-            this.translate.instant('COMMON.CLOSE') || 'Itxi',
+            this.translate.instant('ERROR.LOADING_MEETINGS'),
+            this.translate.instant('COMMON.CLOSE'),
             { duration: 3000 },
           );
           return of([]);
@@ -351,9 +351,9 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private getCenterName(centroId: number | null | undefined): string {
-    if (!centroId) return 'Zentro zehaztu gabe';
+    if (!centroId) return this.translate.instant('MEETING.NO_CENTER');
     const center = this.centersSource$.value.find((c) => c.CCEN === centroId.toString());
-    return center?.NOM || `Zentroa ${centroId}`;
+    return center?.NOM || `${this.translate.instant('MEETING.CENTER')} ${centroId}`;
   }
 
   getStatusLabel(status: string): string {
@@ -598,7 +598,7 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private showSnackBar(message: string, error = false): void {
-    this.snackBar.open(message, this.translate.instant('COMMON.CLOSE') || 'Itxi', {
+    this.snackBar.open(message, this.translate.instant('COMMON.CLOSE'), {
       duration: 3000,
       panelClass: error ? 'error-snackbar' : 'success-snackbar',
     });

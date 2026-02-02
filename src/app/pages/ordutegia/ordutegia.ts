@@ -93,8 +93,8 @@ interface ScheduleCell {
                 >
                   @if (getCell(dia, hora).horario; as h) {
                     <div class="cell-content" [matTooltip]="getCellTooltip(h)">
-                      <div class="cell-module">{{ h.modulo_nombre || 'Modulurik gabe' }}</div>
-                      <div class="cell-teacher">{{ h.profesor_nombre || 'Irakaslerik gabe' }}</div>
+                      <div class="cell-module">{{ getModuleLabel(h.modulo_nombre) }}</div>
+                      <div class="cell-teacher">{{ getTeacherLabel(h.profesor_nombre) }}</div>
                       <div class="cell-room">{{ h.aula || '-' }}</div>
                       @if (h.observaciones) {
                         <mat-icon class="cell-note">info_outline</mat-icon>
@@ -376,13 +376,13 @@ export class HorariosComponent implements OnInit {
   /** Asteko egunak (datu-basean gordetzen diren bezala) */
   dias = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES'];
 
-  /** Egunen izenak euskaraz */
-  diasLabels: { [key: string]: string } = {
-    LUNES: 'ASTELEHENA',
-    MARTES: 'ASTEARTEA',
-    MIERCOLES: 'ASTEAZKENA',
-    JUEVES: 'OSTEGUNA',
-    VIERNES: 'OSTIRALA',
+  /** Egun izenak itzulpenetarako mapa */
+  private daysTranslationMap: { [key: string]: string } = {
+    LUNES: 'DAYS.MONDAY',
+    MARTES: 'DAYS.TUESDAY',
+    MIERCOLES: 'DAYS.WEDNESDAY',
+    JUEVES: 'DAYS.THURSDAY',
+    VIERNES: 'DAYS.FRIDAY',
   };
 
   /** Eskola orduak */
@@ -440,18 +440,29 @@ export class HorariosComponent implements OnInit {
     return this.horasTimes[hora] || '';
   }
 
-  /** Egunaren etiketa lortu euskaraz */
+  /** Egunaren etiketa lortu hizkuntza aktiboan */
   getDiaLabel(dia: string): string {
-    return this.diasLabels[dia] || dia;
+    const translationKey = this.daysTranslationMap[dia];
+    return translationKey ? this.translate.instant(translationKey) : dia;
   }
 
   /** Gelaxkaren tooltip-a sortu */
   getCellTooltip(h: Horario): string {
-    let tooltip = `${h.modulo_nombre || 'Modulurik gabe'}\n${h.profesor_nombre || 'Irakaslerik gabe'}\n${h.aula || '-'}`;
+    let tooltip = `${h.modulo_nombre || this.translate.instant('SCHEDULE.NO_MODULE')}\n${h.profesor_nombre || this.translate.instant('SCHEDULE.NO_TEACHER')}\n${h.aula || '-'}`;
     if (h.observaciones) {
       tooltip += `\n\n${h.observaciones}`;
     }
     return tooltip;
+  }
+
+  /** Moduluaren izena lortu edo fallback */
+  getModuleLabel(nombre: string | null | undefined): string {
+    return nombre || this.translate.instant('SCHEDULE.NO_MODULE');
+  }
+
+  /** Irakaslearen izena lortu edo fallback */
+  getTeacherLabel(nombre: string | null | undefined): string {
+    return nombre || this.translate.instant('SCHEDULE.NO_TEACHER');
   }
 
   loadData(): void {
@@ -506,34 +517,34 @@ export class HorariosComponent implements OnInit {
   /** Ordutegia berria sortzeko dialogoa irekitzen du */
   openNewDialog(defaultDia?: string, defaultHora?: number): void {
     Swal.fire({
-      title: 'Ordutegia Berria',
+      title: this.translate.instant('HORARIOS.NEW'),
       html: `
         <select id="dia" class="swal2-input">
-          <option value="">Eguna aukeratu</option>
-          ${this.dias.map((d) => `<option value="${d}" ${d === defaultDia ? 'selected' : ''}>${this.diasLabels[d]}</option>`).join('')}
+          <option value="">${this.translate.instant('HORARIOS.SELECT_DAY')}</option>
+          ${this.dias.map((d) => `<option value="${d}" ${d === defaultDia ? 'selected' : ''}>${this.getDiaLabel(d)}</option>`).join('')}
         </select>
         <select id="hora" class="swal2-input">
-          <option value="">Ordua aukeratu</option>
-          ${this.horas.map((h) => `<option value="${h}" ${h === defaultHora ? 'selected' : ''}>${h}. ordua (${this.horasTimes[h]})</option>`).join('')}
+          <option value="">${this.translate.instant('HORARIOS.SELECT_HOUR')}</option>
+          ${this.horas.map((h) => `<option value="${h}" ${h === defaultHora ? 'selected' : ''}>${h}. ${this.translate.instant('HORARIOS.HOUR_N')} (${this.horasTimes[h]})</option>`).join('')}
         </select>
         <select id="profe_id" class="swal2-input">
-          <option value="">Irakaslea aukeratu</option>
+          <option value="">${this.translate.instant('HORARIOS.SELECT_TEACHER')}</option>
           ${this.profesores()
             .map((p) => `<option value="${p.id}">${p.nombre}</option>`)
             .join('')}
         </select>
         <select id="modulo_id" class="swal2-input">
-          <option value="">Modulua aukeratu</option>
+          <option value="">${this.translate.instant('HORARIOS.SELECT_MODULE')}</option>
           ${this.modulos()
             .map((m) => `<option value="${m.id}">${m.nombre}</option>`)
             .join('')}
         </select>
-        <input type="text" id="aula" class="swal2-input" placeholder="Gela">
-        <textarea id="observaciones" class="swal2-textarea" placeholder="Oharrak"></textarea>
+        <input type="text" id="aula" class="swal2-input" placeholder="${this.translate.instant('SCHEDULE.CLASSROOM')}">
+        <textarea id="observaciones" class="swal2-textarea" placeholder="${this.translate.instant('SCHEDULE.OBSERVATIONS')}"></textarea>
       `,
       showCancelButton: true,
-      confirmButtonText: 'Sortu',
-      cancelButtonText: 'Ezeztatu',
+      confirmButtonText: this.translate.instant('COMMON.CREATE'),
+      cancelButtonText: this.translate.instant('COMMON.CANCEL'),
     }).then((result) => {
       if (result.isConfirmed) {
         const horario = {
@@ -553,12 +564,12 @@ export class HorariosComponent implements OnInit {
   createHorario(horario: any): void {
     this.horariosService.createHorario(horario).subscribe({
       next: () => {
-        this.snackBar.open('Ordutegia ondo sortu da', 'Itxi', { duration: 3000 });
+        this.snackBar.open(this.translate.instant('HORARIOS.CREATED'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
         this.loadData();
       },
       error: (err) => {
         console.error('Errorea ordutegia sortzean:', err);
-        this.snackBar.open('Errorea ordutegia sortzean', 'Itxi', { duration: 3000 });
+        this.snackBar.open(this.translate.instant('HORARIOS.ERROR_CREATE'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
       },
     });
   }
@@ -566,13 +577,13 @@ export class HorariosComponent implements OnInit {
   /** Ordutegia editatzeko dialogoa irekitzen du */
   editHorario(horario: Horario): void {
     Swal.fire({
-      title: 'Ordutegia Editatu',
+      title: this.translate.instant('HORARIOS.EDIT'),
       html: `
         <select id="dia" class="swal2-input">
-          ${this.dias.map((d) => `<option value="${d}" ${d === horario.dia ? 'selected' : ''}>${this.diasLabels[d]}</option>`).join('')}
+          ${this.dias.map((d) => `<option value="${d}" ${d === horario.dia ? 'selected' : ''}>${this.getDiaLabel(d)}</option>`).join('')}
         </select>
         <select id="hora" class="swal2-input">
-          ${this.horas.map((h) => `<option value="${h}" ${h === horario.hora ? 'selected' : ''}>${h}. ordua (${this.horasTimes[h]})</option>`).join('')}
+          ${this.horas.map((h) => `<option value="${h}" ${h === horario.hora ? 'selected' : ''}>${h}. ${this.translate.instant('HORARIOS.HOUR_N')} (${this.horasTimes[h]})</option>`).join('')}
         </select>
         <select id="profe_id" class="swal2-input">
           ${this.profesores()
@@ -590,12 +601,12 @@ export class HorariosComponent implements OnInit {
             )
             .join('')}
         </select>
-        <input type="text" id="aula" class="swal2-input" placeholder="Gela" value="${horario.aula}">
-        <textarea id="observaciones" class="swal2-textarea" placeholder="Oharrak">${horario.observaciones || ''}</textarea>
+        <input type="text" id="aula" class="swal2-input" placeholder="${this.translate.instant('SCHEDULE.CLASSROOM')}" value="${horario.aula}">
+        <textarea id="observaciones" class="swal2-textarea" placeholder="${this.translate.instant('SCHEDULE.OBSERVATIONS')}">${horario.observaciones || ''}</textarea>
       `,
       showCancelButton: true,
-      confirmButtonText: 'Eguneratu',
-      cancelButtonText: 'Ezeztatu',
+      confirmButtonText: this.translate.instant('COMMON.UPDATE'),
+      cancelButtonText: this.translate.instant('COMMON.CANCEL'),
     }).then((result) => {
       if (result.isConfirmed) {
         const updated = {
@@ -608,12 +619,12 @@ export class HorariosComponent implements OnInit {
         };
         this.horariosService.updateHorario(horario.id, updated as any).subscribe({
           next: () => {
-            this.snackBar.open('Ordutegia ondo eguneratu da', 'Itxi', { duration: 3000 });
+            this.snackBar.open(this.translate.instant('HORARIOS.UPDATED'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
             this.loadData();
           },
           error: (err) => {
             console.error('Errorea ordutegia eguneratzean:', err);
-            this.snackBar.open('Errorea ordutegia eguneratzean', 'Itxi', { duration: 3000 });
+            this.snackBar.open(this.translate.instant('HORARIOS.ERROR_UPDATE'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
           },
         });
       }
@@ -623,22 +634,22 @@ export class HorariosComponent implements OnInit {
   /** Ordutegia ezabatzeko baieztapena eskatzen du */
   deleteHorario(horario: Horario): void {
     Swal.fire({
-      title: 'Ordutegia ezabatu?',
-      text: `Ziur zaude ordutegia hau ezabatu nahi duzula?`,
+      title: this.translate.instant('HORARIOS.DELETE_CONFIRM'),
+      text: this.translate.instant('HORARIOS.DELETE_TEXT'),
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Bai, ezabatu',
-      cancelButtonText: 'Ezeztatu',
+      confirmButtonText: this.translate.instant('COMMON.YES_DELETE'),
+      cancelButtonText: this.translate.instant('COMMON.CANCEL'),
     }).then((result) => {
       if (result.isConfirmed) {
         this.horariosService.deleteHorario(horario.id).subscribe({
           next: () => {
-            this.snackBar.open('Ordutegia ondo ezabatu da', 'Itxi', { duration: 3000 });
+            this.snackBar.open(this.translate.instant('HORARIOS.DELETED'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
             this.loadData();
           },
           error: (err) => {
             console.error('Errorea ordutegia ezabatzean:', err);
-            this.snackBar.open('Errorea ordutegia ezabatzean', 'Itxi', { duration: 3000 });
+            this.snackBar.open(this.translate.instant('HORARIOS.ERROR_DELETE'), this.translate.instant('COMMON.CLOSE'), { duration: 3000 });
           },
         });
       }
