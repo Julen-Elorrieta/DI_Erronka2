@@ -10,7 +10,9 @@ const app = express();
 const port = 3000;
 
 // IMPORTANTE: Cambia esto por una clave secreta única y segura
-const SECRET_KEY = 'mi-clave-super-secreta-2024-cambiar-en-produccion';
+const SECRET_KEY = 'jsfd87932ghjkc`pi289243bjkc7u0923hjkas6789089piqwebn12';
+
+const CENTERS_URL = 'http://19.5.104.100/ikastetxeak.json';
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -142,7 +144,7 @@ app.get('/centers', verifyToken, (req, res) => {
 
   if (type === 'filters') {
     axios
-      .get('http://localhost:8080/elorserv/api/ikastetxeak')
+      .get(CENTERS_URL)
       .then((response) => {
         const data = response.data.CENTROS;
         const titularidades = [...new Set(data.map((r) => r.DTITUC))];
@@ -155,7 +157,7 @@ app.get('/centers', verifyToken, (req, res) => {
   } else if (type === 'municipios') {
     const territorio = req.query.territorio;
     axios
-      .get('http://localhost:8080/elorserv/api/ikastetxeak')
+      .get(CENTERS_URL)
       .then((response) => {
         const data = response.data.CENTROS;
         let municipios = data.map((r) => r.DMUNIC);
@@ -208,7 +210,7 @@ app.get('/centers', verifyToken, (req, res) => {
     });
   } else {
     axios
-      .get('http://localhost:8080/elorserv/api/ikastetxeak')
+      .get(CENTERS_URL)
       .then((response) => {
         let data = response.data.CENTROS;
         if (req.query.titularidad) data = data.filter((r) => r.DTITUC === req.query.titularidad);
