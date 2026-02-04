@@ -64,7 +64,7 @@ export class Users implements OnInit {
   usersService: UsersService = inject(UsersService);
   router: Router = inject(Router);
 
-  // Validación de permisos
+  // Baimenen baliozkotzea
   currentUserRole = signal<UserRole | null>(null);
 
   constructor(
@@ -152,7 +152,7 @@ export class Users implements OnInit {
 
   clearFilters() {
     this.searchTerm = '';
-    this.selectedRole = ''; // Cambiamos a string vacío
+    this.selectedRole = ''; // Kate hutsa jarri
     this.filteredUsers.set(this.users);
     this.pageIndex = 0;
   }

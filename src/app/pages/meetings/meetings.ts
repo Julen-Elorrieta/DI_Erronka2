@@ -244,24 +244,24 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
     this.loadInitialData();
     this.setupFilterCascade();
 
-    // Suscribirse a los datos procesados para actualizar marcadores
+    // Prozesatutako datuetara harpidetu markatzaileak eguneratzeko
     this.mapMarkersUpdate$.subscribe((centers) => {
       if (this.map && this.mapInitialized$.value) {
         this.updateMapMarkers(centers);
       } else {
-        // Guardar los centros pendientes para cuando el mapa esté listo
+        // Zentroak gorde mapa prest dagoenean prozesatzeko
         this.pendingCentersForMarkers = centers;
       }
     });
   }
 
   ngAfterViewInit(): void {
-    // Inicializar el mapa después de que la vista esté lista
+    // Mapa hasieratu bista prest dagoenean
     this.ngZone.runOutsideAngular(() => {
       setTimeout(() => this.tryInitializeMap(), 100);
     });
 
-    // Cuando cambie a la pestaña del mapa, asegurar que se redimensione
+    // Mapa fitxara aldatzean, tamaina doitzen dela ziurtatu
     this.activeTab$
       .pipe(
         filter((tab) => tab === 0),
@@ -273,7 +273,7 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
           this.ngZone.runOutsideAngular(() => {
             setTimeout(() => {
               this.map?.resize();
-              // Volver a ajustar los bounds si hay marcadores
+              // Bounds-ak berriro doitu markatzaileak badaude
               if (this.markers.size > 0) {
                 const centers = this.centersSource$.value.filter((c) => this.markers.has(c.CCEN));
                 if (centers.length) this.fitMapBounds(centers);
@@ -281,7 +281,7 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
             }, 50);
           });
         } else {
-          // Si el mapa no existe, intentar inicializarlo
+          // Mapa ez badago, hasieratzen saiatu
           this.tryInitializeMap();
         }
       });
@@ -291,11 +291,11 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
 
-    // Limpiar marcadores
+    // Markatzaileak garbitu
     this.markers.forEach((marker) => marker.remove());
     this.markers.clear();
 
-    // Limpiar mapa
+    // Mapa garbitu
     if (this.map) {
       this.map.remove();
       this.map = null;
@@ -383,7 +383,7 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
       const date = new Date(fecha);
       return isNaN(date.getTime())
         ? '00:00'
-        : date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        : date.toLocaleTimeString('eu-ES', { hour: '2-digit', minute: '2-digit' });
     } catch {
       return '00:00';
     }
@@ -487,12 +487,12 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private tryInitializeMap(): void {
-    // Si ya está inicializado, no hacer nada
+    // Dagoeneko hasieratuta badago, ez egin ezer
     if (this.map && this.mapInitialized$.value) {
       return;
     }
 
-    // Si no hay contenedor, reintentar
+    // Kontainerra ez badago, berriro saiatu
     if (!this.mapContainer?.nativeElement) {
       this.mapInitAttempts++;
       if (this.mapInitAttempts < this.MAX_MAP_INIT_ATTEMPTS) {
@@ -503,7 +503,7 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    // Verificar que el contenedor tenga dimensiones
+    // Kontainerrak neurriak dituela egiaztatu
     const container = this.mapContainer.nativeElement;
     if (container.offsetWidth === 0 || container.offsetHeight === 0) {
       this.mapInitAttempts++;
@@ -518,7 +518,7 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
 
   private initializeMap(): void {
     if (this.map) {
-      // Si el mapa ya existe, solo redimensionar
+      // Mapa dagoeneko badago, tamaina bakarrik doitu
       this.map.resize();
       return;
     }
@@ -545,7 +545,7 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
           console.log('Mapbox mapa kargatuta');
           this.ngZone.run(() => {
             this.mapInitialized$.next(true);
-            // Procesar los centros pendientes
+            // Zain dauden zentroak prozesatu
             if (this.pendingCentersForMarkers.length > 0) {
               this.updateMapMarkers(this.pendingCentersForMarkers);
               this.pendingCentersForMarkers = [];
@@ -558,7 +558,7 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
           console.error('Mapbox errorea:', e);
         });
 
-        // Redimensionar cuando el mapa esté idle
+        // Mapa idle dagoenean tamaina doitu
         this.map.on('idle', () => {
           this.map?.resize();
         });
@@ -571,7 +571,7 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
 
   private updateMapMarkers(centers: Center[]): void {
     if (!this.map || !this.mapInitialized$.value) {
-      // Guardar para procesar después
+      // Gorde geroago prozesatzeko
       this.pendingCentersForMarkers = centers;
       return;
     }
@@ -589,7 +589,7 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
 
       const newIds = new Set(valid.map((c) => c.CCEN));
 
-      // Eliminar marcadores que ya no están
+      // Dagoeneko ez dauden markatzaileak ezabatu
       this.markers.forEach((marker, id) => {
         if (!newIds.has(id)) {
           marker.remove();
@@ -597,7 +597,7 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
         }
       });
 
-      // Añadir nuevos marcadores
+      // Markatzaile berriak gehitu
       valid.forEach((c) => {
         if (!this.markers.has(c.CCEN)) {
           const [lng, lat] = [c.LATITUD, c.LONGITUD]; // Mapbox [lng, lat] formatuan
@@ -620,9 +620,9 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
         }
       });
 
-      // Ajustar bounds si hay marcadores
+      // Bounds doitu markatzaileak badaude
       if (valid.length > 0) {
-        // Pequeño delay para asegurar que los marcadores están renderizados
+        // Atseden txikia markatzaileak errendatuta daudela ziurtatzeko
         setTimeout(() => this.fitMapBounds(valid), 100);
       }
     });
@@ -773,10 +773,10 @@ export class Meetings implements OnInit, AfterViewInit, OnDestroy {
     }
 
     if (center.LONGITUD && center.LATITUD) {
-      // Cambiar a la pestaña del mapa si no está activa
+      // Mapa fitxara aldatu aktibo ez badago
       if (this.activeTabSource$.value !== 0) {
         this.activeTabSource$.next(0);
-        // Esperar a que el tab cambie y el mapa se redimensione
+        // Itxaron fitxa aldatu eta mapa tamainaz aldatu arte
         setTimeout(() => {
           this.map?.flyTo({
             center: [center.LATITUD, center.LONGITUD],

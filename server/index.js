@@ -1,4 +1,4 @@
-// Backend Express con JWT para login con MySQL
+// Backend Express JWT-rekin login-erako MySQL-ekin
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql');
@@ -9,7 +9,7 @@ const jwt = require('jsonwebtoken');
 const app = express();
 const port = 3000;
 
-// IMPORTANTE: Cambia esto por una clave secreta única y segura
+// GARRANTZITSUA: Aldatu hau gako sekretu bakar eta seguru batekin
 const SECRET_KEY = 'jsfd87932ghjkc`pi289243bjkc7u0923hjkas6789089piqwebn12';
 
 const CENTERS_URL = 'http://19.5.104.100/ikastetxeak.json';
@@ -27,14 +27,14 @@ const connection = mysql.createConnection({
 
 connection.connect((err) => {
   if (err) {
-    console.error('Error conectando a MySQL:', err);
+    console.error('Errorea MySQL-ra konektatzean:', err);
   } else {
-    console.log('Conectado a MySQL correctamente');
+    console.log('MySQL-ra ongi konektatuta');
   }
 });
 
 // ============================================
-// MIDDLEWARE PARA VERIFICAR TOKEN JWT
+// JWT TOKENA EGIAZTATZEKO MIDDLEWARE-A
 // ============================================
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -56,7 +56,7 @@ const verifyToken = (req, res, next) => {
 };
 
 // ============================================
-// LOGIN - NO PROTEGIDO (genera el token)
+// LOGIN - BABESTU GABEA (tokena sortzen du)
 // ============================================
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
@@ -66,14 +66,14 @@ app.post('/login', (req, res) => {
     [username, password],
     (err, results) => {
       if (err) {
-        console.error('Error en login:', err);
+        console.error('Errorea login-ean:', err);
         return res.status(500).json({ success: false, error: 'DB error' });
       }
 
       if (results && results.length > 0) {
         const user = results[0];
 
-        // Generar token JWT válido por 8 horas
+        // 8 orduz baliozko JWT tokena sortu
         const token = jwt.sign(
           {
             id: user.id,
@@ -84,7 +84,7 @@ app.post('/login', (req, res) => {
           { expiresIn: '8h' },
         );
 
-        console.log('Login exitoso para:', user.username);
+        console.log('Login arrakastatsua:', user.username);
 
         res.json({
           success: true,
@@ -111,7 +111,7 @@ app.post('/login', (req, res) => {
 });
 
 // ============================================
-// VERIFICAR TOKEN - Endpoint para validar token
+// TOKENA EGIAZTATU - Tokena balidatzeko endpoint-a
 // ============================================
 app.get('/verify-token', verifyToken, (req, res) => {
   connection.query(
@@ -136,7 +136,7 @@ app.get('/verify-token', verifyToken, (req, res) => {
 });
 
 // ============================================
-// RUTAS PROTEGIDAS (requieren token válido)
+// BABESTUTAKO BIDEAK (token baliozkoa behar dute)
 // ============================================
 
 app.get('/centers', verifyToken, (req, res) => {
@@ -189,7 +189,7 @@ app.get('/centers', verifyToken, (req, res) => {
         return res.status(500).json({ success: false, error: 'DB error' });
       }
 
-      // Mapear y validar resultados - asegurar que todos los campos existen
+      // Emaitzak mapeatu eta balidatu - eremu guztiak existitzen direla ziurtatu
       const mappedResults = results.map((reunion) => ({
         id_reunion: reunion.id_reunion || null,
         titulo: reunion.titulo || null,
@@ -203,7 +203,7 @@ app.get('/centers', verifyToken, (req, res) => {
       }));
 
       console.log(
-        `📅 Devolviendo ${mappedResults.length} reuniones para usuario ${req.userId} (tipo: ${req.tipoId})`,
+        `📅 ${mappedResults.length} bilera itzultzen ${req.userId} erabiltzailearentzat (mota: ${req.tipoId})`,
       );
 
       res.json(mappedResults);
@@ -271,18 +271,18 @@ app.get('/filterUserByRole', verifyToken, (req, res) => {
 });
 
 // ============================================
-// ENDPOINTS DE SCHEDULE (HORARIOS)
+// ORDUTEGIEN ENDPOINT-AK
 // ============================================
 
 app.get('/schedule/:userId', verifyToken, (req, res) => {
   const userId = req.params.userId;
 
-  // Verificar permisos: solo puede ver su propio horario (excepto GOD/ADMIN)
+  // Baimenak egiaztatu: bere ordutegia bakarrik ikus dezake (GOD/ADMIN izan ezik)
   if (req.tipoId !== 1 && req.tipoId !== 2 && req.userId !== parseInt(userId)) {
-    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+    return res.status(403).json({ success: false, error: 'Ez duzu baimenik' });
   }
 
-  // Primero determinar el tipo de usuario
+  // Lehenik erabiltzaile mota zehaztu
   connection.query('SELECT tipo_id FROM users WHERE id = ?', [userId], (err, userResults) => {
     if (err || !userResults.length) {
       return res.status(500).json({ success: false, error: 'DB error' });
@@ -293,7 +293,7 @@ app.get('/schedule/:userId', verifyToken, (req, res) => {
     let params;
 
     if (userTipoId === 3) {
-      // PROFESOR: obtener horarios donde es profesor
+      // IRAKASLEA: irakaslea den ordutegiak lortu
       query = `SELECT h.id, h.dia, h.hora, h.profe_id, h.modulo_id, h.aula, h.observaciones,
                       m.nombre as subject, m.nombre_eus, c.nombre as cycle
                FROM horarios h
@@ -306,7 +306,7 @@ app.get('/schedule/:userId', verifyToken, (req, res) => {
                END, h.hora`;
       params = [userId];
     } else if (userTipoId === 4) {
-      // ALUMNO: obtener horarios basados en su matrícula (ciclo/curso)
+      // IKASLEA: matrikulan oinarritutako ordutegiak lortu (zikloa/kurtsoa)
       query = `SELECT DISTINCT h.id, h.dia, h.hora, h.profe_id, h.modulo_id, h.aula, h.observaciones,
                       m.nombre as subject, m.nombre_eus, c.nombre as cycle,
                       u.nombre as profesor_nombre
@@ -322,7 +322,7 @@ app.get('/schedule/:userId', verifyToken, (req, res) => {
                END, h.hora`;
       params = [userId];
     } else {
-      // GOD/ADMIN: sin horario propio, devolver vacío
+      // GOD/ADMIN: ordutegi propiorik gabe, hutsa itzuli
       return res.json({ userId: userId, slots: [] });
     }
 
@@ -332,7 +332,7 @@ app.get('/schedule/:userId', verifyToken, (req, res) => {
         return res.status(500).json({ success: false, error: 'DB error' });
       }
 
-      // Transformar resultados al formato esperado
+      // Emaitzak espero den formatura eraldatu
       const slots = results.map((row) => ({
         day: ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES'].indexOf(row.dia),
         hour: row.hora,
@@ -358,15 +358,15 @@ app.get('/schedule/:userId', verifyToken, (req, res) => {
 });
 
 // ============================================
-// ENDPOINTS DE MEETINGS
+// BILEREN ENDPOINT-AK
 // ============================================
 
 app.get('/meetings/user/:userId', verifyToken, (req, res) => {
   const userId = req.params.userId;
 
-  // Verificar permisos
+  // Baimenak egiaztatu
   if (req.tipoId !== 1 && req.tipoId !== 2 && req.userId !== parseInt(userId)) {
-    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+    return res.status(403).json({ success: false, error: 'Ez duzu baimenik' });
   }
 
   const query =
@@ -439,7 +439,7 @@ app.get('/countTeachers', verifyToken, (_req, res) => {
 });
 
 // ============================================
-// ENDPOINTS DE CICLOS (Degree programs)
+// ZIKLOEN ENDPOINT-AK (Heziketa zikloak)
 // ============================================
 
 app.get('/ciclos', verifyToken, (_req, res) => {
@@ -452,9 +452,9 @@ app.get('/ciclos', verifyToken, (_req, res) => {
 });
 
 app.post('/ciclos', verifyToken, (req, res) => {
-  // Solo ADMIN (tipo_id 2) y GOD (tipo_id 1)
+  // ADMIN (tipo_id 2) eta GOD (tipo_id 1) soilik
   if (req.tipoId !== 1 && req.tipoId !== 2) {
-    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+    return res.status(403).json({ success: false, error: 'Ez duzu baimenik' });
   }
 
   const { nombre } = req.body;
@@ -470,7 +470,7 @@ app.post('/ciclos', verifyToken, (req, res) => {
 
 app.put('/ciclos/:id', verifyToken, (req, res) => {
   if (req.tipoId !== 1 && req.tipoId !== 2) {
-    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+    return res.status(403).json({ success: false, error: 'Ez duzu baimenik' });
   }
 
   const { nombre } = req.body;
@@ -486,7 +486,7 @@ app.put('/ciclos/:id', verifyToken, (req, res) => {
 
 app.delete('/ciclos/:id', verifyToken, (req, res) => {
   if (req.tipoId !== 1 && req.tipoId !== 2) {
-    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+    return res.status(403).json({ success: false, error: 'Ez duzu baimenik' });
   }
 
   connection.query('DELETE FROM ciclos WHERE id = ?', [req.params.id], (err) => {
@@ -498,7 +498,7 @@ app.delete('/ciclos/:id', verifyToken, (req, res) => {
 });
 
 // ============================================
-// ENDPOINTS DE MÓDULOS
+// MODULUEN ENDPOINT-AK
 // ============================================
 
 app.get('/modulos', verifyToken, (_req, res) => {
@@ -516,7 +516,7 @@ app.get('/modulos', verifyToken, (_req, res) => {
 
 app.post('/modulos', verifyToken, (req, res) => {
   if (req.tipoId !== 1 && req.tipoId !== 2) {
-    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+    return res.status(403).json({ success: false, error: 'Ez duzu baimenik' });
   }
 
   const { nombre, nombre_eus, horas, ciclo_id, curso } = req.body;
@@ -533,7 +533,7 @@ app.post('/modulos', verifyToken, (req, res) => {
 
 app.put('/modulos/:id', verifyToken, (req, res) => {
   if (req.tipoId !== 1 && req.tipoId !== 2) {
-    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+    return res.status(403).json({ success: false, error: 'Ez duzu baimenik' });
   }
 
   const { nombre, nombre_eus, horas, ciclo_id, curso } = req.body;
@@ -550,7 +550,7 @@ app.put('/modulos/:id', verifyToken, (req, res) => {
 
 app.delete('/modulos/:id', verifyToken, (req, res) => {
   if (req.tipoId !== 1 && req.tipoId !== 2) {
-    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+    return res.status(403).json({ success: false, error: 'Ez duzu baimenik' });
   }
 
   connection.query('DELETE FROM modulos WHERE id = ?', [req.params.id], (err) => {
@@ -562,7 +562,7 @@ app.delete('/modulos/:id', verifyToken, (req, res) => {
 });
 
 // ============================================
-// ENDPOINTS DE HORARIOS
+// ORDUTEGIEN ENDPOINT-AK
 // ============================================
 
 app.get('/horarios', verifyToken, (req, res) => {
@@ -571,7 +571,7 @@ app.get('/horarios', verifyToken, (req, res) => {
                LEFT JOIN users u ON h.profe_id = u.id
                LEFT JOIN modulos m ON h.modulo_id = m.id`;
 
-  // Si es profesor, solo puede ver sus propios horarios
+  // Irakaslea bada, bere ordutegiak bakarrik ikus ditzake
   if (req.tipoId === 3) {
     query += ` WHERE h.profe_id = ${req.userId}`;
   }
@@ -590,7 +590,7 @@ app.get('/horarios', verifyToken, (req, res) => {
 
 app.post('/horarios', verifyToken, (req, res) => {
   if (req.tipoId !== 1 && req.tipoId !== 2) {
-    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+    return res.status(403).json({ success: false, error: 'Ez duzu baimenik' });
   }
 
   const { dia, hora, profe_id, modulo_id, aula, observaciones } = req.body;
@@ -607,7 +607,7 @@ app.post('/horarios', verifyToken, (req, res) => {
 
 app.put('/horarios/:id', verifyToken, (req, res) => {
   if (req.tipoId !== 1 && req.tipoId !== 2) {
-    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+    return res.status(403).json({ success: false, error: 'Ez duzu baimenik' });
   }
 
   const { dia, hora, profe_id, modulo_id, aula, observaciones } = req.body;
@@ -628,7 +628,7 @@ app.put('/horarios/:id', verifyToken, (req, res) => {
 
 app.delete('/horarios/:id', verifyToken, (req, res) => {
   if (req.tipoId !== 1 && req.tipoId !== 2) {
-    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+    return res.status(403).json({ success: false, error: 'Ez duzu baimenik' });
   }
 
   connection.query('DELETE FROM horarios WHERE id = ?', [req.params.id], (err) => {
@@ -640,7 +640,7 @@ app.delete('/horarios/:id', verifyToken, (req, res) => {
 });
 
 // ============================================
-// ENDPOINTS DE MATRICULACIONES
+// MATRIKULAZIOEN ENDPOINT-AK
 // ============================================
 
 app.get('/matriculaciones', verifyToken, (req, res) => {
@@ -649,7 +649,7 @@ app.get('/matriculaciones', verifyToken, (req, res) => {
                LEFT JOIN users u ON m.alum_id = u.id
                LEFT JOIN ciclos c ON m.ciclo_id = c.id`;
 
-  // Si es alumno, solo puede ver sus matriculaciones
+  // Ikaslea bada, bere matrikulazioak bakarrik ikus ditzake
   if (req.tipoId === 4) {
     query += ` WHERE m.alum_id = ${req.userId}`;
   }
@@ -664,7 +664,7 @@ app.get('/matriculaciones', verifyToken, (req, res) => {
 
 app.post('/matriculaciones', verifyToken, (req, res) => {
   if (req.tipoId !== 1 && req.tipoId !== 2) {
-    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+    return res.status(403).json({ success: false, error: 'Ez duzu baimenik' });
   }
 
   const { alum_id, ciclo_id, curso, fecha } = req.body;
@@ -680,7 +680,7 @@ app.post('/matriculaciones', verifyToken, (req, res) => {
 
 app.put('/matriculaciones/:id', verifyToken, (req, res) => {
   if (req.tipoId !== 1 && req.tipoId !== 2) {
-    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+    return res.status(403).json({ success: false, error: 'Ez duzu baimenik' });
   }
 
   const { alum_id, ciclo_id, curso, fecha } = req.body;
@@ -697,7 +697,7 @@ app.put('/matriculaciones/:id', verifyToken, (req, res) => {
 
 app.delete('/matriculaciones/:id', verifyToken, (req, res) => {
   if (req.tipoId !== 1 && req.tipoId !== 2) {
-    return res.status(403).json({ success: false, error: 'No tienes permisos' });
+    return res.status(403).json({ success: false, error: 'Ez duzu baimenik' });
   }
 
   connection.query('DELETE FROM matriculaciones WHERE id = ?', [req.params.id], (err) => {
@@ -709,5 +709,5 @@ app.delete('/matriculaciones/:id', verifyToken, (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Servidor backend escuchando en http://localhost:${port}`);
+  console.log(`Backend zerbitzaria entzuten http://localhost:${port}`);
 });

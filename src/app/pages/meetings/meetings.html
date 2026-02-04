@@ -227,7 +227,7 @@
           @if (loadingMeetings$ | async) {
             <div class="loading-container">
               <mat-spinner diameter="50"></mat-spinner>
-              <p style="margin-top: 16px; color: rgba(0, 0, 0, 0.6)">Cargando reuniones...</p>
+              <p style="margin-top: 16px; color: rgba(0, 0, 0, 0.6)">Bilerak kargatzen...</p>
             </div>
           } @else {
             @if (meetings$ | async; as meetings) {
@@ -236,7 +236,7 @@
                   <mat-icon>event_busy</mat-icon>
                   <p>{{ 'MEETING.NO_MEETINGS' | translate }}</p>
                   <small style="margin-top: 8px; color: rgba(0, 0, 0, 0.5)"
-                    >No tienes reuniones programadas</small
+                    >Ez dituzu bilerarik programatuta</small
                   >
                 </div>
               } @else {
@@ -261,12 +261,12 @@
                         <div class="meeting-meta">
                           @if (meeting.teacherId) {
                             <span class="meta-badge">
-                              <mat-icon>person</mat-icon> Profesor ID: {{ meeting.teacherId }}
+                              <mat-icon>person</mat-icon> Irakasle ID: {{ meeting.teacherId }}
                             </span>
                           }
                           @if (meeting.studentId) {
                             <span class="meta-badge">
-                              <mat-icon>school</mat-icon> Alumno ID: {{ meeting.studentId }}
+                              <mat-icon>school</mat-icon> Ikasle ID: {{ meeting.studentId }}
                             </span>
                           }
                         </div>
@@ -278,12 +278,12 @@
                           </span>
                         </div>
 
-                        <!-- ✅ Botones de acción según el estado (ENUM: pendiente, aceptada, denegada, conflicto) -->
+                        <!-- ✅ Egoeraren araberako ekintza botoiak (ENUM: pendiente, aceptada, denegada, conflicto) -->
                         @if (canChangeStatus(meeting)) {
                           <button
                             mat-icon-button
                             [matMenuTriggerFor]="statusMenu"
-                            matTooltip="Cambiar estado"
+                            matTooltip="Egoera aldatu"
                             class="status-menu-button"
                           >
                             <mat-icon>more_vert</mat-icon>

@@ -145,7 +145,7 @@ export class ProfileComponent implements OnInit {
 
   saveProfile(): void {
     if (this.profileForm.valid && this.user()) {
-      // TODO: Usar UsersService para actualizar
+      // TODO: UsersService erabili eguneratzeko
       // this.usersService.updateUser(this.user()!.id, updatedUser).subscribe({
       //   next: (user) => {
       //     this.user.set(user);
@@ -155,7 +155,7 @@ export class ProfileComponent implements OnInit {
       //   error: () => this.showError(this.translate.instant('ERROR.UPDATING_PROFILE'))
       // });
 
-      // Por ahora, solo mostramos un mensaje
+      // Oraingoz, mezua bakarrik erakusten dugu
       this.editing.set(false);
       this.showSuccess(this.translate.instant('SUCCESS.PROFILE_UPDATED'));
     }
@@ -200,11 +200,11 @@ export class ProfileComponent implements OnInit {
       case 'CLASS':
         return `${slot.subject || ''} ${slot.course || ''}`.trim();
       case 'TUTORIA':
-        return 'Tutoría';
+        return 'Tutoritza';
       case 'GUARDIA':
         return 'Guardia';
       case 'MEETING':
-        return `Reunión #${slot.meetingId}`;
+        return `Bilera #${slot.meetingId}`;
       default:
         return '';
     }
