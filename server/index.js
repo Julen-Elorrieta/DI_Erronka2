@@ -9,7 +9,6 @@ const jwt = require('jsonwebtoken');
 const app = express();
 const port = 3000;
 
-// GARRANTZITSUA: Aldatu hau gako sekretu bakar eta seguru batekin
 const SECRET_KEY = 'jsfd87932ghjkc`pi289243bjkc7u0923hjkas6789089piqwebn12';
 
 const CENTERS_URL = 'http://10.5.104.100/ikastetxeak.json';
@@ -203,7 +202,7 @@ app.get('/centers', verifyToken, (req, res) => {
       }));
 
       console.log(
-        `📅 ${mappedResults.length} bilera itzultzen ${req.userId} erabiltzailearentzat (mota: ${req.tipoId})`,
+        `${mappedResults.length} bilera itzultzen ${req.userId} erabiltzailearentzat (mota: ${req.tipoId})`,
       );
 
       res.json(mappedResults);
