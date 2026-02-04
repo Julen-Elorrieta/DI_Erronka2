@@ -36,17 +36,22 @@ import Swal from 'sweetalert2';
     <div class="container">
       <div class="header">
         <h1>{{ 'CICLOS' | translate }}</h1>
-        <button mat-raised-button color="primary" (click)="openNewDialog()" *ngIf="isAdmin()">
-          <mat-icon>add</mat-icon>
-          {{ 'COMMON.ADD' | translate }}
-        </button>
+        @if (isAdmin()) {
+          <button mat-raised-button color="primary" (click)="openNewDialog()">
+            <mat-icon>add</mat-icon>
+            {{ 'COMMON.ADD' | translate }}
+          </button>
+        }
       </div>
 
-      <div *ngIf="loading()" class="loading">
-        <mat-spinner></mat-spinner>
-      </div>
+      @if (loading()) {
+        <div class="loading">
+          <mat-spinner></mat-spinner>
+        </div>
+      }
 
-      <table mat-table [dataSource]="ciclos()" class="ciclos-table" *ngIf="!loading()">
+      @if (!loading()) {
+        <table mat-table [dataSource]="ciclos()" class="ciclos-table">
         <ng-container matColumnDef="id">
           <th mat-header-cell *matHeaderCellDef>ID</th>
           <td mat-cell *matCellDef="let element">{{ element.id }}</td>
@@ -57,8 +62,9 @@ import Swal from 'sweetalert2';
           <td mat-cell *matCellDef="let element">{{ element.nombre }}</td>
         </ng-container>
 
-        <ng-container matColumnDef="actions" *ngIf="isAdmin()">
-          <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.ACTIONS' | translate }}</th>
+        @if (isAdmin()) {
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.ACTIONS' | translate }}</th>
           <td mat-cell *matCellDef="let element">
             <button mat-icon-button (click)="editCiclo(element)">
               <mat-icon>edit</mat-icon>
@@ -67,11 +73,13 @@ import Swal from 'sweetalert2';
               <mat-icon>delete</mat-icon>
             </button>
           </td>
-        </ng-container>
+          </ng-container>
+        }
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-      </table>
+        </table>
+      }
     </div>
   `,
   styles: [

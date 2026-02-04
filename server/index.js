@@ -12,7 +12,7 @@ const port = 3000;
 // GARRANTZITSUA: Aldatu hau gako sekretu bakar eta seguru batekin
 const SECRET_KEY = 'jsfd87932ghjkc`pi289243bjkc7u0923hjkas6789089piqwebn12';
 
-const CENTERS_URL = 'http://19.5.104.100/ikastetxeak.json';
+const CENTERS_URL = 'http://10.5.104.100/ikastetxeak.json';
 
 app.use(cors());
 app.use(bodyParser.json());
