@@ -1,7 +1,5 @@
-/* You can add global styles to this file, and also import other style files */
 @import '@angular/material/prebuilt-themes/azure-blue.css';
 
-/* Elorrieta-ErrekaMarí Colores Corporativos */
 :root {
   --primary-color: #004d99;
   --primary-dark: #003366;
@@ -33,7 +31,6 @@ body {
   background-color: var(--background-color);
 }
 
-/* Personalización Material Theme */
 .mat-mdc-raised-button.mat-primary {
   background-color: var(--primary-color) !important;
 }
@@ -52,7 +49,6 @@ body {
   border-radius: 8px !important;
 }
 
-/* Utilidades */
 .full-width {
   width: 100%;
 }
