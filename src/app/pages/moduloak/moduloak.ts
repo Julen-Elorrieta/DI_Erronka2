@@ -53,47 +53,47 @@ import Swal from 'sweetalert2';
 
       @if (!loading()) {
         <table mat-table [dataSource]="modulos()" class="modulos-table">
-        <ng-container matColumnDef="nombre">
-          <th mat-header-cell *matHeaderCellDef>{{ 'MODULOS.NOMBRE' | translate }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.nombre }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="nombre_eus">
-          <th mat-header-cell *matHeaderCellDef>{{ 'MODULOS.BASQUE' | translate }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.nombre_eus }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="horas">
-          <th mat-header-cell *matHeaderCellDef>{{ 'MODULOS.HORAS' | translate }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.horas }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="ciclo">
-          <th mat-header-cell *matHeaderCellDef>{{ 'CICLOS' | translate }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.ciclo_nombre }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="curso">
-          <th mat-header-cell *matHeaderCellDef>{{ 'MODULOS.CURSO' | translate }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.curso }}</td>
-        </ng-container>
-
-        @if (isAdmin()) {
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.ACTIONS' | translate }}</th>
-          <td mat-cell *matCellDef="let element">
-            <button mat-icon-button (click)="editModulo(element)">
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button mat-icon-button (click)="deleteModulo(element)">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </td>
+          <ng-container matColumnDef="nombre">
+            <th mat-header-cell *matHeaderCellDef>{{ 'MODULOS.NOMBRE' | translate }}</th>
+            <td mat-cell *matCellDef="let element">{{ element.nombre }}</td>
           </ng-container>
-        }
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          <ng-container matColumnDef="nombre_eus">
+            <th mat-header-cell *matHeaderCellDef>{{ 'MODULOS.BASQUE' | translate }}</th>
+            <td mat-cell *matCellDef="let element">{{ element.nombre_eus }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="horas">
+            <th mat-header-cell *matHeaderCellDef>{{ 'MODULOS.HORAS' | translate }}</th>
+            <td mat-cell *matCellDef="let element">{{ element.horas }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="ciclo">
+            <th mat-header-cell *matHeaderCellDef>{{ 'CICLOS' | translate }}</th>
+            <td mat-cell *matCellDef="let element">{{ element.ciclo_nombre }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="curso">
+            <th mat-header-cell *matHeaderCellDef>{{ 'MODULOS.CURSO' | translate }}</th>
+            <td mat-cell *matCellDef="let element">{{ element.curso }}</td>
+          </ng-container>
+
+          @if (isAdmin()) {
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.ACTIONS' | translate }}</th>
+              <td mat-cell *matCellDef="let element">
+                <button mat-icon-button (click)="editModulo(element)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button (click)="deleteModulo(element)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+          }
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
         </table>
       }
     </div>

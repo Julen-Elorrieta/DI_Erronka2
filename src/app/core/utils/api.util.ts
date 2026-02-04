@@ -7,7 +7,6 @@ import { environment } from '../../../environments/environment';
 export class ApiUtil {
   /**
    * APIaren oinarrizko URLa eskuratzen du environment-etik
-   * @returns APIaren URLa
    */
   static getApiUrl(): string {
     return Array.isArray(environment.apiUrl) ? environment.apiUrl.join('') : environment.apiUrl;
@@ -15,9 +14,6 @@ export class ApiUtil {
 
   /**
    * API URL osoa eraikitzen du endpoint-arekin
-   * @param endpoint - APIaren endpoint-a (adib: '/users', '/meetings')
-   * @param params - Query parametro aukerakoak
-   * @returns URL osoa
    */
   static buildUrl(endpoint: string, params?: Record<string, any>): string {
     const baseUrl = this.getApiUrl();

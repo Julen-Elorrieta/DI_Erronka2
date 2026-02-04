@@ -52,32 +52,32 @@ import Swal from 'sweetalert2';
 
       @if (!loading()) {
         <table mat-table [dataSource]="ciclos()" class="ciclos-table">
-        <ng-container matColumnDef="id">
-          <th mat-header-cell *matHeaderCellDef>ID</th>
-          <td mat-cell *matCellDef="let element">{{ element.id }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="nombre">
-          <th mat-header-cell *matHeaderCellDef>{{ 'CICLOS.NOMBRE' | translate }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.nombre }}</td>
-        </ng-container>
-
-        @if (isAdmin()) {
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.ACTIONS' | translate }}</th>
-          <td mat-cell *matCellDef="let element">
-            <button mat-icon-button (click)="editCiclo(element)">
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button mat-icon-button (click)="deleteCiclo(element)">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </td>
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef>ID</th>
+            <td mat-cell *matCellDef="let element">{{ element.id }}</td>
           </ng-container>
-        }
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          <ng-container matColumnDef="nombre">
+            <th mat-header-cell *matHeaderCellDef>{{ 'CICLOS.NOMBRE' | translate }}</th>
+            <td mat-cell *matCellDef="let element">{{ element.nombre }}</td>
+          </ng-container>
+
+          @if (isAdmin()) {
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.ACTIONS' | translate }}</th>
+              <td mat-cell *matCellDef="let element">
+                <button mat-icon-button (click)="editCiclo(element)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button (click)="deleteCiclo(element)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+          }
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
         </table>
       }
     </div>

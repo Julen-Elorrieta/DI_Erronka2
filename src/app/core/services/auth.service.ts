@@ -65,7 +65,6 @@ export class AuthService {
 
   /**
    * Tokena backend-ean egiaztatzen du
-   * @returns Observable<boolean> tokena baliozkoa den ala ez
    */
   verifyToken(): Observable<boolean> {
     const token = localStorage.getItem('token');

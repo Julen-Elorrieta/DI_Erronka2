@@ -12,8 +12,6 @@ export class ScheduleService {
 
   /**
    * Erabiltzaile baten ordutegia eskuratzen du
-   * @param userId Erabiltzailearen IDa
-   * @returns Observable erabiltzailearen ordutegiarekin
    */
   getUserSchedule(userId: number): Observable<Schedule> {
     return this.http.get<Schedule>(ApiUtil.buildUrl(`/schedule/${userId}`));

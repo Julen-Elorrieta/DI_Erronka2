@@ -59,47 +59,43 @@ interface Usuario {
       }
 
       @if (!loading()) {
-        <table
-          mat-table
-          [dataSource]="matriculaciones()"
-          class="matriculaciones-table"
-        >
-        <ng-container matColumnDef="alumno">
-          <th mat-header-cell *matHeaderCellDef>{{ 'USUARIOS.ALUMNO' | translate }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.alumno_nombre }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="ciclo">
-          <th mat-header-cell *matHeaderCellDef>{{ 'CICLOS' | translate }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.ciclo_nombre }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="curso">
-          <th mat-header-cell *matHeaderCellDef>{{ 'MODULOS.CURSO' | translate }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.curso }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="fecha">
-          <th mat-header-cell *matHeaderCellDef>{{ 'MATRICULACIONES.FECHA' | translate }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.fecha | date: 'dd/MM/yyyy' }}</td>
-        </ng-container>
-
-        @if (isAdmin()) {
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.ACTIONS' | translate }}</th>
-          <td mat-cell *matCellDef="let element">
-            <button mat-icon-button (click)="editMatriculacion(element)">
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button mat-icon-button (click)="deleteMatriculacion(element)">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </td>
+        <table mat-table [dataSource]="matriculaciones()" class="matriculaciones-table">
+          <ng-container matColumnDef="alumno">
+            <th mat-header-cell *matHeaderCellDef>{{ 'USUARIOS.ALUMNO' | translate }}</th>
+            <td mat-cell *matCellDef="let element">{{ element.alumno_nombre }}</td>
           </ng-container>
-        }
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          <ng-container matColumnDef="ciclo">
+            <th mat-header-cell *matHeaderCellDef>{{ 'CICLOS' | translate }}</th>
+            <td mat-cell *matCellDef="let element">{{ element.ciclo_nombre }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="curso">
+            <th mat-header-cell *matHeaderCellDef>{{ 'MODULOS.CURSO' | translate }}</th>
+            <td mat-cell *matCellDef="let element">{{ element.curso }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="fecha">
+            <th mat-header-cell *matHeaderCellDef>{{ 'MATRICULACIONES.FECHA' | translate }}</th>
+            <td mat-cell *matCellDef="let element">{{ element.fecha | date: 'dd/MM/yyyy' }}</td>
+          </ng-container>
+
+          @if (isAdmin()) {
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>{{ 'COMMON.ACTIONS' | translate }}</th>
+              <td mat-cell *matCellDef="let element">
+                <button mat-icon-button (click)="editMatriculacion(element)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button (click)="deleteMatriculacion(element)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+          }
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
         </table>
       }
     </div>

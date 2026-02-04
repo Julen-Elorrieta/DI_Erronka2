@@ -12,8 +12,6 @@ export class UsersService {
 
   /**
    * Erabiltzaileak iragazten ditu rolaren arabera
-   * @param tipoId Erabiltzaile mota/rol IDa
-   * @returns Observable rolaren erabiltzaileekin
    */
   filterUserByRole(tipoId: number): Observable<User[]> {
     return this.http.get<User[]>(ApiUtil.buildUrl('/filterUserByRole', { tipo_id: tipoId }));
